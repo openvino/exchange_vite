@@ -1,0 +1,143 @@
+:root {
+    --primary-color: #d5841b;
+    --secondary-color: #9a999e;
+  
+    --primary-text-color: #141414;
+  
+    --background-color: rgb(255, 255, 255);
+    --background-gray: rgb(243, 243, 243);
+  }
+  
+  @font-face {
+    font-family: "Futura";
+    src: url("/fonts/Futura-Light.ttf");
+    font-weight: 300;
+  }
+  
+  @font-face {
+    font-family: "Futura";
+    src: url("/fonts/Futura-Medium.ttf");
+    font-weight: 500;
+  }
+  
+  @font-face {
+    font-family: "Futura";
+    src: url("/fonts/Futura-Bold.ttf");
+    font-weight: 700;
+  }
+  
+  * {
+    font-family: "Futura", Helvetica, Arial, sans-serif;
+  }
+  
+  h2 {
+    font-size: 36px;
+    line-height: 42px;
+  }
+  
+  h3 {
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: bold;
+  }
+  
+  h4 {
+    font-size: 18px;
+    color: var(--primary-color);
+  }
+  
+  h5 {
+    font-size: 1rem;
+    color: var(--primary-color);
+  }
+  
+  p {
+    font-size: 16px;
+  }
+  
+  .primary-btn {
+    margin: 8px;
+    padding: 8px;
+    max-width: 100%;
+    width: 200px;
+    align-self: center;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--primary-color);
+    font-size: 1rem;
+    text-align: center;
+    color: #ffffff;
+    cursor: pointer;
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+  
+  .primary-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .secondary-btn {
+    margin: 8px;
+    padding: 8px;
+    max-width: 100%;
+    width: 200px;
+    align-self: center;
+    border: none;
+    border-radius: 5px;
+    background-color: transparent;
+    font-size: 1rem;
+    text-align: center;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    cursor: pointer;
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+  
+  .secondary-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .expandable-btn {
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    align-self: center;
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    text-align: center;
+    color: #1b1b1b;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .expandable-btn i {
+    padding: 0;
+  }
+  
+  .empty-state-img {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 0;
+    opacity: 0.5;
+  
+    img {
+      width: 4%;
+      padding-bottom: 10px;
+      @media (max-width: 1084px) {
+        width: 6%;
+      }
+      @media (max-width: 496px) {
+        width: 10%;
+      }
+    }
+  }
+  
+  /* Importing Bootstrap SCSS file. */
+  @import '~bootstrap/scss/bootstrap';
+  
