@@ -102,5 +102,3 @@ yarn serve
 
 This project is licensed under the MIT License.
 ```
-
-This code block can be copied directly into your `README.md`.
