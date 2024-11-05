@@ -76,10 +76,25 @@ export default function Main() {
     // setProduct(productsWineries.data);
   };
 
-  useEffect(() => {
-    getProductList();
+ useEffect(() => {
+  // Limpiar estado anterior antes de actualizar
+  setState((prevState) => ({
+    ...prevState,
+    tokenName: "",
+    crowdsaleAddress: "",
+    networkId: "",
+    tokenAddress: "",
+    image: "",
+    tokenYear: "",
+    tokenIcon: "",
+  }));
+  setUSDExchangeRateETH(undefined);
+  setUSDExchangeRateSelectedToken(undefined);
+  setDollarPrice(undefined);
 
-  }, []);
+  // Obtener el nuevo producto
+  getProductList();
+}, [productId, wineryId]);
 
   const [showFarming, setShowFarming] = useState(false);
 
@@ -132,13 +147,6 @@ export default function Main() {
     state?.tokenAddress,
     refreshTrigger
   );
-
-  // const reserveWINESETH = useReserves(pairMTBwETH)["0"];
-  // const reserveWINESToken = useReserves(pairMTBwETH)["1"];
-
-
-  // const reserveWINESETH = useReserves(pairMTBwETH)["1"];
-  // const reserveWINESToken = useReserves(pairMTBwETH)["0"];
 
   const { reserves, token0, token1 } = useReserves(pairMTBwETH);
 
@@ -304,7 +312,7 @@ export default function Main() {
 
   //Pool price
   useEffect(() => {
-    if(USDExchangeRateETH, reserveWINESETH, reserveWINESToken) {
+    if(USDExchangeRateETH && reserveWINESETH&& reserveWINESToken ) {
       try {
         setLoadingPrice(true);
         const WINESExchangeRateETH = getExchangeRate(
