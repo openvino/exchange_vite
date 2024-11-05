@@ -295,7 +295,7 @@ export default function Main() {
   function _dollarize(amount, exchangeRate) {
     if (exchangeRate) {
       return amount
-        .mul(exchangeRate)
+        ?.mul(exchangeRate)
         .div(BigNumber.from(10).pow(BigNumber.from(18)));
     }
 
@@ -545,7 +545,7 @@ export default function Main() {
             )}
             {!isCrowdsale && !loadingPrice && (
               <CurrentPrice>
-                {!state.loading && (
+                {!state.loading && state.validationState && (
                   `$${amountFormatter(dollarize(state.validationState), 18, 2)} USDC`
                 )}
 

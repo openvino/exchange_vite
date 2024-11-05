@@ -277,16 +277,15 @@ export function amountFormatter(
 }
 
 export function calculateSlippageBounds(value) {
-  const offset = value
-    .mul(ALLOWED_SLIPPAGE)
+  const offset = value?.mul(ALLOWED_SLIPPAGE)
     .div(BigNumber.from(10000));
-  const minimum = value.sub(offset);
-  const maximum = value.add(offset);
+  const minimum = value?.sub(offset);
+  const maximum = value?.add(offset);
   return {
-    minimum: minimum.lt(ethers.constants.Zero)
+    minimum: minimum?.lt(ethers.constants.Zero)
       ? ethers.constants.Zero
       : minimum,
-    maximum: maximum.gt(ethers.constants.MaxUint256)
+    maximum: maximum?.gt(ethers.constants.MaxUint256)
       ? ethers.constants.MaxUint256
       : maximum,
   };
@@ -298,10 +297,10 @@ export function calculateEtherTokenOutputFromInput(
   inputReserve,
   outputReserve
 ) {
-  const inputAmountWithFee = inputAmount.mul(BigNumber.from(997));
-  const numerator = inputAmountWithFee.mul(outputReserve);
+  const inputAmountWithFee = inputAmount?.mul(BigNumber.from(997));
+  const numerator = inputAmountWithFee?.mul(outputReserve);
   const denominator = inputReserve
-    .mul(BigNumber.from(1000))
+    ?.mul(BigNumber.from(1000))
     .add(inputAmountWithFee);
   return numerator.div(denominator);
 }
@@ -313,12 +312,12 @@ export function calculateEtherTokenInputFromOutput(
   outputReserve
 ) {
   const numerator = inputReserve
-    .mul(outputAmount)
+    ?.mul(outputAmount)
     .mul(BigNumber.from(1000));
   const denominator = outputReserve
-    .sub(outputAmount)
+    ?.sub(outputAmount)
     .mul(BigNumber.from(997));
-  return numerator.div(denominator).add(ethers.constants.One);
+  return numerator?.div(denominator).add(ethers.constants.One);
 }
 
 // get exchange rate for a token/ETH pair
@@ -332,7 +331,7 @@ export function getExchangeRate(inputValue, outputValue, invert = false) {
 
     if (invert) {
       return inputValue
-        .mul(factor)
+        ?.mul(factor)
         .div(outputValue)
         .mul(
           BigNumber.from(10)
@@ -344,7 +343,7 @@ export function getExchangeRate(inputValue, outputValue, invert = false) {
         );
     } else {
       return outputValue
-        .mul(factor)
+        ?.mul(factor)
         .div(inputValue)
         .mul(
           BigNumber.from(10)
@@ -391,10 +390,10 @@ export function calculateAmount(
       reserveWINESToken
     );
     if (
-      amount.lte(ethers.constants.Zero) ||
-      amount.gte(ethers.constants.MaxUint256)
+      amount?.lte(ethers.constants.Zero) ||
+      amount?.gte(ethers.constants.MaxUint256)
     ) {
-      throw Error();
+      // throw Error();
     }
     return amount;
   }
@@ -413,7 +412,7 @@ export function calculateAmount(
       amount.lte(ethers.constants.Zero) ||
       amount.gte(ethers.constants.MaxUint256)
     ) {
-      throw Error();
+      // throw Error();
     }
 
     return amount;
@@ -434,7 +433,7 @@ export function calculateAmount(
       intermediateValue.lte(ethers.constants.Zero) ||
       intermediateValue.gte(ethers.constants.MaxUint256)
     ) {
-      throw Error();
+      // throw Error();
     }
     // tokens needed to buy x eth
     const amount = calculateEtherTokenInputFromOutput(
@@ -446,7 +445,7 @@ export function calculateAmount(
       amount.lte(ethers.constants.Zero) ||
       amount.gte(ethers.constants.MaxUint256)
     ) {
-      throw Error();
+      // throw Error();
     }
     return amount;
   } else {
@@ -460,7 +459,7 @@ export function calculateAmount(
       intermediateValue.lte(ethers.constants.Zero) ||
       intermediateValue.gte(ethers.constants.MaxUint256)
     ) {
-      throw Error();
+      // throw Error();
     }
     // tokens yielded from selling x eth
     const amount = calculateEtherTokenOutputFromInput(
@@ -472,7 +471,7 @@ export function calculateAmount(
       amount.lte(ethers.constants.Zero) ||
       amount.gte(ethers.constants.MaxUint256)
     ) {
-      throw Error();
+      // throw Error();
     }
     return amount;
   }
