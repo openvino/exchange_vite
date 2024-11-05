@@ -133,7 +133,7 @@ export default function BuyAndSell({
   setShowConnect,
   setRefreshTrigger
 }) {
-  const [state] = useAppContext();
+  const [state, setState] = useAppContext();
   // const { account, setConnector } = useWeb3Context();
   const account = useActiveAccount();
 
@@ -194,7 +194,7 @@ export default function BuyAndSell({
 
   // buy state validation
   useEffect(() => {
-    if (ready && buying) {
+  
       try {
         const { error: validationError, ...validationState } = validateBuy(
           String(state.count)
@@ -210,8 +210,17 @@ export default function BuyAndSell({
         setBuyValidationState({});
         setValidationError(error);
       }
-    }
-  }, [ready, buying, validateBuy, state.count]);
+  
+  }, [ buying, validateBuy, state.count]);
+
+
+  useEffect(() => {
+    const { error: validationError, ...validationState } = validateBuy(
+      String(state.count)
+    );
+    setState((state) => ({ ...state, validationState: validationState.inputValue, loading:false }));
+
+  }, [ buying, validateBuy]);
 
   // sell state validation
   useEffect(() => {
@@ -220,7 +229,7 @@ export default function BuyAndSell({
         const { error: validationError, ...validationState } = validateSell(
           String(state.count)
         );
-        
+
         setSellValidationState(validationState);
         setValidationError(validationError || null);
 
@@ -257,18 +266,19 @@ export default function BuyAndSell({
 
 
   let shouldRenderUnlock =
-  validationError &&
-  validationError.code === ERROR_CODES.INSUFFICIENT_ALLOWANCE;
+    validationError &&
+    validationError.code === ERROR_CODES.INSUFFICIENT_ALLOWANCE;
 
   // const [shouldRenderUnlock, setShouldRenderUnlock] = useState(shouldRenderUnlockBool)
 
- 
+
 
   const errorMessage = getValidationErrorMessage(validationError);
 
   function renderFormData() {
     let conditionalRender;
     if (buying && buyValidationState.inputValue) {
+
       conditionalRender = (
         <>
           <p>
@@ -471,8 +481,8 @@ export default function BuyAndSell({
               if (response.status === "success") {
                 setCurrentTransaction(response.transactionHash, TRADE_TYPES.UNLOCK, undefined);
                 setRefreshTrigger((prev) => prev + 1);
-             
-                
+
+
               }
             }}
             transaction={() =>

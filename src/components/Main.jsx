@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Checkout from "./checkout/Checkout";
+import BeatLoader from "react-spinners/BeatLoader";
 import { useAppContext } from "../context";
 import { TradeButtons } from "./shared/TradeButtons";
 import { BigNumber, ethers } from "ethers";
@@ -70,31 +71,33 @@ export default function Main() {
       tokenIcon: filterProduct[0].token_icon,
       title: "Token",
       shippingAccount: filterProduct[0].shipping_account,
+      validationState: undefined,
+      loading: true
     }))
 
 
     // setProduct(productsWineries.data);
   };
 
- useEffect(() => {
-  // Limpiar estado anterior antes de actualizar
-  setState((prevState) => ({
-    ...prevState,
-    tokenName: "",
-    crowdsaleAddress: "",
-    networkId: "",
-    tokenAddress: "",
-    image: "",
-    tokenYear: "",
-    tokenIcon: "",
-  }));
-  setUSDExchangeRateETH(undefined);
-  setUSDExchangeRateSelectedToken(undefined);
-  setDollarPrice(undefined);
+  useEffect(() => {
+    // Limpiar estado anterior antes de actualizar
+    setState((prevState) => ({
+      ...prevState,
+      tokenName: "",
+      crowdsaleAddress: "",
+      networkId: "",
+      tokenAddress: "",
+      image: "",
+      tokenYear: "",
+      tokenIcon: "",
+    }));
+    setUSDExchangeRateETH(undefined);
+    setUSDExchangeRateSelectedToken(undefined);
+    setDollarPrice(undefined);
 
-  // Obtener el nuevo producto
-  getProductList();
-}, [productId, wineryId]);
+    // Obtener el nuevo producto
+    getProductList();
+  }, [productId, wineryId]);
 
   const [showFarming, setShowFarming] = useState(false);
 
@@ -181,7 +184,7 @@ export default function Main() {
   useEffect(() => {
     const fetchPriceAndSetState = async () => {
       try {
-     
+
         const usdPrice = await fetchPrice();
         const formatedUsdPrice = usdPrice.split('.')[0];
         const exchangeRateDAI = getExchangeRate(BigNumber.from(1), BigNumber.from(Number(formatedUsdPrice)));
@@ -207,7 +210,7 @@ export default function Main() {
         console.log(error);
         setUSDExchangeRateETH();
         setUSDExchangeRateSelectedToken();
-      } 
+      }
     }
 
     fetchPriceAndSetState();
@@ -312,7 +315,7 @@ export default function Main() {
 
   //Pool price
   useEffect(() => {
-    if(USDExchangeRateETH && reserveWINESETH&& reserveWINESToken ) {
+    if (USDExchangeRateETH && reserveWINESETH && reserveWINESToken) {
       try {
         setLoadingPrice(true);
         const WINESExchangeRateETH = getExchangeRate(
@@ -326,7 +329,7 @@ export default function Main() {
         );
       } catch (error) {
         console.log(error);
-      }finally{
+      } finally {
         setLoadingPrice(false);
       }
     }
@@ -542,9 +545,23 @@ export default function Main() {
             )}
             {!isCrowdsale && !loadingPrice && (
               <CurrentPrice>
-                {dollarPrice
-                  ? `$${amountFormatter(dollarPrice, 18, 2)} USDC`
-                  : "$0.00"}
+                {!state.loading && (
+                  `$${amountFormatter(dollarize(state.validationState), 18, 2)} USDC`
+                )}
+
+                {state.loading && (
+                  <BeatLoader
+                  color="black"
+                  loading={true}
+                  cssOverride={{
+                      display: "flex",
+                      flexDirection: "row",
+                  }}
+                  size={30}
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+              />
+                )}
               </CurrentPrice>
             )}
             <TokenIconContainer>

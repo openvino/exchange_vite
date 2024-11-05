@@ -20,7 +20,9 @@ const initialState = {
   tokenIcon: '',
   email: '',
   emailValid: false,
-  name:''
+  name:'',
+  validationState: undefined,
+  loading: true
 }
 
 
