@@ -568,15 +568,14 @@ export default function Main() {
 						)}
 						{!isCrowdsale && !loadingPrice && (
 							<CurrentPrice>
-								{!state.loading &&
-									state.validationState &&
+								{state?.validationState &&
 									`$${amountFormatter(
 										dollarize(state.validationState),
 										18,
 										2
 									)} USDC`}
 
-								{state.loading && (
+								{!state?.validationState && (
 									<BeatLoader
 										color="#d68513"
 										loading={true}

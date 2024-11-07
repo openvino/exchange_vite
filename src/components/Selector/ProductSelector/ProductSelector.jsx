@@ -8,7 +8,9 @@ const ProductSelector = ({ product }) => {
 	const navigate = useNavigate();
 
 	const handleProductClick = () => {
-		navigate(`/${wineryId}/${product.id}`);
+		setTimeout(() => {
+			navigate(`/${wineryId}/${product.id}`);
+		}, 1500);
 	};
 
 	return (
