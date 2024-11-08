@@ -6,7 +6,8 @@ export default function Farming({ tokenAddress, setShowFarming }) {
     <>
       <Wrapper onClick={() => setShowFarming(false)}>
         <iframe
-          src={`https://app.uniswap.org/#/add/v2/ETH/${tokenAddress}?theme=dark`}
+          // src={`https://app.uniswap.org/#/add/v2/ETH/${tokenAddress}?theme=dark`}
+          src={`https://base.viniswap.openvino.org/pool`}
           height="100%"
           width="100%"
           style={{

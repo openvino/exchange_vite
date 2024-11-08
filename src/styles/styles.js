@@ -158,7 +158,7 @@ export const CheckoutFrame = styled.div`
   color: #fff;
   background-color: #141414;
   max-width: 450px;
-  visibility: ${(props) => !props.isVisible && "hidden"};
+  visibility: ${(props) => !props.$isVisible && "hidden"};
 
   position: fixed;
   top: 0;
@@ -178,14 +178,14 @@ export const CheckoutBackground = styled.div`
   position: fixed;
   top: 0px;
   left: 0px;
-  opacity: ${(props) => (props.isVisible ? ".7" : "0")};
+  opacity: ${(props) => (props.$isVisible ? ".7" : "0")};
   width: 100vw;
   height: 100vh;
-  z-index: ${(props) => (props.isVisible ? "1" : "-1")};
-  pointer-events: ${(props) => (props.isVisible ? "all" : "none")};
+  z-index: ${(props) => (props.$isVisible ? "1" : "-1")};
+  pointer-events: ${(props) => (props.$isVisible ? "all" : "none")};
   background-color: #000;
   transition: opacity 0.3s;
-  pointer-events: ${(props) => (props.isVisible ? "all" : "none")};
+  pointer-events: ${(props) => (props.$isVisible ? "all" : "none")};
 `;
 
 export const Wrapper = styled.div`
@@ -324,18 +324,18 @@ export const Connect = styled.div`
   padding: 0.75rem;
   border-radius: 6px;
   border: 1px solid white;
-  cursor: ${(props) => (props.balanceWINES ? "auto" : "pointer")};
+  cursor: ${(props) => (props.$balanceWINES ? "auto" : "pointer")};
 
   transform: scale(1);
   transition: transform 0.3s ease;
 
   :hover {
-    transform: ${(props) => (props.balanceWINES ? "scale(1)" : "scale(1.02)")};
+    transform: ${(props) => (props.$balanceWINES ? "scale(1)" : "scale(1.02)")};
   }
 `;
 
 export const Status = styled.div`
-  display: ${(props) => (props.balanceWINES ? "initial" : "none")};
+  display: ${(props) => (props.$balanceWINES ? "initial" : "none")};
   width: 12px;
   height: 12px;
   border-radius: 100%;
@@ -343,7 +343,7 @@ export const Status = styled.div`
   margin-top: 2px;
   float: right;
   background-color: ${(props) =>
-    props.account === null ? "#CF2C0A" : props.ready ? "#66BB66" : "#CF2C0A"};
+    props.$account === null ? "#CF2C0A" : props.$ready ? "#66BB66" : "#CF2C0A"};
 `;
 
 export const FormInput = styled.input`
@@ -396,7 +396,7 @@ export const DropdownContainer = styled.div`
   background-color: black;
   border-radius: 5px;
   padding: 0.5rem 1rem;
-  display: ${(props) => (props.isOpen ? "block" : "none")};
+  display: ${(props) => (props.$isOpen ? "block" : "none")};
 `;
 
 export const Option = styled.div`

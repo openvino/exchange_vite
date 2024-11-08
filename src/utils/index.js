@@ -24,22 +24,7 @@ export function getNetworkId() {
 	return parseInt(localStorage.getItem("uniswap.network"));
 }
 
-function getFactoryAddress() {
-	switch (localStorage.getItem("uniswap.network")) {
-		case "3":
-			return "0x9c83dce8ca20e9aaf9d3efc003b2ea62abc08351";
-		case "4":
-			return "0xf5D915570BC477f9B8D6C0E980aA81757A3AaC36";
-		case "11155420":
-			return "0xd43124F8C87a1FaA25Bd83cEcaEc02E567A5657e";
-		default:
-			return "0xc0a47dFe034B400B47bDaD5FecDa2621de6c4d95";
-	}
-}
 
-const FACTORY_ADDRESS = getFactoryAddress();
-// export const ROUTER_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-// export const ROUTER_ADDRESS = "0xFFeD3BecF54F233dBE134dECAae2b099c04EB8bc"
 
 //BASE SEPOLIA
 export const ROUTER_ADDRESS = import.meta.env.VITE_ROUTER_ADDRESS;
@@ -151,18 +136,7 @@ export function getExchangeContract(exchangeAddress, library, account) {
 	return getContract(exchangeAddress, EXCHANGE_ABI, library, account);
 }
 
-export async function getTokenExchangeAddressFromFactory(
-	tokenAddress,
-	library,
-	account
-) {
-	return getContract(
-		FACTORY_ADDRESS,
-		FACTORY_ABI,
-		library,
-		account
-	).getExchange(tokenAddress);
-}
+
 
 // get the ether balance of an address
 export async function getEtherBalance(address, library) {
@@ -337,7 +311,7 @@ export function calculateEtherTokenInputFromOutput(
 	outputReserve
 ) {
 	if (!inputReserve || !outputReserve || !outputAmount) {
-		console.error("One or more inputs are null or undefined.");
+		console.log("One or more inputs are null or undefined.");
 		return;
 	}
 
@@ -349,7 +323,7 @@ export function calculateEtherTokenInputFromOutput(
 	else denominator = outputReserve.mul(BigNumber.from(995));
 
 	if (denominator.isZero()) {
-		console.error("Denominator is zero, cannot proceed with division.");
+		console.log("Denominator is zero, cannot proceed with division.");
 		return;
 	}
 

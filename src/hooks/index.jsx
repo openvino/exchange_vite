@@ -7,7 +7,6 @@ import {
   isAddress,
   getTokenContract,
   getExchangeContract,
-  getTokenExchangeAddressFromFactory,
   getEtherBalance,
   getTokenBalance,
   getTokenAllowance,
@@ -215,21 +214,30 @@ export function useReserves(pairContract) {
   }
 }
 
-export function useAddressBalance(address, tokenAddress,refreshTrigger) {
 
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+// Objeto de caché para almacenar balances temporalmente
+const balanceCache = new Map();
+
+export function useAddressBalance(address, tokenAddress, refreshTrigger) {
+  // const library = ethers5Adapter.provider.toEthers({
+  //   client,
+  //   chain: base,
+  // });
+
+  const library = new ethers.providers.JsonRpcProvider("https://base-mainnet.infura.io/v3/ce8d632a5fdf485ea8e0f041b48c3f69");
 
   const [balance, setBalance] = useState();
 
   const updateBalance = useCallback(() => {
+    if (isAddress(address) && (tokenAddress === "ETH" || isAddress(tokenAddress))) {
+      const cacheKey = `${address}-${tokenAddress}`;
 
-    if (
-      isAddress(address) &&
-      (tokenAddress === "ETH" || isAddress(tokenAddress))
-    ) {
+      // Verificar si el balance ya está en caché
+      if (balanceCache.has(cacheKey)) {
+        setBalance(balanceCache.get(cacheKey));
+        return;
+      }
+
       let stale = false;
 
       (tokenAddress === "ETH"
@@ -239,6 +247,7 @@ export function useAddressBalance(address, tokenAddress,refreshTrigger) {
         .then((value) => {
           if (!stale) {
             setBalance(value);
+            balanceCache.set(cacheKey, value); // Guardar en caché
           }
         })
         .catch((error) => {
@@ -246,12 +255,13 @@ export function useAddressBalance(address, tokenAddress,refreshTrigger) {
             setBalance(null);
           }
         });
+
       return () => {
         stale = true;
         setBalance();
       };
     }
-  }, [address, tokenAddress, refreshTrigger]); 
+  }, [address, tokenAddress, refreshTrigger]);
 
   useEffect(() => {
     return updateBalance();
@@ -345,7 +355,7 @@ export function useExchangeReserves(tokenAddress) {
   return { reserveETH, reserveToken };
 }
 
-export function useAddressAllowance(address, tokenAddress, spenderAddress,refreshTrigger) {
+export function useAddressAllowance(address, tokenAddress, spenderAddress, refreshTrigger) {
 
 
   const library = ethers5Adapter.provider.toEthers({
@@ -381,7 +391,7 @@ export function useAddressAllowance(address, tokenAddress, spenderAddress,refres
         setAllowance();
       };
     }
-  }, [address, spenderAddress, tokenAddress,refreshTrigger]);
+  }, [address, spenderAddress, tokenAddress, refreshTrigger]);
 
   useEffect(() => {
     return updateAllowance();

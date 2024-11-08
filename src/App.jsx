@@ -12,9 +12,6 @@ const App = () => {
           <Route path='/' element={<WinerySelector />} />
           <Route path='/:wineryId' element={<Selector />} />
           <Route path='/:wineryId/:productId' element={<Main />} />
-
-
-          
         </Routes>
       </Router>
     </>

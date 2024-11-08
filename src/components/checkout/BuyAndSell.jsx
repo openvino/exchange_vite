@@ -49,16 +49,16 @@ import { ethers } from "ethers";
 import { notifyBuyer } from "../../utils/checkout-utils";
 import { useExchangeContract, useRouterContract } from "../../hooks";
 
-export function Account({ ready, balanceWINES, setShowConnect }) {
+export function Account({ $ready, $balanceWINES, setShowConnect }) {
 	const account = useActiveAccount();
 	const [state] = useAppContext();
 	const { t } = useTranslation();
 	return (
 		<>
 			{account ? (
-				balanceWINES > 0 ? (
+				$balanceWINES > 0 ? (
 					<WineCount>
-						{balanceWINES && `${amountFormatter(balanceWINES, 18, 0)}`}{" "}
+						{$balanceWINES && `${amountFormatter($balanceWINES, 18, 0)}`}{" "}
 						{state.tokenName}
 					</WineCount>
 				) : (
@@ -68,7 +68,7 @@ export function Account({ ready, balanceWINES, setShowConnect }) {
 				<WineCount>{t("wallet.connect")}</WineCount>
 			)}
 
-			<Status balanceWINES={balanceWINES} ready={ready} account={account} />
+			<Status $balanceWINES={$balanceWINES} $ready={$ready} $account={account} />
 		</>
 	);
 }
@@ -121,7 +121,6 @@ function getValidationErrorMessage(validationError) {
 }
 
 export default function BuyAndSell({
-	crowdsaleExchangeRateUSD,
 	closeCheckout,
 	tokenSupply,
 	tokenCap,
@@ -129,7 +128,6 @@ export default function BuyAndSell({
 	selectedTokenSymbol,
 	setSelectedTokenSymbol,
 	ready,
-	unlock,
 	validateBuy,
 	validateSell,
 	validateCrowdsale,
@@ -389,6 +387,7 @@ export default function BuyAndSell({
 		return (
 			<>
 				<Wrapper>
+				<CloseIcon onClick={() => closeCheckout()} />
 					<ContentWrapper>
 						<ConnectButton
 							client={client}
@@ -416,9 +415,9 @@ export default function BuyAndSell({
 			<Header>
 				<ConnectButton client={client} chain={defineChain(base)} />
 				<Account
-					ready={ready}
+					$ready={ready}
 					dollarPrice={dollarPrice}
-					balanceWINES={balanceWINES}
+					$balanceWINES={balanceWINES}
 					setShowConnect={setShowConnect}
 				/>
 				<CloseIcon onClick={() => closeCheckout()} />
@@ -427,14 +426,14 @@ export default function BuyAndSell({
 			<ContentWrapper>
 				<TopFrame>
 					<ImgStyle src={state.image} alt="Viniswap" />
-					<InfoFrame pending={pending}>
+					<InfoFrame $pending={pending.toString()}>
 						<CurrentPriceBuySell>
 							<Description>
 								{buying
 									? t("wallet.pay")
 									: selling
-									? t("wallet.sell")
-									: t("wallet.crowdsale")}
+										? t("wallet.sell")
+										: t("wallet.crowdsale")}
 							</Description>
 							<WineTitle>
 								{state.title} <b>{state.tokenName}</b>
@@ -452,7 +451,7 @@ export default function BuyAndSell({
 				</TopFrame>
 
 				{pending && currentTransactionHash ? (
-					<CheckoutControls buying={buying}>
+					<CheckoutControls >
 						<CheckoutPrompt>
 							<i>{t("wallet.pending-transaction")}</i>
 						</CheckoutPrompt>
@@ -469,7 +468,7 @@ export default function BuyAndSell({
 				) : (
 					<>
 						<EstimateGas />
-						<CheckoutControls buying={buying}>
+						<CheckoutControls>
 							<Form />
 							<SelectToken
 								isBuying={buying}
@@ -507,9 +506,8 @@ export default function BuyAndSell({
 						onError={(e) => console.error(e)}
 					>
 						{" "}
-						{`${t("wallet.unlock")} ${
-							buying ? selectedTokenSymbol : state.tokenName
-						}`}
+						{`${t("wallet.unlock")} ${buying ? selectedTokenSymbol : state.tokenName
+							}`}
 					</TransactionButton>
 				) : buying ? (
 					<TransactionButton

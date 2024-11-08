@@ -219,7 +219,7 @@ export default function Checkout({
 
   return (
     <div>
-      <CheckoutFrame isVisible={state.visible || showConnect}>
+      <CheckoutFrame $isVisible={state.visible || showConnect}>
         {renderContent()}{" "}
         {!!lastTransactionHash && (
           <div
@@ -236,7 +236,7 @@ export default function Checkout({
       </CheckoutFrame>
       <CheckoutBackground
         onClick={() => closeCheckout()}
-        isVisible={state.visible || showConnect}
+        $isVisible={state.visible || showConnect}
       />
     </div>
   );

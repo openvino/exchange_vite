@@ -4,18 +4,28 @@ import { useParams } from "react-router-dom";
 import ProductSelector from "./ProductSelector/ProductSelector";
 import styles from "./Selector.module.css";
 import { useTranslation } from "react-i18next";
+import BeatLoader from "react-spinners/BeatLoader";
 
 const Selector = () => {
 	const [products, setProducts] = useState([]);
+	const [loading, setLoading] = useState(true);
+
 	const { wineryId } = useParams();
 
 	const { t } = useTranslation();
 
 	const getProductList = async () => {
-		const productsWineries = await axiosClient.get("/token", {
-			params: { winerie_id: wineryId },
-		});
-		setProducts(productsWineries.data);
+		try {
+			const productsWineries = await axiosClient.get("/token", {
+				params: { winerie_id: wineryId },
+			});
+			setProducts(productsWineries.data);
+		} catch (error) {
+			console.log(error);
+
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => {
@@ -51,12 +61,28 @@ const Selector = () => {
 					<div
 						className={`row justify-content-center ${styles["selector-content-items"]}`}
 					>
-						{products &&
+						{loading ? (
+							<div className="d-flex justify-content-center align-items-center">
+								<BeatLoader
+										color="#d68513"
+										loading={true}
+										cssOverride={{
+											display: "flex",
+											flexDirection: "row",
+										}}
+										size={25}
+										aria-label="Loading Spinner"
+										data-testid="loader"
+									/>
+							</div>
+						) : (
+							products &&
 							products
 								.sort((a, b) => a.year - b.year)
 								.map((product) => (
 									<ProductSelector key={product.id} product={product} />
-								))}
+								))
+						)}
 					</div>
 					<div className={styles["selector-content-button"]}>
 						{t("selection.know-more")}

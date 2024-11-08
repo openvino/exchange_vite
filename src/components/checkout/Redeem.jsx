@@ -285,7 +285,7 @@ export default function Redeem({
           <TopFrame hasPickedAmount={hasPickedAmount}>
             <Controls closeCheckout={closeCheckout} />
             <ImgStyle src={state.image} alt="Logo" hasPickedAmount={hasPickedAmount} />
-            <InfoFrame pending={pending}>
+            <InfoFrame $pending={pending.toString()}>
               <Owned>
                 <WineCount> {t('wallet.you-own', { amount: balanceWINES && amountFormatter(balanceWINES, 18, 0) })}</WineCount>
                 <p>{t('wallet.redeem-token', { token: state.tokenName })}</p>
@@ -655,7 +655,7 @@ const CloseFrame = styled(Close)`
 `
 
 const InfoFrame = styled.div`
-  opacity: ${props => (props.pending ? 0.6 : 1)};
+  opacity: ${props => (props.$pending ? 0.6 : 1)};
   width: 100%;
   font-size: 20px;
   font-weight: 500;

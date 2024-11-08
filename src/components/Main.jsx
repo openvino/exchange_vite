@@ -106,6 +106,8 @@ export default function Main() {
 		// setProduct(productsWineries.data);
 	};
 
+	
+
 	useEffect(() => {
 		// Limpiar estado anterior antes de actualizar
 		setState((prevState) => ({
@@ -257,7 +259,6 @@ export default function Main() {
 	let [isCrowdsale, setCrowdsale] = useState();
 	useEffect(() => {
 		try {
-			console.log(state.crowdsaleAddress);
 
 			if (state.crowdsaleAddress === "") {
 				setCrowdsale(false);

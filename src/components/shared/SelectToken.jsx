@@ -81,7 +81,7 @@ export default function SelectToken({
         </NoHeight>
       </SelectWrapper>
 
-      <DropdownContainer isOpen={isOpen}>
+      <DropdownContainer $isOpen={isOpen}>
         {currenciesNames.map((option, index) => (
           <Option key={index} onClick={() => handleSelectOption(option)}>
             {option}
