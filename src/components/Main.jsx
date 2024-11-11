@@ -60,7 +60,7 @@ import { useParams } from "react-router-dom";
 import { axiosClient } from "../config/axiosClient";
 import Header from "./Header/Header";
 
-export default function Main() {
+export default function Main({ key, setKey }) {
 	const library = ethers5Adapter.provider.toEthers({
 		client,
 		chain: base,
@@ -105,9 +105,18 @@ export default function Main() {
 
 		// setProduct(productsWineries.data);
 	};
+	const [refreshTimer, setRefreshTimer] = useState(false);
 
-	
-
+	useEffect(() => {
+		if (state?.validationState && state?.validationState < 0) {
+			setTimeout(() => {
+				if (state?.validationState && state?.validationState < 0) {
+					setKey((prevKey) => prevKey + 1);
+				}
+			}, 5000);
+		}
+		console.log("validationState", state?.validationState?.toString());
+	}, [state?.validationState]);
 	useEffect(() => {
 		// Limpiar estado anterior antes de actualizar
 		setState((prevState) => ({
@@ -259,7 +268,6 @@ export default function Main() {
 	let [isCrowdsale, setCrowdsale] = useState();
 	useEffect(() => {
 		try {
-
 			if (state.crowdsaleAddress === "") {
 				setCrowdsale(false);
 				return;
@@ -570,13 +578,14 @@ export default function Main() {
 						{!isCrowdsale && !loadingPrice && (
 							<CurrentPrice>
 								{state?.validationState &&
+									state?.validationState > 0 &&
 									`$${amountFormatter(
 										dollarize(state.validationState),
 										18,
 										2
 									)} USDC`}
 
-								{!state?.validationState && (
+								{(!state?.validationState || !state?.validationState > 0) && (
 									<BeatLoader
 										color="#d68513"
 										loading={true}
