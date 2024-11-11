@@ -34,6 +34,7 @@ const Selector = () => {
 
 	return (
 		<div className={styles["selector"]}>
+
 			<div className={`${styles["container"]} container`}>
 				<div className={styles["selector-header"]}>
 					<picture>
@@ -57,6 +58,17 @@ const Selector = () => {
 					<div className={`${styles["selector-content-header"]} py-4 py-sm-5`}>
 						<h1>{t("selection.title")}</h1>
 						<h2 className={styles["subtitle"]}>{t("selection.subtitle")}</h2>
+
+
+					</div>
+					<div className={styles["selector-content-button-base"]}>
+						<a  target="_blank" style={{ textDecoration: "none", color: "white" }} href="https://openvino.atlassian.net/wiki/x/AYA2JQ">
+
+						OpenVino @ Base!
+					
+						</a>
+						<img src="https://www.base.org/_next/static/media/logo.f6fdedfc.svg" width={30} alt="" />
+
 					</div>
 					<div
 						className={`row justify-content-center ${styles["selector-content-items"]}`}
@@ -64,16 +76,16 @@ const Selector = () => {
 						{loading ? (
 							<div className="d-flex justify-content-center align-items-center">
 								<BeatLoader
-										color="#d68513"
-										loading={true}
-										cssOverride={{
-											display: "flex",
-											flexDirection: "row",
-										}}
-										size={25}
-										aria-label="Loading Spinner"
-										data-testid="loader"
-									/>
+									color="#d68513"
+									loading={true}
+									cssOverride={{
+										display: "flex",
+										flexDirection: "row",
+									}}
+									size={25}
+									aria-label="Loading Spinner"
+									data-testid="loader"
+								/>
 							</div>
 						) : (
 							products &&

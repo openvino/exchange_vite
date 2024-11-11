@@ -98,6 +98,36 @@
   .selector-content-button:active {
     filter: brightness(70%);
   }
+
+
+  .selector-content-button-base {
+    margin: 32px 16px;
+    padding: 8px;
+    max-width: 100%;
+    width: 300px;
+    align-self: center;
+    border-radius: 5px;
+    background-color: #0052ff;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.88px;
+    text-align: center;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .selector-content-button-base:hover {
+    filter: brightness(85%);
+  }
+  
+  .selector-content-button-base:active {
+    filter: brightness(70%);
+  }
+  
   
 
 .btn-back {
