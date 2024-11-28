@@ -40,11 +40,10 @@ const Header = ({ children }) => {
 				<div className={"container"}>{children}</div>
 			</div>
 
-			<div className={styles["product-content"]}>
+			{/* <div className={styles["product-content"]}>
 				<Tabs />
 				<Sensors />
-				{/* <DateSelector /> */}
-			</div>
+			</div> */}
 		</>
 	);
 };

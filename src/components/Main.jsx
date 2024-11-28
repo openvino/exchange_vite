@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useActiveAccount } from "thirdweb/react";
 import { client } from "../config/thirdwebClient";
 import { base } from "thirdweb/chains";
+import styles from "./Header/Header.module.css"; // Importa el archivo CSS Module
 import {
 	TOKEN_SYMBOLS,
 	TOKEN_ADDRESSES,
@@ -59,6 +60,8 @@ import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { useParams } from "react-router-dom";
 import { axiosClient } from "../config/axiosClient";
 import Header from "./Header/Header";
+import Tabs from "./Tabs/Tabs";
+import Sensors from "./Sensors/Sensors";
 
 export default function Main({ key, setKey }) {
 	const library = ethers5Adapter.provider.toEthers({
@@ -547,6 +550,7 @@ export default function Main({ key, setKey }) {
 	const { t } = useTranslation();
 
 	return (
+		<> 
 		<Header>
 			<Container>
 				<CardWrapper>
@@ -647,7 +651,17 @@ export default function Main({ key, setKey }) {
 						tokenAddress={state.tokenAddress}
 					></Farming>
 				)}
+
+				
 			</Container>
+
+			
 		</Header>
+
+		
+		<div className={styles["product-content"]}>
+				<Tabs />
+				<Sensors />
+			</div></>
 	);
 }
