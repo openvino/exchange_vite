@@ -100,11 +100,11 @@ const WinerySelector = () => {
 					</div>
 					<div className={`${styles["card-group"]} card-group`}>
 						{wineries.map((winery) => (
-							<ProductWinerySelector key={winery.id} winery={winery} />
+							<ProductWinerySelector key={winery.id && "w"} winery={winery} />
 						))}
 						{comingSoonWineies.map((winery) => (
 							<ProductComingSoonWinerySelector
-								key={winery.ID}
+								key={winery.ID && "p"}
 								winery={winery}
 							/>
 						))}

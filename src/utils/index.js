@@ -24,8 +24,6 @@ export function getNetworkId() {
 	return parseInt(localStorage.getItem("uniswap.network"));
 }
 
-
-
 //BASE SEPOLIA
 export const ROUTER_ADDRESS = import.meta.env.VITE_ROUTER_ADDRESS;
 
@@ -135,8 +133,6 @@ export function getRouterContract(library, account) {
 export function getExchangeContract(exchangeAddress, library, account) {
 	return getContract(exchangeAddress, EXCHANGE_ABI, library, account);
 }
-
-
 
 // get the ether balance of an address
 export async function getEtherBalance(address, library) {
@@ -256,6 +252,7 @@ export function amountFormatter(
 }
 
 export function calculateSlippageBounds(value) {
+	console.log("ola", value);
 	const offset = value?.mul(ALLOWED_SLIPPAGE).div(BigNumber.from(10000));
 	const minimum = value?.sub(offset);
 	const maximum = value?.add(offset);
