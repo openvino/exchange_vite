@@ -219,12 +219,12 @@ export function useReserves(pairContract) {
 const balanceCache = new Map();
 
 export function useAddressBalance(address, tokenAddress, refreshTrigger) {
-  // const library = ethers5Adapter.provider.toEthers({
-  //   client,
-  //   chain: base,
-  // });
+  const library = ethers5Adapter.provider.toEthers({
+    client,
+    chain: base,
+  });
 
-  const library = new ethers.providers.JsonRpcProvider("https://base-mainnet.infura.io/v3/ce8d632a5fdf485ea8e0f041b48c3f69");
+  // const library = new ethers.providers.JsonRpcProvider("https://base-mainnet.infura.io/v3/ce8d632a5fdf485ea8e0f041b48c3f69");
 
   const [balance, setBalance] = useState();
 
