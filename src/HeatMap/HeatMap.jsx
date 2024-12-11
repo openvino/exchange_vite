@@ -1,11 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './HeatMap.module.css';
 
-const Heatmap = () => {
-  const tabs = ["Tab 1", "Tab 2", "Tab 3"]; // Sample static tabs
-  const zones = ["Zone 1", "Zone 2", "Zone 3"]; // Sample static zones
-  const days = [1, 2, 3, 4, 5]; // Sample static days
-  const zoneData = { 1: { label: "Day 1" }, 2: { label: "Day 2" }, 3: { label: "Day 3" } }; // Sample static data
+const Heatmap = ({ data, filterType }) => {
+  const [activeTab, setActiveTab] = useState(0);
+  const [zoneData, setZoneData] = useState([]);
+  const [activeDay, setActiveDay] = useState(null);
+  const [activeZone, setActiveZone] = useState(null);
+
+  const tabs = ["Petit Verdot", "Cabernet Sauvignon", "Malbec Oeste", "Malbec Este"];
+  const zones = ["0.2m", "0.5m", "1.0m", "2.0m"];
+
+  useEffect(() => {
+    if (data && tabs[activeTab]) {
+      setZoneData(data[filterType] || []);
+    }
+  }, [data, filterType, activeTab]);
+
+  const getColor = (value) => {
+    if (value === null || value === "-") return "transparent";
+    const color1 = [213, 132, 27];
+    const color2 = [2, 179, 190];
+    const valuePercent = Math.min(Math.max(value / 100, 0), 1);
+    const rgb = color1.map((c, i) => Math.round(c * valuePercent + color2[i] * (1 - valuePercent)));
+    return `rgb(${rgb.join(",")})`;
+  };
+
+  const handleDataClick = (dayIndex, zoneIndex) => {
+    if (zoneData[dayIndex]?.data[zoneIndex] !== null) {
+      setActiveDay(dayIndex);
+      setActiveZone(zoneIndex);
+      alert(`Day: ${zoneData[dayIndex]?.date}, Zone: ${zones[zoneIndex]}`);
+    }
+  };
 
   return (
     <div className={styles["heatmap"]}>
@@ -13,7 +39,8 @@ const Heatmap = () => {
         {tabs.map((tab, index) => (
           <div
             key={index}
-            className={styles["heatmap-tabs-item"]}
+            className={`${styles["heatmap-tabs-item"]} ${index === activeTab ? styles["heatmap-tabs-item-active"] : ""}`}
+            onClick={() => setActiveTab(index)}
           >
             {tab}
           </div>
@@ -23,46 +50,29 @@ const Heatmap = () => {
       <div className={styles["heatmap-chart"]}>
         <div className={styles["heatmap-chart-content"]}>
           <div className={styles["heatmap-chart-label-y"]}>
-            {zones.map((zone, index) => (
-              <div key={index} className={styles["heatmap-chart-row-label"]}>
-                {zone}
-              </div>
+            {zones.map((zone, i) => (
+              <div key={i} className={styles["heatmap-chart-row-label"]}>{zone}</div>
             ))}
-            <div className={styles["heatmap-chart-row-label"]} style={{ marginTop: "21px", height: "auto" }}>
-              Day
-            </div>
           </div>
           <div className={styles["heatmap-chart-data"]}>
-            <div className={styles["heatmap-chart-data-container"]}>
-              {zones.map((zone, i) => (
-                <div key={i} className={styles["heatmap-chart-row"]}>
-                  {days.map((day, j) => (
-                    <div key={j} className={styles["heatmap-chart-row-data"]}>
-                      {/* Example Data */}
-                      {Math.random().toFixed(2)} 
-                    </div>
-                  ))}
-                </div>
-              ))}
-
-              <div className={styles["heatmap-chart-divider"]}></div>
-
-              <div className={styles["heatmap-chart-row"]}>
-                {days.map((day, j) => (
-                  <div key={j} className={styles["heatmap-chart-row-label-x"]}>
-                    {zoneData[day]?.label}
+            {zoneData.map((day, dayIndex) => (
+              <div key={dayIndex} className={styles["heatmap-chart-row"]}>
+                {zones.map((_, zoneIndex) => (
+                  <div
+                    key={zoneIndex}
+                    className={`${styles["heatmap-chart-row-data"]} ${
+                      activeDay === dayIndex && activeZone === zoneIndex ? styles["active"] : ""
+                    }`}
+                    style={{ backgroundColor: getColor(day.data[zoneIndex]) }}
+                    onClick={() => handleDataClick(dayIndex, zoneIndex)}
+                  >
+                    {day.data[zoneIndex] || "-"}
                   </div>
                 ))}
               </div>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
-
-      <div className={styles["heatmap-legend"]}>
-        <div className={styles["heatmap-legend-label"]}>Wet</div>
-        <div className={styles["heatmap-legend-gradient"]}></div>
-        <div className={styles["heatmap-legend-label"]}>Dry</div>
       </div>
     </div>
   );

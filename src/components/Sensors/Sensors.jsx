@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './Sensors.module.css';
 import Heatmap from '../../HeatMap/HeatMap';
@@ -8,6 +8,15 @@ const Sensors = () => {
     const lastUpdatedDate = "2023-10-15";
     const dashboardSensorData = [25, 60, 12, 180, 250, 100, 5, 90];
     const dashboardAnalysisData = [8, 14, 28, 50];
+
+    const [filterType, setFilterType] = useState("year"); // Filter type state
+    const data = {
+      year: [
+        { date: "2023-03-01", data: [1, 30, 40, 50] },
+        { date: "2023-03-01", data: [20, 30, 40, 50] },
+      ],
+   
+    };
 
     return (
         <div className="container">
@@ -179,59 +188,13 @@ const Sensors = () => {
             </div>
 
             <div style={{display: 'flex', width:"100%" }}>
-                <div>   
-                <div className={styles['product-content-title']}>Subsoil Humidity</div>
-                <div>Heatmap Chart</div>
+                
 
-               
-
-                <div className={styles['product-content-title']}>Pressure</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Rain</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Irradiance UV</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Irradiance VI</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Irradiance IR</div>
-                <div>Line Chart</div>
-                </div>
-
-                <Heatmap />
+            <Heatmap data={data} filterType={filterType} />
             
 
             </div>
-            <div style={{display: 'flex', width:"100%" }}>
-                <div>   
-                <div className={styles['product-content-title']}>Subsoil Humidity</div>
-                <div>Heatmap Chart</div>
-
-               
-
-                <div className={styles['product-content-title']}>Pressure</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Rain</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Irradiance UV</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Irradiance VI</div>
-                <div>Line Chart</div>
-
-                <div className={styles['product-content-title']}>Irradiance IR</div>
-                <div>Line Chart</div>
-                </div>
-
-                <Heatmap />
-            
-
-            </div>
+         
 
         </div>
     );
