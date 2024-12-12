@@ -3,6 +3,7 @@ import styles from './Sensors.module.css';
 import Heatmap from '../../HeatMap/HeatMap';
 import DateSelector from '../dateselector/DateSelector';
 import { useAppContext } from '../../context';
+import LinearChart from '../linearChart/LinearChart';
 const Sensors = () => {
 
     const [state] = useAppContext();
@@ -23,8 +24,11 @@ const Sensors = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', width: "100%" }}>
-                <Heatmap  data={data} filterType={'day'} selectedDay={selectedDay} selectedMonth={selectedMonth} />
+                <Heatmap data={data} filterType={'day'} selectedDay={selectedDay} selectedMonth={selectedMonth} />
             </div>
+
+
+           
 
 
         </div>

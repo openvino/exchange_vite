@@ -3,6 +3,7 @@ import styles from './HeatMap.module.css';
 import { useTranslation } from 'react-i18next';
 import { getSensorsData } from '../components/Sensors/functions';
 import { useAppContext } from '../context';
+import LinearChart from '../components/linearChart/LinearChart';
 
 const Heatmap = ({ filterType, selectedDay, selectedMonth, }) => {
   const { t } = useTranslation();
@@ -11,14 +12,15 @@ const Heatmap = ({ filterType, selectedDay, selectedMonth, }) => {
   const [zoneData, setZoneData] = useState();
   const [activeDay, setActiveDay] = useState(null);
   const [activeZone, setActiveZone] = useState(null);
+  const [ temperatureData, setTemperatureData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await getSensorsData(state.tokenWineryId, state.tokenYear, selectedMonth + 1,selectedDay);
+      const response = await getSensorsData(state.tokenWineryId, state.tokenYear, selectedMonth + 1, selectedDay);
       setZoneData(response.soilHumidity[activeTab]);
-
+      setTemperatureData(response.temperature);
       console.log(response.soilHumidity);
-      
+
     }
 
     if (state.tokenYear) {
@@ -90,75 +92,81 @@ const Heatmap = ({ filterType, selectedDay, selectedMonth, }) => {
   };
 
   return (
-    <div className={styles["heatmap"]}>
-      <div className={styles["heatmap-tabs"]}>
-        {tabs.map((tab) => (
-          <div
-            key={tab.id}
-            className={`${styles["heatmap-tabs-item"]} ${activeTab === tab.id ? styles["heatmap-tabs-item-active"] : ""}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {t(tab.name)}
-          </div>
-        ))}
-      </div>
-
-      <div className={styles["heatmap-chart"]}>
-        <div className={styles["heatmap-chart-content"]}>
-          <div className={styles["heatmap-chart-label-y"]}>
-            {zones.map((zone, i) => (
-              <div key={i} className={styles["heatmap-chart-row-label"]}>{zone}</div>
-            ))}
-            <div className={styles["heatmap-chart-row-label"]} style={{ marginTop: '21px' }}>
-              {t('labels.day')}
+    <div>
+      <div className={styles["heatmap"]}>
+        <div className={styles["heatmap-tabs"]}>
+          {tabs.map((tab) => (
+            <div
+              key={tab.id}
+              className={`${styles["heatmap-tabs-item"]} ${activeTab === tab.id ? styles["heatmap-tabs-item-active"] : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {t(tab.name)}
             </div>
-          </div>
+          ))}
+        </div>
 
-
-          <div className={styles["heatmap-chart-data"]}>
-            <div className={styles["heatmap-chart-data-container"]}>
-              {zones.map((zone, zoneIndex) => (
-                <div key={zoneIndex} className={styles["heatmap-chart-row"]}>
-                  {getDayCount().map((day, dayIndex) => {
-                    return <div
-                      key={dayIndex}
-                      className={`${styles["heatmap-chart-row-data"]} ${isActive(day, zoneIndex) ? styles["heatmap-chart-row-data-active"] : ""}`}
-                      style={{
-                        minWidth: `${getElementWidth()}px`,
-                        backgroundColor: getColor(getValueForDayAndZone(day, zoneIndex)),
-                      }}
-                    >
-                      {getValueForDayAndZone(day, zoneIndex)}
-                    </div>
-                  })}
-                </div>
+        <div className={styles["heatmap-chart"]}>
+          <div className={styles["heatmap-chart-content"]}>
+            <div className={styles["heatmap-chart-label-y"]}>
+              {zones.map((zone, i) => (
+                <div key={i} className={styles["heatmap-chart-row-label"]}>{zone}</div>
               ))}
-
-              <div className={styles["heatmap-chart-divider"]} style={{ minWidth: `${(getDayCount().length - 1) * getElementWidth()}px` }}></div>
-
+              <div className={styles["heatmap-chart-row-label"]} style={{ marginTop: '21px' }}>
+                {t('labels.day')}
+              </div>
             </div>
 
 
+            <div className={styles["heatmap-chart-data"]}>
+              <div className={styles["heatmap-chart-data-container"]}>
+                {zones.map((zone, zoneIndex) => (
+                  <div key={zoneIndex} className={styles["heatmap-chart-row"]}>
+                    {getDayCount().map((day, dayIndex) => {
+                      return <div
+                        key={dayIndex}
+                        className={`${styles["heatmap-chart-row-data"]} ${isActive(day, zoneIndex) ? styles["heatmap-chart-row-data-active"] : ""}`}
+                        style={{
+                          minWidth: `${getElementWidth()}px`,
+                          backgroundColor: getColor(getValueForDayAndZone(day, zoneIndex)),
+                        }}
+                      >
+                        {getValueForDayAndZone(day, zoneIndex)}
+                      </div>
+                    })}
+                  </div>
+                ))}
+
+                <div className={styles["heatmap-chart-divider"]} style={{ minWidth: `${(getDayCount().length - 1) * getElementWidth()}px` }}></div>
+
+              </div>
+
+
+            </div>
           </div>
+        </div>
+
+        <div className={styles["heatmap-chart-row"]} style={{ minWidth: `${(getDayCount().length - 1) * getElementWidth()}px` }}>
+          {getDayCount().map((day, dayIndex) => (
+            <div
+              key={dayIndex}
+              className={styles["heatmap-chart-row-label-x"]}
+              style={{ minWidth: `${getElementWidth()}px` }}
+            >
+              {zoneData?.[dayIndex]?.label || '-'}
+            </div>
+          ))}
+        </div>
+        <div className={styles["heatmap-legend"]}>
+          <div className={styles["heatmap-legend-label"]}>{t('labels.wet')}</div>
+          <div className={styles["heatmap-legend-gradient"]}></div>
+          <div className={styles["heatmap-legend-label"]}>{t('labels.dry')}</div>
         </div>
       </div>
 
-      <div className={styles["heatmap-chart-row"]} style={{ minWidth: `${(getDayCount().length - 1) * getElementWidth()}px` }}>
-        {getDayCount().map((day, dayIndex) => (
-          <div
-            key={dayIndex}
-            className={styles["heatmap-chart-row-label-x"]}
-            style={{ minWidth: `${getElementWidth()}px` }}
-          >
-           {zoneData?.[dayIndex]?.label || '-'}
-          </div>
-        ))}
-      </div>
-      <div className={styles["heatmap-legend"]}>
-        <div className={styles["heatmap-legend-label"]}>{t('labels.wet')}</div>
-        <div className={styles["heatmap-legend-gradient"]}></div>
-        <div className={styles["heatmap-legend-label"]}>{t('labels.dry')}</div>
-      </div>
+      <LinearChart
+        data={temperatureData}
+      />
     </div>
   );
 };
