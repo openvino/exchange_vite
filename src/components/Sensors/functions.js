@@ -1,22 +1,21 @@
 import axios from "axios";
 
-
-
 export function getSensorsData(wineryId, year, month, day) {
-    const filterType = day ? "day" : month ? "month" : "year";
+    
+    const filterType = day ? "day" : month ? "month" : "year";  
 
     // Construcción de parámetros para la URL
     let params = [];
     if (wineryId) params.push(`winerie_id=${wineryId}`);
-    if (year) params.push(`year=${year}`);
+    if (year) params.push(`year=${month > 4 ? year - 1 : year}`);
+    console.log(year);
+    
     if (month) params.push(`month=${month}`);
     if (day) params.push(`day=${day}`);
     const queryString = params.length > 0 ? `?${params.join("&")}` : "";
-
     // Solicitud a la API
     return axios.get(`${import.meta.env.VITE_APIURL}sensor_data${queryString}`)
         .then((response) => {
-          
             const data = response.data;
             const baseDate = new Date(year, month || 0, day || 1);
             
@@ -38,9 +37,6 @@ export function getSensorsData(wineryId, year, month, day) {
             throw error;
         });
 }
-
-
-
 
 function getHeatMap(data, filterType, date) {
     let result = {};
@@ -290,8 +286,6 @@ function generateLinearChartData(data, param, units, filterType, date) {
 
 function getHeatmapArrayAverage(array) {
     if (array.length > 1) {
-        console.log(array,'arregloo');
-        
         return [
             array.reduce((a, b) => a + b.data[0], 0) /
             array.length,

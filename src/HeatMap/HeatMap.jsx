@@ -4,29 +4,27 @@ import { useTranslation } from 'react-i18next';
 import { getSensorsData } from '../components/Sensors/functions';
 import { useAppContext } from '../context';
 
-const Heatmap = ({ filterType }) => {
+const Heatmap = ({ filterType, selectedDay, selectedMonth, }) => {
   const { t } = useTranslation();
-
   const [state] = useAppContext();
-
   const [activeTab, setActiveTab] = useState('petit-verdot');
   const [zoneData, setZoneData] = useState();
   const [activeDay, setActiveDay] = useState(null);
   const [activeZone, setActiveZone] = useState(null);
 
-
   useEffect(() => {
     const fetchData = async () => {
-
-      const response = await getSensorsData(state.tokenWineryId, 2020, new Date().getMonth() );
-      console.log(response.soilHumidity);
+      const response = await getSensorsData(state.tokenWineryId, state.tokenYear, selectedMonth + 1,selectedDay);
       setZoneData(response.soilHumidity[activeTab]);
 
+      console.log(response.soilHumidity);
+      
     }
-    if (!zoneData) {
+
+    if (state.tokenYear) {
       fetchData();
     }
-  }, [state.tokenYear]);
+  }, [state.tokenYear, selectedMonth, state.tokenYear, activeTab, selectedDay]);
 
   const tabs = [
     {
@@ -74,7 +72,6 @@ const Heatmap = ({ filterType }) => {
   };
 
   function getValueForDayAndZone(day, zone) {
-    console.dir(zoneData);
 
     if (zoneData) {
       return zoneData[day]?.data[zone] === null
@@ -89,7 +86,7 @@ const Heatmap = ({ filterType }) => {
   };
 
   const getDayCount = () => {
-    return Array.from({ length: 30 }, (_, i) => i + 1);
+    return Array.from(Array(zoneData?.length).keys());
   };
 
   return (
@@ -153,7 +150,7 @@ const Heatmap = ({ filterType }) => {
             className={styles["heatmap-chart-row-label-x"]}
             style={{ minWidth: `${getElementWidth()}px` }}
           >
-            {dayIndex || '-'}
+           {zoneData?.[dayIndex]?.label || '-'}
           </div>
         ))}
       </div>
