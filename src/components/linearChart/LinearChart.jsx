@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import { Colors,Chart, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Filler } from "chart.js";
+import { Colors, Chart, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Filler } from "chart.js";
 
 // Registra los componentes necesarios de Chart.js
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale,Colors,Filler);
+Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Colors, Filler);
 const LinearChart = ({ data = [], min, max }) => {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
@@ -44,9 +44,9 @@ const LinearChart = ({ data = [], min, max }) => {
         maintainAspectRatio: false, // No mantener el aspecto fijo
         responsive: true, // El gráfico debe ser sensible al tamaño del contenedor
         plugins: {
-         filler: {
-          propagate: true
-         },
+          filler: {
+            propagate: true
+          },
           legend: {
             display: false,  // Desactivamos la leyenda
           },
