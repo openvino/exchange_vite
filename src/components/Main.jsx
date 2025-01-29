@@ -35,7 +35,6 @@ import {
 	useRouterAllowance,
 	useTokenSupply,
 	useTokenCap,
-	usePairContract,
 	useReserves,
 	useRouterContract,
 } from "../hooks";
@@ -92,7 +91,6 @@ export default function Main({ key, setKey }) {
 		setState((prevState) => ({
 			...prevState,
 			apiUrl: import.meta.env.VITE_APIURL,
-			tokenName: filterProduct[0].token,
 			crowdsaleAddress: filterProduct[0].crow_sale_address,
 			networkId: filterProduct[0].networkId,
 			tokenAddress: filterProduct[0].token_address,

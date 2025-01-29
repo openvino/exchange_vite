@@ -253,6 +253,36 @@ export function useReserves() {
 				const newReserves = await updateReserves(pairContract);
 				console.log(newReserves);
 			})();
+		} else {
+			axiosClient
+				.get("/token", {
+					params: { winerie_id: wineryId },
+				})
+				.then((productsWineries) => {
+					console.log(productsWineries.data);
+
+					const filterProduct = productsWineries.data.filter(
+						(product) => product.id === productId
+					);
+
+					console.log(filterProduct[0]);
+
+					setState((prevState) => ({
+						...prevState,
+						apiUrl: import.meta.env.VITE_APIURL,
+						crowdsaleAddress: filterProduct[0].crow_sale_address,
+						networkId: filterProduct[0].networkId,
+						tokenAddress: filterProduct[0].token_address,
+						image: filterProduct[0].bottle_image,
+						tokenYear: filterProduct[0].year.toString(),
+						tokenName: filterProduct[0].id,
+						tokenIcon: filterProduct[0].token_icon,
+						title: "Token",
+						shippingAccount: filterProduct[0].shipping_account,
+						validationState: undefined,
+						loading: true,
+					}));
+				});
 		}
 
 		console.log(state);
