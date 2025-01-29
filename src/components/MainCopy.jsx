@@ -120,6 +120,7 @@ export default function Main({ key, setKey }) {
 		}
 		console.log("validationState", state?.validationState?.toString());
 	}, [state?.validationState]);
+
 	useEffect(() => {
 		// Limpiar estado anterior antes de actualizar
 		setState((prevState) => ({
@@ -148,9 +149,7 @@ export default function Main({ key, setKey }) {
 	);
 
 	const routerContract = useRouterContract();
-	const { reserves, token0, token1, pairMTBwETH } = useReserves();
-
-	// const pairMTBwETH = usePairContract(state?.tokenAddress);
+	const pairMTBwETH = usePairContract(state?.tokenAddress);
 	// console.log("token", state?.tokenAddress);
 	// console.log("pair", pairMTBwETH.address);
 
@@ -199,6 +198,8 @@ export default function Main({ key, setKey }) {
 		state?.tokenAddress,
 		refreshTrigger
 	);
+
+	const { reserves, token0, token1 } = useReserves(pairMTBwETH);
 
 	const reserveWINESETH =
 		token0 === import.meta.env.VITE_WETH_ADDRESS
@@ -309,6 +310,7 @@ export default function Main({ key, setKey }) {
 					setCrowdsaleExchangeRateUSD(exchangeRateUSD);
 				})
 				.catch((error) => {
+					console.log(error);
 					setCrowdsaleExchangeRateETH();
 					setCrowdsaleExchangeRateUSD();
 				});
