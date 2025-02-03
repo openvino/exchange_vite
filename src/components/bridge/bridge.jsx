@@ -14,11 +14,11 @@ export default function Bridge() {
   const [email, setEmail] = useState("");
   const [telegram, setTelegram] = useState("");
   const [error, setError] = useState("");
-  const [balances, setBalances] = useState([]);
+  const [balances, setBalances] = useState(null);
   const [showBalances, setShowBalances] = useState(false);
 
   const tokensMatch = [
-    { id: "TB24", address: "0xA6a8baf59C58962a0A1a82e8fF8dcfE3f7aAcF9A" },
+    { id: "MTB20", address: "0xA6a8baf59C58962a0A1a82e8fF8dcfE3f7aAcF9A" },
     { id: "MTB18", address: "0xc0CcF602398f03a673C8723065Ff2D5DEC1cE92e" },
     { id: "MTB19", address: "0x5BA286e5399DBF6626A32334E3c5B8697ca15548" },
   ];
@@ -103,16 +103,22 @@ export default function Bridge() {
               <FormInput value={email} placeholder="Email" type="text" onChange={(e) => setEmail(e.target.value)} />
               <FormInput value={telegram} placeholder="Telegram" type="text" onChange={(e) => setTelegram(e.target.value)} />
 
-              <ButtonFrame text="Verificar Balances" onClick={fetchBalances} />
+              {!balances &&  <ButtonFrame text="Verificar Balances" onClick={fetchBalances} />}
               {showBalances && (
-                <BalancesList>
-                  {balances.map((token) => (
-                    <p key={token.id}>
-                      {token.id}: {token.balance.toFixed(4)}
-                    </p>
-                  ))}
+                <BalanceContainer>
+                  <BalancesList>
+                    {balances?.map((token) => (
+                      <div key={token.id}>
+                        <img width={60} src={`/images/${token.id.toLowerCase()}/image.png`} alt="" />
+                        <p >
+                          {token.id}:{token.balance.toFixed(0)}
+                        </p>
+                      </div>
+                    ))}
+                  </BalancesList>
                   <ButtonFrame text="Migrar" onClick={handleMigration} />
-                </BalancesList>
+
+                </BalanceContainer>
               )}
             </form>
           </MarketData>
@@ -123,13 +129,25 @@ export default function Bridge() {
 }
 
 
+const BalanceContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  `
+
+
+
 const BalancesList = styled.div`
   margin: 16px 0;
- 
+    display: grid;
+    grid-template-columns: repeat(5,  1fr);
+    gap: 12px;
   p {
     color: white;
     font-size: 14px;
+    margin: 0;
   }
+    
 `;
 
 
@@ -215,6 +233,6 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-    width: 100%;
-    margin-top: 120px;
+  width: 100%;
+    margin-top: 100px;
 `;
