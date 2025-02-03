@@ -24,8 +24,6 @@ export function getNetworkId() {
 	return parseInt(localStorage.getItem("uniswap.network"));
 }
 
-
-
 //BASE SEPOLIA
 export const ROUTER_ADDRESS = import.meta.env.VITE_ROUTER_ADDRESS;
 
@@ -96,18 +94,25 @@ export function getProviderOrSigner(library, account) {
 
 // account is optional
 export function getContract(address, ABI, library, account) {
+	console.log(address, ABI, library, account);
+
 	if (!isAddress(address) || address === ethers.constants.AddressZero) {
 		throw Error(`Invalid 'address' parameter '${address}'.`);
 	}
 
-	return new ethers.Contract(
+	const contractObject = new ethers.Contract(
 		address,
 		ABI,
 		getProviderOrSigner(library, account)
 	);
+	console.log(contractObject);
+
+	return contractObject;
 }
 
 export function getTokenContract(tokenAddress, library, account) {
+	console.log(tokenAddress, library, account);
+
 	return getContract(tokenAddress, ERC20_ABI, library, account);
 }
 
@@ -133,10 +138,10 @@ export function getRouterContract(library, account) {
 }
 
 export function getExchangeContract(exchangeAddress, library, account) {
+	console.log(exchangeAddress, library, account);
+
 	return getContract(exchangeAddress, EXCHANGE_ABI, library, account);
 }
-
-
 
 // get the ether balance of an address
 export async function getEtherBalance(address, library) {
@@ -310,6 +315,8 @@ export function calculateEtherTokenInputFromOutput(
 	inputReserve,
 	outputReserve
 ) {
+	console.log(inputReserve, outputReserve, outputAmount);
+
 	if (!inputReserve || !outputReserve || !outputAmount) {
 		console.log("One or more inputs are null or undefined.");
 		return;

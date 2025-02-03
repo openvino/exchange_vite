@@ -76,7 +76,6 @@ export default function Main({ key, setKey }) {
 
 	const account = useActiveAccount();
 	const { wineryId, productId } = useParams();
-	const [product, setProduct] = useState([]);
 	const [state, setState] = useAppContext();
 	const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -88,11 +87,26 @@ export default function Main({ key, setKey }) {
 		const filterProduct = productsWineries.data.filter(
 			(product) => product.id === productId
 		);
+		console.log(
+			import.meta.env.VITE_APIURL,
+
+			filterProduct[0].crow_sale_address,
+			filterProduct[0].networkId,
+			filterProduct[0].token_address,
+			filterProduct[0].bottle_image,
+			filterProduct[0].year.toString(),
+			filterProduct[0].id,
+			filterProduct[0].token_icon,
+			"Token",
+			filterProduct[0].shipping_account,
+			undefined,
+			true
+		);
 
 		setState((prevState) => ({
 			...prevState,
 			apiUrl: import.meta.env.VITE_APIURL,
-			tokenName: filterProduct[0].token,
+
 			crowdsaleAddress: filterProduct[0].crow_sale_address,
 			networkId: filterProduct[0].networkId,
 			tokenAddress: filterProduct[0].token_address,
@@ -108,30 +122,30 @@ export default function Main({ key, setKey }) {
 
 		// setProduct(productsWineries.data);
 	};
-	const [refreshTimer, setRefreshTimer] = useState(false);
+	// const [refreshTimer, setRefreshTimer] = useState(false);
 
-	useEffect(() => {
-		if (state?.validationState && state?.validationState < 0) {
-			setTimeout(() => {
-				if (state?.validationState && state?.validationState < 0) {
-					setKey((prevKey) => prevKey + 1);
-				}
-			}, 5000);
-		}
-		console.log("validationState", state?.validationState?.toString());
-	}, [state?.validationState]);
+	// useEffect(() => {
+	// 	if (state?.validationState && state?.validationState < 0) {
+	// 		setTimeout(() => {
+	// 			if (state?.validationState && state?.validationState < 0) {
+	// 				setKey((prevKey) => prevKey + 1);
+	// 			}
+	// 		}, 5000);
+	// 	}
+	// 	console.log("validationState", state?.validationState?.toString());
+	// }, [state?.validationState]);
 	useEffect(() => {
 		// Limpiar estado anterior antes de actualizar
-		setState((prevState) => ({
-			...prevState,
-			tokenName: "",
-			crowdsaleAddress: "",
-			networkId: "",
-			tokenAddress: "",
-			image: "",
-			tokenYear: "",
-			tokenIcon: "",
-		}));
+		// setState((prevState) => ({
+		// 	...prevState,
+		// 	tokenName: "",
+		// 	crowdsaleAddress: "",
+		// 	networkId: "",
+		// 	tokenAddress: "",
+		// 	image: "",
+		// 	tokenYear: "",
+		// 	tokenIcon: "",
+		// }));
 		setUSDExchangeRateETH(undefined);
 		setUSDExchangeRateSelectedToken(undefined);
 		setDollarPrice(undefined);
@@ -153,12 +167,13 @@ export default function Main({ key, setKey }) {
 	// console.log("pair", pairMTBwETH.address);
 
 	// get exchange contracts
-	const exchangeContractWINES = useExchangeContract(state?.tokenAddress);
+	// const exchangeContractWINES = useExchangeContract(state?.tokenAddress);
 	const exchangeContractSelectedToken = useExchangeContract(
 		state?.tokenAddress
 	);
 	const exchangeContractDAI = useExchangeContract(TOKEN_ADDRESSES.DAI);
 
+	console.log(state?.tokenAddress);
 	// get token contracts
 	const tokenContractWINES = useTokenContract(state?.tokenAddress);
 	const tokenContractSelectedToken = useTokenContract(state?.tokenAddress);
@@ -192,6 +207,7 @@ export default function Main({ key, setKey }) {
 		routerContract && routerContract.address,
 		refreshTrigger
 	);
+
 	const allowanceSelectedToken = useRouterAllowance(
 		account?.address,
 		state?.tokenAddress,
@@ -309,6 +325,8 @@ export default function Main({ key, setKey }) {
 					setCrowdsaleExchangeRateUSD(exchangeRateUSD);
 				})
 				.catch((error) => {
+					console.log(error);
+
 					setCrowdsaleExchangeRateETH();
 					setCrowdsaleExchangeRateUSD();
 				});
@@ -550,118 +568,126 @@ export default function Main({ key, setKey }) {
 	const { t } = useTranslation();
 
 	return (
-		<> 
-		<Header>
-			<Container>
-				<CardWrapper>
-					<div>
-						<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
-						<Redeem onClick={handleRedeemClick}> {t("labels.redeem")} </Redeem>
-					</div>
-					<ImageContainer>
-						<Image src={state.image} />
-					</ImageContainer>
-					<MarketData>
-						<Title>
-							{state.title} ({state.tokenName}){" "}
-							<InfoIcon
-								onClick={(e) => {
-									e.preventDefault();
-									setState((state) => ({ ...state, visible: !state.visible }));
-									setShowWorks(true);
-								}}
-							></InfoIcon>
-						</Title>
-						{isCrowdsale && !loadingPrice && (
-							<CurrentPrice>
-								{crowdsaleExchangeRateUSD
-									? `$${amountFormatter(crowdsaleExchangeRateUSD, 18, 2)} USDC`
-									: "$0.00"}
-							</CurrentPrice>
-						)}
-						{!isCrowdsale && !loadingPrice && (
-							<CurrentPrice>
-								{state?.validationState &&
-									state?.validationState > 0 &&
-									`$${amountFormatter(
-										dollarize(state.validationState),
-										18,
-										2
-									)} USDC`}
+		<>
+			<Header>
+				<Container>
+					<CardWrapper>
+						<div>
+							<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
+							<Redeem onClick={handleRedeemClick}>
+								{" "}
+								{t("labels.redeem")}{" "}
+							</Redeem>
+						</div>
+						<ImageContainer>
+							<Image src={state.image} />
+						</ImageContainer>
+						<MarketData>
+							<Title>
+								{state.title} ({state.tokenName}){" "}
+								<InfoIcon
+									onClick={(e) => {
+										e.preventDefault();
+										setState((state) => ({
+											...state,
+											visible: !state.visible,
+										}));
+										setShowWorks(true);
+									}}
+								></InfoIcon>
+							</Title>
+							{isCrowdsale && !loadingPrice && (
+								<CurrentPrice>
+									{crowdsaleExchangeRateUSD
+										? `$${amountFormatter(
+												crowdsaleExchangeRateUSD,
+												18,
+												2
+										  )} USDC`
+										: "$0.00"}
+								</CurrentPrice>
+							)}
+							{!isCrowdsale && !loadingPrice && (
+								<CurrentPrice>
+									{state?.validationState &&
+										state?.validationState > 0 &&
+										`$${amountFormatter(
+											dollarize(state.validationState),
+											18,
+											2
+										)} USDC`}
 
-								{(!state?.validationState || !state?.validationState > 0) && (
-									<BeatLoader
-										color="#d68513"
-										loading={true}
-										cssOverride={{
-											display: "flex",
-											flexDirection: "row",
-										}}
-										size={25}
-										aria-label="Loading Spinner"
-										data-testid="loader"
-									/>
-								)}
-							</CurrentPrice>
-						)}
-						<TokenIconContainer>
-							<TokenIconText>{state?.tokenYear?.substring(2, 4)}</TokenIconText>
-							<TokenIcon src={state.tokenIcon}></TokenIcon>
-						</TokenIconContainer>
-						<TradeButtons
-							balanceWINES={balanceWINES}
-							isCrowdsale={isCrowdsale}
-						></TradeButtons>
-					</MarketData>
-				</CardWrapper>
+									{(!state?.validationState || !state?.validationState > 0) && (
+										<BeatLoader
+											color="#d68513"
+											loading={true}
+											cssOverride={{
+												display: "flex",
+												flexDirection: "row",
+											}}
+											size={25}
+											aria-label="Loading Spinner"
+											data-testid="loader"
+										/>
+									)}
+								</CurrentPrice>
+							)}
+							<TokenIconContainer>
+								<TokenIconText>
+									{state?.tokenYear?.substring(2, 4)}
+								</TokenIconText>
+								<TokenIcon src={state.tokenIcon}></TokenIcon>
+							</TokenIconContainer>
+							<TradeButtons
+								balanceWINES={balanceWINES}
+								isCrowdsale={isCrowdsale}
+							></TradeButtons>
+						</MarketData>
+					</CardWrapper>
 
-				<Checkout
-					USDExchangeRateETH={USDExchangeRateETH}
-					crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
-					transferShippingCosts={transferShippingCosts}
-					tokenSupply={tokenSupply}
-					tokenCap={tokenCap}
-					selectedTokenSymbol={selectedTokenSymbol}
-					setSelectedTokenSymbol={setSelectedTokenSymbol}
-					ready={ready}
-					unlock={unlock}
-					validateBuy={validateBuy}
-					validateSell={validateSell}
-					validateCrowdsale={validateCrowdsale}
-					burn={burn}
-					balanceWINES={balanceWINES}
-					dollarPrice={dollarPrice}
-					reserveWINESToken={reserveWINESToken}
-					dollarize={dollarize}
-					showConnect={showConnect}
-					setShowConnect={setShowConnect}
-					currentTransactionHash={currentTransaction.hash}
-					currentTransactionType={currentTransaction.type}
-					currentTransactionAmount={currentTransaction.amount}
-					setCurrentTransaction={setCurrentTransaction}
-					clearCurrentTransaction={clearCurrentTransaction}
-					showWorks={showWorks}
-					setShowWorks={setShowWorks}
-					setRefreshTrigger={setRefreshTrigger}
-					loadingPrice={loadingPrice}
-				/>
-				{showFarming && (
-					<Farming
-						setShowFarming={setShowFarming}
-						tokenAddress={state.tokenAddress}
-					></Farming>
-				)}
+					<Checkout
+						USDExchangeRateETH={USDExchangeRateETH}
+						crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
+						transferShippingCosts={transferShippingCosts}
+						tokenSupply={tokenSupply}
+						tokenCap={tokenCap}
+						selectedTokenSymbol={selectedTokenSymbol}
+						setSelectedTokenSymbol={setSelectedTokenSymbol}
+						ready={ready}
+						unlock={unlock}
+						validateBuy={validateBuy}
+						validateSell={validateSell}
+						validateCrowdsale={validateCrowdsale}
+						burn={burn}
+						balanceWINES={balanceWINES}
+						dollarPrice={dollarPrice}
+						reserveWINESToken={reserveWINESToken}
+						dollarize={dollarize}
+						showConnect={showConnect}
+						setShowConnect={setShowConnect}
+						currentTransactionHash={currentTransaction.hash}
+						currentTransactionType={currentTransaction.type}
+						currentTransactionAmount={currentTransaction.amount}
+						setCurrentTransaction={setCurrentTransaction}
+						clearCurrentTransaction={clearCurrentTransaction}
+						showWorks={showWorks}
+						setShowWorks={setShowWorks}
+						setRefreshTrigger={setRefreshTrigger}
+						loadingPrice={loadingPrice}
+					/>
+					{showFarming && (
+						<Farming
+							setShowFarming={setShowFarming}
+							tokenAddress={state.tokenAddress}
+						></Farming>
+					)}
+				</Container>
+			</Header>
 
-				
-			</Container>
-
-			
-		</Header>
-
-		
-		<div className={styles["product-content"]}>
+			<div className={styles["product-content"]}>
 				<Tabs />
 				<Sensors />
-			</div></>
+			</div>
+		</>
 	);
 }

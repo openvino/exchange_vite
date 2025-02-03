@@ -16,228 +16,294 @@ import Confetti from "react-dom-confetti";
 import { CheckoutBackground, CheckoutFrame } from "../../styles";
 
 const config = {
-  angle: 90,
-  spread: 76,
-  startVelocity: 51,
-  elementCount: 154,
-  dragFriction: 0.1,
-  duration: 7000,
-  stagger: 0,
-  width: "10px",
-  height: "10px",
-  colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"],
+	angle: 90,
+	spread: 76,
+	startVelocity: 51,
+	elementCount: 154,
+	dragFriction: 0.1,
+	duration: 7000,
+	stagger: 0,
+	width: "10px",
+	height: "10px",
+	colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"],
 };
 
 export function useCount(initialValue, max, step = 1) {
-  const [state, setState] = useAppContext();
+	const [state, setState] = useAppContext();
 
-  const selling = state.tradeType === TRADE_TYPES.SELL;
+	const selling = state.tradeType === TRADE_TYPES.SELL;
 
-  function increment() {
-    setState((state) => {
-      const newCount = state.count + step;
-      if (!max || newCount <= max) {
-        return { ...state, count: newCount };
-      } else {
-        return state;
-      }
-    });
-  }
+	function increment() {
+		setState((state) => {
+			const newCount = state.count + step;
+			if (!max || newCount <= max) {
+				return { ...state, count: newCount };
+			} else {
+				return state;
+			}
+		});
+	}
 
-  function decrement() {
-    if (state.count - step >= (selling ? 1 : 1)) {
-      setState((state) => ({ ...state, count: state.count - step }));
-    }
-  }
+	function decrement() {
+		if (state.count - step >= (selling ? 1 : 1)) {
+			setState((state) => ({ ...state, count: state.count - step }));
+		}
+	}
 
-  function setCount(val) {
-    setState((state) => ({ ...state, count: val }));
-  }
+	function setCount(val) {
+		setState((state) => ({ ...state, count: val }));
+	}
 
-  // ok to disable exhaustive-deps for `setState` b/c it's actually just a useState setter
-  useEffect(() => {
-    if (initialValue) {
-      setState((state) => ({ ...state, count: initialValue }));
-    }
-  }, [initialValue]); // eslint-disable-line react-hooks/exhaustive-deps
+	// ok to disable exhaustive-deps for `setState` b/c it's actually just a useState setter
+	useEffect(() => {
+		if (initialValue) {
+			setState((state) => ({ ...state, count: initialValue }));
+		}
+	}, [initialValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return [state.count, increment, decrement, setCount];
+	return [state.count, increment, decrement, setCount];
 }
 
 export default function Checkout({
-  USDExchangeRateETH,
-  crowdsaleExchangeRateUSD,
-  tokenSupply,
-  tokenCap,
-  selectedTokenSymbol,
-  setSelectedTokenSymbol,
-  ready,
-  unlock,
-  validateBuy,
-  buy,
-  validateCrowdsale,
-  crowdsale,
-  validateSell,
-  sell,
-  transferShippingCosts,
-  burn,
-  balanceWINES,
-  dollarPrice,
-  reserveWINESToken,
-  dollarize,
-  currentTransactionHash,
-  currentTransactionType,
-  currentTransactionAmount,
-  setCurrentTransaction,
-  clearCurrentTransaction,
-  setShowConnect,
-  showConnect,
-  showWorks,
-  setShowWorks,
-  updateBalance,
-  setRefreshTrigger,
+	USDExchangeRateETH,
+	crowdsaleExchangeRateUSD,
+	tokenSupply,
+	tokenCap,
+	selectedTokenSymbol,
+	setSelectedTokenSymbol,
+	ready,
+	unlock,
+	validateBuy,
+	buy,
+	validateCrowdsale,
+	crowdsale,
+	validateSell,
+	sell,
+	transferShippingCosts,
+	burn,
+	balanceWINES,
+	dollarPrice,
+	reserveWINESToken,
+	dollarize,
+	currentTransactionHash,
+	currentTransactionType,
+	currentTransactionAmount,
+	setCurrentTransaction,
+	clearCurrentTransaction,
+	setShowConnect,
+	showConnect,
+	showWorks,
+	setShowWorks,
+	updateBalance,
+	setRefreshTrigger,
 }) {
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+	// console.log(
+	// 	"CHECKOUT PROPS           ",
+	// 	"USDExchangeRateETH",
+	// 	USDExchangeRateETH,
+	// 	"crowdsaleExchangeRateUSD",
+	// 	crowdsaleExchangeRateUSD,
+	// 	"tokenSupply",
+	// 	tokenSupply,
+	// 	"tokenCap",
+	// 	tokenCap,
+	// 	"selectedTokenSymbol",
+	// 	selectedTokenSymbol,
+	// 	"setSelectedTokenSymbol",
+	// 	setSelectedTokenSymbol,
+	// 	"ready",
+	// 	ready,
+	// 	"unlock",
+	// 	unlock,
+	// 	"validateBuy",
+	// 	validateBuy,
+	// 	"buy",
+	// 	buy,
+	// 	"validateCrowdsale",
+	// 	validateCrowdsale,
+	// 	"crowdsale",
+	// 	crowdsale,
+	// 	"validateSell",
+	// 	validateSell,
+	// 	"sell",
+	// 	sell,
+	// 	"transferShippingCosts",
+	// 	transferShippingCosts,
+	// 	"burn",
+	// 	burn,
+	// 	"balanceWINES",
+	// 	balanceWINES,
+	// 	"dollarPrice",
+	// 	dollarPrice,
+	// 	"reserveWINESToken",
+	// 	reserveWINESToken,
+	// 	"dollarize",
+	// 	dollarize,
+	// 	"currentTransactionHash",
+	// 	currentTransactionHash,
+	// 	"currentTransactionType",
+	// 	currentTransactionType,
+	// 	"currentTransactionAmount",
+	// 	currentTransactionAmount,
+	// 	"setCurrentTransaction",
+	// 	setCurrentTransaction,
+	// 	"clearCurrentTransaction",
+	// 	clearCurrentTransaction,
+	// 	"setShowConnect",
+	// 	setShowConnect,
+	// 	"showConnect",
+	// 	showConnect,
+	// 	"showWorks",
+	// 	showWorks,
+	// 	"setShowWorks",
+	// 	setShowWorks,
+	// 	"updateBalance",
+	// 	updateBalance,
+	// 	"setRefreshTrigger",
+	// 	setRefreshTrigger
+	// );
 
-  const account = useActiveAccount();
-  const [state, setState] = useAppContext();
+	const library = ethers5Adapter.provider.toEthers({
+		client,
+		chain: base,
+	});
 
-  const redeeming = state.tradeType === TRADE_TYPES.REDEEM;
+	const account = useActiveAccount();
+	const [state, setState] = useAppContext();
 
-  const [lastTransactionHash, setLastTransactionHash] = useState("");
-  const [lastTransactionType, setLastTransactionType] = useState("");
-  const [lastTransactionAmount, setLastTransactionAmount] = useState("");
+	const redeeming = state.tradeType === TRADE_TYPES.REDEEM;
 
-  const pending = !!currentTransactionHash;
-  useEffect(() => {
-    if (currentTransactionHash) {
-      library.waitForTransaction(currentTransactionHash).then(() => {
-        setLastTransactionHash(currentTransactionHash);
-        setLastTransactionType(currentTransactionType);
-        setLastTransactionAmount(currentTransactionAmount);
-        clearCurrentTransaction();
-      });
-    }
-  }, [
-    currentTransactionHash,
-    library,
-    lastTransactionHash,
-    state.showConnect,
-    state.visible,
-    setShowWorks,
-    setShowConnect,
-    clearCurrentTransaction,
-    lastTransactionHash,
-    currentTransactionType,
-    currentTransactionAmount,
-  ]);
+	const [lastTransactionHash, setLastTransactionHash] = useState("");
+	const [lastTransactionType, setLastTransactionType] = useState("");
+	const [lastTransactionAmount, setLastTransactionAmount] = useState("");
 
-  function closeCheckout() {
-    setShowConnect(false);
-    if (state.visible) {
-      setShowWorks(false);
-      setLastTransactionHash("");
-      setState((state) => ({ ...state, visible: !state.visible }));
-    }
-  }
+	const pending = !!currentTransactionHash;
+	useEffect(() => {
+		if (currentTransactionHash) {
+			library.waitForTransaction(currentTransactionHash).then(() => {
+				setLastTransactionHash(currentTransactionHash);
+				setLastTransactionType(currentTransactionType);
+				setLastTransactionAmount(currentTransactionAmount);
+				clearCurrentTransaction();
+			});
+		}
+	}, [
+		currentTransactionHash,
+		library,
+		lastTransactionHash,
+		state.showConnect,
+		state.visible,
+		setShowWorks,
+		setShowConnect,
+		clearCurrentTransaction,
+		lastTransactionHash,
+		currentTransactionType,
+		currentTransactionAmount,
+	]);
 
-  function renderContent() {
-    if (showConnect) {
-      return (
-        <Connect
-          setShowConnect={setShowConnect}
-          closeCheckout={closeCheckout}
-        />
-      );
-    } else if (showWorks) {
-      return <Works tokenSupply={tokenSupply} closeCheckout={closeCheckout} />;
-    } else if (lastTransactionHash) {
-      return (
-        <Confirmed
-          hash={lastTransactionHash}
-          type={lastTransactionType}
-          amount={lastTransactionAmount}
-          closeCheckout={closeCheckout}
-          clearLastTransaction={() => {
-            setLastTransactionHash("");
-            setLastTransactionType("");
-            setLastTransactionAmount("");
-          }}
-        />
-      );
-    } else {
-      if (!redeeming) {
-        return (
-          <BuyAndSell
-            closeCheckout={closeCheckout}
-            crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
-            tokenSupply={tokenSupply}
-            tokenCap={tokenCap}
-            balanceWINES={balanceWINES}
-            selectedTokenSymbol={selectedTokenSymbol}
-            setSelectedTokenSymbol={setSelectedTokenSymbol}
-            ready={ready}
-            unlock={unlock}
-            validateBuy={validateBuy}
-            buy={buy}
-            validateCrowdsale={validateCrowdsale}
-            crowdsale={crowdsale}
-            validateSell={validateSell}
-            sell={sell}
-            dollarize={dollarize}
-            setCurrentTransaction={setCurrentTransaction}
-            currentTransactionHash={currentTransactionHash}
-            setShowConnect={setShowConnect}
-            dollarPrice={dollarPrice}
-            reserveWINESToken={reserveWINESToken}
-            pending={pending}
-            updateBalance={updateBalance}
-            setRefreshTrigger={setRefreshTrigger}
-          />
-        );
-      } else {
-        return (
-          <Redeem
-            ready={ready}
-            USDExchangeRateETH={USDExchangeRateETH}
-            burn={burn}
-            transferShippingCosts={transferShippingCosts}
-            balanceWINES={balanceWINES}
-            dollarize={dollarize}
-            setCurrentTransaction={setCurrentTransaction}
-            setShowConnect={setShowConnect}
-            closeCheckout={closeCheckout}
-            pending={pending}
-          />
-        );
-      }
-    }
-  }
+	function closeCheckout() {
+		setShowConnect(false);
+		if (state.visible) {
+			setShowWorks(false);
+			setLastTransactionHash("");
+			setState((state) => ({ ...state, visible: !state.visible }));
+		}
+	}
 
-  return (
-    <div>
-      <CheckoutFrame $isVisible={state.visible || showConnect}>
-        {renderContent()}{" "}
-        {!!lastTransactionHash && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-            }}
-          >
-            <Confetti active={!!lastTransactionHash} config={config} />
-          </div>
-        )}
-      </CheckoutFrame>
-      <CheckoutBackground
-        onClick={() => closeCheckout()}
-        $isVisible={state.visible || showConnect}
-      />
-    </div>
-  );
+	function renderContent() {
+		if (showConnect) {
+			return (
+				<Connect
+					setShowConnect={setShowConnect}
+					closeCheckout={closeCheckout}
+				/>
+			);
+		} else if (showWorks) {
+			return <Works tokenSupply={tokenSupply} closeCheckout={closeCheckout} />;
+		} else if (lastTransactionHash) {
+			return (
+				<Confirmed
+					hash={lastTransactionHash}
+					type={lastTransactionType}
+					amount={lastTransactionAmount}
+					closeCheckout={closeCheckout}
+					clearLastTransaction={() => {
+						setLastTransactionHash("");
+						setLastTransactionType("");
+						setLastTransactionAmount("");
+					}}
+				/>
+			);
+		} else {
+			if (!redeeming) {
+				return (
+					<BuyAndSell
+						closeCheckout={closeCheckout}
+						crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
+						tokenSupply={tokenSupply}
+						tokenCap={tokenCap}
+						balanceWINES={balanceWINES}
+						selectedTokenSymbol={selectedTokenSymbol}
+						setSelectedTokenSymbol={setSelectedTokenSymbol}
+						ready={ready}
+						unlock={unlock}
+						validateBuy={validateBuy}
+						buy={buy}
+						validateCrowdsale={validateCrowdsale}
+						crowdsale={crowdsale}
+						validateSell={validateSell}
+						sell={sell}
+						dollarize={dollarize}
+						setCurrentTransaction={setCurrentTransaction}
+						currentTransactionHash={currentTransactionHash}
+						setShowConnect={setShowConnect}
+						dollarPrice={dollarPrice}
+						reserveWINESToken={reserveWINESToken}
+						pending={pending}
+						updateBalance={updateBalance}
+						setRefreshTrigger={setRefreshTrigger}
+					/>
+				);
+			} else {
+				return (
+					<Redeem
+						ready={ready}
+						USDExchangeRateETH={USDExchangeRateETH}
+						burn={burn}
+						transferShippingCosts={transferShippingCosts}
+						balanceWINES={balanceWINES}
+						dollarize={dollarize}
+						setCurrentTransaction={setCurrentTransaction}
+						setShowConnect={setShowConnect}
+						closeCheckout={closeCheckout}
+						pending={pending}
+					/>
+				);
+			}
+		}
+	}
+
+	return (
+		<div>
+			<CheckoutFrame $isVisible={state.visible || showConnect}>
+				{renderContent()}{" "}
+				{!!lastTransactionHash && (
+					<div
+						style={{
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							width: "100%",
+						}}
+					>
+						<Confetti active={!!lastTransactionHash} config={config} />
+					</div>
+				)}
+			</CheckoutFrame>
+			<CheckoutBackground
+				onClick={() => closeCheckout()}
+				$isVisible={state.visible || showConnect}
+			/>
+		</div>
+	);
 }
