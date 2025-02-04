@@ -234,7 +234,10 @@ export default function BuyAndSell({
 
 	// sell state validation
 	useEffect(() => {
-		if (ready && selling) {
+		if (
+			// ready &&
+			selling
+		) {
 			try {
 				const { error: validationError, ...validationState } = validateSell(
 					String(state.count)
@@ -296,22 +299,25 @@ export default function BuyAndSell({
 						$
 						{
 							// ready &&
-							amountFormatter(dollarize(buyValidationState.inputValue), 18, 2)
+							amountFormatter(dollarize(state.validationState), 18, 2)
 						}
 					</p>
 				</>
 			);
-		} else if (selling && sellValidationState.outputValue) {
+		} else if (
+			selling &&
+			// sellValidationState.outputValue
+			state.validationState
+		) {
 			conditionalRender = (
 				<>
 					<p>
 						$
-						{ready &&
-							amountFormatter(
-								dollarize(sellValidationState.outputValue),
-								18,
-								2
-							)}
+						{
+							// ready &&
+							// amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)
+							amountFormatter(dollarize(state.validationState), 18, 2)
+						}
 					</p>
 				</>
 			);

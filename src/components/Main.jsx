@@ -74,12 +74,6 @@ export default function Main({ key, setKey }) {
 		});
 	}, [client]);
 
-	// const signer = useMemo(()=> {
-	// 	return ethers5Adapter.signer.toEthers({
-	// 	client,
-	// 	chain: base,
-	// 	account: account,
-	// })},[account]);
 	const account = useActiveAccount();
 	const { wineryId, productId } = useParams();
 	const [state, setState] = useAppContext();
@@ -100,21 +94,6 @@ export default function Main({ key, setKey }) {
 		const filterProduct = productsWineries.data.filter(
 			(product) => product.id === productId
 		);
-		// console.log(
-		// 	import.meta.env.VITE_APIURL,
-
-		// 	filterProduct[0].crow_sale_address,
-		// 	filterProduct[0].networkId,
-		// 	filterProduct[0].token_address,
-		// 	filterProduct[0].bottle_image,
-		// 	filterProduct[0].year.toString(),
-		// 	filterProduct[0].id,
-		// 	filterProduct[0].token_icon,
-		// 	"Token",
-		// 	filterProduct[0].shipping_account,
-		// 	undefined,
-		// 	true
-		// );
 
 		setState((prevState) => ({
 			...prevState,
@@ -135,18 +114,7 @@ export default function Main({ key, setKey }) {
 
 		// setProduct(productsWineries.data);
 	};
-	// const [refreshTimer, setRefreshTimer] = useState(false);
 
-	// useEffect(() => {
-	// 	if (state?.validationState && state?.validationState < 0) {
-	// 		setTimeout(() => {
-	// 			if (state?.validationState && state?.validationState < 0) {
-	// 				setKey((prevKey) => prevKey + 1);
-	// 			}
-	// 		}, 5000);
-	// 	}
-	// 	console.log("validationState", state?.validationState?.toString());
-	// }, [state?.validationState]);
 	useEffect(() => {
 		// Limpiar estado anterior antes de actualizar
 		// setState((prevState) => ({
@@ -174,25 +142,6 @@ export default function Main({ key, setKey }) {
 		TOKEN_SYMBOLS.ETH
 	);
 
-	// const routerContract = useRouterContract();
-	// const pairMTBwETH = usePairContract(state?.tokenAddress);
-	// console.log("token", state?.tokenAddress);
-	// console.log("pair", pairMTBwETH.address);
-
-	// get exchange contracts
-	// const exchangeContractWINES = useExchangeContract(state?.tokenAddress);
-	// const exchangeContractSelectedToken = useExchangeContract(
-	// 	state?.tokenAddress
-	// );
-	// const exchangeContractDAI = useExchangeContract(TOKEN_ADDRESSES.DAI);
-
-	// get token contracts
-	// const tokenContractWINES = useTokenContract(state?.tokenAddress);
-	// const tokenContractSelectedToken = useTokenContract(state?.tokenAddress);
-
-	// crowdsale contract
-	// const crowdsaleContract = useCrowdsaleContract(state?.crowdsaleAddress);
-
 	// get balances
 	const {
 		balanceETH,
@@ -208,25 +157,6 @@ export default function Main({ key, setKey }) {
 		selectedTokenSymbol,
 		refreshTrigger
 	);
-
-	// const { balanceETH, balanceWINES, balanceSelectedToken } = useAddressBalances(
-	// 	account?.address,
-	// 	state?.tokenAddress,
-	// 	selectedTokenSymbol,
-	// 	refreshTrigger
-	// );
-
-	// const balanceETH = useAddressBalance(account?.address, TOKEN_ADDRESSES.ETH);
-	// const balanceWINES = useAddressBalance(
-	// 	account?.address,
-	// 	state?.tokenAddress,
-	// 	refreshTrigger
-	// );
-	// const balanceSelectedToken = useAddressBalance(
-	// 	account?.address,
-	// 	TOKEN_ADDRESSES[selectedTokenSymbol],
-	// 	refreshTrigger
-	// );
 
 	// tokenSupply
 	const tokenSupply = useTokenSupply(tokenContractWINES);
@@ -256,27 +186,6 @@ export default function Main({ key, setKey }) {
 			: reserves.reserve1;
 	const reserveWINESToken =
 		token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
-
-	// const {
-	// 	reserveETH: reserveSelectedTokenETH,
-	// 	reserveToken: reserveSelectedTokenToken,
-	// } = useExchangeReserves(TOKEN_ADDRESSES[selectedTokenSymbol]);
-
-	// const { reserveTokenA: reserveDAIETH, reserveTokenB: reserveDAIToken } =
-	// 	useExchangeReserves(
-	// 		exchangeContractDAI,
-	// 		TOKEN_ADDRESSES.ETH,
-	// 		TOKEN_ADDRESSES.DAI
-	// 	);
-
-	// const reserveDAIETH = useAddressBalance(
-	// 	exchangeContractDAI && exchangeContractDAI.address,
-	// 	TOKEN_ADDRESSES.ETH
-	// );
-	// const reserveDAIToken = useAddressBalance(
-	// 	exchangeContractDAI && exchangeContractDAI.address,
-	// 	TOKEN_ADDRESSES.DAI
-	// );
 
 	const [USDExchangeRateETH, setUSDExchangeRateETH] = useState();
 	const [USDExchangeRateSelectedToken, setUSDExchangeRateSelectedToken] =

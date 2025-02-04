@@ -28,9 +28,7 @@ const Header = ({ children }) => {
 					<div
 						className={styles["product-header-change"]}
 						onClick={() => {
-							setTimeout(() => {
-								navigate(-1);
-							}, 1500);
+							navigate(-1);
 						}}
 					>
 						{t("labels.change")}
