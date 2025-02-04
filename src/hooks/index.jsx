@@ -59,7 +59,7 @@ export function useTokenContract(tokenAddress, withSignerIfPossible = true) {
 					library,
 					withSignerIfPossible ? account?.address : undefined
 				);
-				console.log("Contrato obtenido:", contractInstance);
+
 				setContract(contractInstance); // Almacenar el contrato en el estado
 			} catch (e) {
 				console.error("Error obteniendo el contrato del token:", e);
@@ -414,7 +414,6 @@ export function useAddressBalances(
 								address,
 								library
 						  );
-				console.log(ethBalance, winesBalance, balanceSelectedToken);
 
 				setBalances({
 					balanceETH: ethBalance,
@@ -510,8 +509,6 @@ export function useTokenSupply(contract) {
 }
 
 export function useTokenCap(contract) {
-	// console.log("TOKENCONTRACT", contract);
-
 	const [tokenCap, setTokenCap] = useState();
 
 	const updateTokenCap = useCallback(() => {

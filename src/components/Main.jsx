@@ -66,7 +66,7 @@ import { useAddressBalances } from "../hooks";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
 
-export default function Main({ key, setKey }) {
+export default function Main() {
 	const library = useMemo(() => {
 		return ethers5Adapter.provider.toEthers({
 			client,

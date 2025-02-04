@@ -287,10 +287,10 @@ export default function BuyAndSell({
 
 	function renderFormData() {
 		let conditionalRender;
-		console.log(buying, buyValidationState.inputValue);
-		console.log(
-			amountFormatter(dollarize(buyValidationState.inputValue), 18, 2)
-		);
+		// console.log(buying, buyValidationState.inputValue);
+		// console.log(
+		// 	amountFormatter(dollarize(buyValidationState.inputValue), 18, 2)
+		// );
 
 		if (buying && buyValidationState.inputValue) {
 			conditionalRender = (
