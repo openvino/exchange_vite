@@ -175,6 +175,272 @@ export function useReserves(pairContract) {
 	return { reserves, token0, token1 };
 }
 
+export function useContracts(
+	tokenAddress,
+	crowdsaleAddress,
+	withSignerIfPossible = true
+) {
+	const account = useActiveAccount();
+	const [contracts, setContracts] = useState({
+		tokenContractWINES: null,
+		exchangeContractSelectedToken: null,
+		routerContract: null,
+		pairMTBwETH: null,
+		crowdsaleContract: null,
+	});
+
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!isAddress(tokenAddress)) return;
+
+			try {
+				console.log("📡 Fetching contracts...");
+				const library = ethers5Adapter.provider.toEthers({
+					client,
+					chain: base,
+				});
+
+				// Validar la dirección del par antes de llamar a `getPairContract`
+				const pairAddress = getPairAddressFromTokenAddress(tokenAddress);
+				const pairPromise = pairAddress
+					? getPairContract(
+							pairAddress,
+							library,
+							withSignerIfPossible ? account?.address : undefined
+					  )
+					: Promise.resolve(null);
+
+				// Validar `crowdsaleAddress` antes de llamar a `getCrowdsaleContract`
+				const crowdsalePromise =
+					crowdsaleAddress && isAddress(crowdsaleAddress)
+						? getCrowdsaleContract(
+								crowdsaleAddress,
+								library,
+								withSignerIfPossible ? account?.address : undefined
+						  )
+						: Promise.resolve(null);
+
+				// Ejecutar todas las promesas en paralelo
+				const [token, exchange, router, pair, crowdsale] = await Promise.all([
+					getTokenContract(
+						tokenAddress,
+						library,
+						withSignerIfPossible ? account?.address : undefined
+					),
+					getExchangeContract(
+						tokenAddress,
+						library,
+						withSignerIfPossible ? account?.address : undefined
+					),
+					getRouterContract(
+						library,
+						withSignerIfPossible ? account?.address : undefined
+					),
+					pairPromise,
+					crowdsalePromise,
+				]);
+
+				setContracts((prevContracts) => ({
+					tokenContractWINES: token ?? prevContracts.tokenContractWINES,
+					exchangeContractSelectedToken:
+						exchange ?? prevContracts.exchangeContractSelectedToken,
+					routerContract: router ?? prevContracts.routerContract,
+					pairMTBwETH: pair ?? prevContracts.pairMTBwETH,
+					crowdsaleContract: crowdsale ?? prevContracts.crowdsaleContract,
+				}));
+			} catch (error) {
+				console.error("❌ Error obteniendo contratos:", error);
+			}
+		}, 1000),
+		[tokenAddress, crowdsaleAddress, withSignerIfPossible, account?.address]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+	}, [debouncedFetch]);
+
+	return contracts;
+}
+
+const balanceCache = new Map();
+const callTimestamps = [];
+
+export function useAllBalances(
+	address,
+	tokenAddress,
+	selectedToken,
+	refreshTrigger
+) {
+	const [balances, setBalances] = useState({
+		balanceETH: null,
+		balanceWINES: null,
+		balanceSelectedToken: null,
+		reserveDAIETH: null,
+		reserveDAIToken: null,
+		reserveSelectedTokenETH: null,
+		reserveSelectedTokenToken: null,
+	});
+
+	const rateLimiter = async (fn) => {
+		// 🚨 Si se hicieron más de 5 llamadas en los últimos 10 segundos, espera
+		const now = Date.now();
+		callTimestamps.push(now);
+
+		// Limpiar timestamps viejos
+		while (callTimestamps.length > 0 && now - callTimestamps[0] > 10000) {
+			callTimestamps.shift();
+		}
+
+		if (callTimestamps.length > 5) {
+			console.warn("⏳ Límite de llamadas alcanzado. Esperando...");
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+		}
+
+		return fn();
+	};
+
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!isAddress(address) || !isAddress(tokenAddress)) return;
+
+			const cacheKey = `${address}-${tokenAddress}-${selectedToken}`;
+			if (balanceCache.has(cacheKey)) {
+				setBalances(balanceCache.get(cacheKey));
+				return;
+			}
+
+			try {
+				console.log("📡 Fetching balances from RPC...");
+
+				const fetchBalances = async () =>
+					await Promise.all([
+						getEtherBalance(address, library),
+						getTokenBalance(tokenAddress, address, library),
+						selectedToken === "ETH"
+							? getEtherBalance(address, library)
+							: getTokenBalance(
+									TOKEN_ADDRESSES[selectedToken],
+									address,
+									library
+							  ),
+						getTokenBalance(
+							TOKEN_ADDRESSES.ETH,
+							exchangeContractDAI?.address,
+							library
+						),
+						getTokenBalance(
+							TOKEN_ADDRESSES.DAI,
+							exchangeContractDAI?.address,
+							library
+						),
+						getTokenBalance(
+							TOKEN_ADDRESSES.ETH,
+							exchangeContractSelectedToken?.address,
+							library
+						),
+						getTokenBalance(
+							TOKEN_ADDRESSES[selectedToken],
+							exchangeContractSelectedToken?.address,
+							library
+						),
+					]);
+
+				const [
+					ethBalance,
+					winesBalance,
+					selectedTokenBalance,
+					reserveDAIETH,
+					reserveDAIToken,
+					reserveSelectedTokenETH,
+					reserveSelectedTokenToken,
+				] = await rateLimiter(fetchBalances);
+
+				const newBalances = {
+					balanceETH: ethBalance,
+					balanceWINES: winesBalance,
+					balanceSelectedToken,
+					reserveDAIETH,
+					reserveDAIToken,
+					reserveSelectedTokenETH,
+					reserveSelectedTokenToken,
+				};
+
+				balanceCache.set(cacheKey, newBalances);
+				setBalances(newBalances);
+			} catch (error) {
+				console.error("❌ Error obteniendo balances:", error);
+			}
+		}, 8000), // Aumento debounce a 8s
+		[address, tokenAddress, selectedToken, refreshTrigger]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+		return () => debouncedFetch.cancel();
+	}, [debouncedFetch]);
+
+	return balances;
+}
+
+export function useAddressBalances(
+	address,
+	tokenAddress,
+	selectedToken,
+	refreshTrigger
+) {
+	const [balances, setBalances] = useState({
+		balanceETH: null,
+		balanceWINES: null,
+		balanceSelectedToken: null,
+	});
+
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!isAddress(address) || !isAddress(tokenAddress)) return;
+
+			try {
+				// Obtener balance de ETH y WINES
+				const [ethBalance, winesBalance] = await Promise.all([
+					getEtherBalance(address, library), // Balance de ETH
+					getTokenBalance(tokenAddress, address, library), // Balance de WINES
+				]);
+
+				// Si el token seleccionado es ETH, usamos el balance que ya obtuvimos
+				let balanceSelectedToken =
+					selectedToken === "ETH"
+						? ethBalance
+						: await getTokenBalance(
+								TOKEN_ADDRESSES[selectedToken],
+								address,
+								library
+						  );
+				console.log(ethBalance, winesBalance, balanceSelectedToken);
+
+				setBalances({
+					balanceETH: ethBalance,
+					balanceWINES: winesBalance,
+					balanceSelectedToken,
+				});
+			} catch (error) {
+				console.error("Error obteniendo balances:", error);
+				setBalances({
+					balanceETH: null,
+					balanceWINES: null,
+					balanceSelectedToken: null,
+				});
+			}
+		}, 1000), // 1s de debounce para evitar spam de requests
+		[address, tokenAddress, selectedToken, refreshTrigger]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+		return () => debouncedFetch.cancel(); // Cancela la llamada si el efecto se desmonta
+	}, [debouncedFetch]);
+
+	return balances;
+}
+
 export function useAddressBalance(address, tokenAddress, refreshTrigger) {
 	const [balance, setBalance] = useState();
 
@@ -195,7 +461,7 @@ export function useAddressBalance(address, tokenAddress, refreshTrigger) {
 					setBalance(null);
 				}
 			}
-		}, 1000),
+		}, 100000),
 		[address, tokenAddress, refreshTrigger]
 	);
 
@@ -244,7 +510,7 @@ export function useTokenSupply(contract) {
 }
 
 export function useTokenCap(contract) {
-	console.log("TOKENCONTRACT", contract);
+	// console.log("TOKENCONTRACT", contract);
 
 	const [tokenCap, setTokenCap] = useState();
 
@@ -280,25 +546,60 @@ export function useTokenCap(contract) {
 	return tokenCap && Math.round(Number(ethers.utils.formatEther(tokenCap)));
 }
 
-export function useExchangeReserves(exchangeContract) {
-	const [reserves, setReserves] = useState({ reserve0: null, reserve1: null });
+// export function useExchangeReserves(exchangeContract) {
+// 	const [reserves, setReserves] = useState({ reserve0: null, reserve1: null });
+
+// 	const debouncedFetch = useCallback(
+// 		debounce(async () => {
+// 			if (!exchangeContract) return;
+// 			try {
+// 				const [reserve0, reserve1] = await exchangeContract.getReserves();
+// 				setReserves({ reserve0, reserve1 });
+// 			} catch (error) {
+// 				console.error("Error obteniendo reservas del exchange:", error);
+// 				setReserves({ reserve0: null, reserve1: null });
+// 			}
+// 		}, 1000),
+// 		[exchangeContract]
+// 	);
+
+// 	useEffect(() => {
+// 		debouncedFetch();
+// 	}, [debouncedFetch]);
+
+// 	return reserves;
+// }
+export function useExchangeReserves(exchangeContract, tokenA, tokenB) {
+	const [reserves, setReserves] = useState({
+		reserveTokenA: null,
+		reserveTokenB: null,
+	});
 
 	const debouncedFetch = useCallback(
 		debounce(async () => {
-			if (!exchangeContract) return;
+			if (!exchangeContract || !isAddress(exchangeContract.address)) return;
+
 			try {
-				const [reserve0, reserve1] = await exchangeContract.getReserves();
-				setReserves({ reserve0, reserve1 });
+				const [reserveA, reserveB] = await Promise.all([
+					getTokenBalance(tokenA, exchangeContract.address, library),
+					getTokenBalance(tokenB, exchangeContract.address, library),
+				]);
+
+				setReserves({
+					reserveTokenA: reserveA,
+					reserveTokenB: reserveB,
+				});
 			} catch (error) {
 				console.error("Error obteniendo reservas del exchange:", error);
-				setReserves({ reserve0: null, reserve1: null });
+				setReserves({ reserveTokenA: null, reserveTokenB: null });
 			}
-		}, 1000),
-		[exchangeContract]
+		}, 1000), // 1s de debounce para evitar spam de requests
+		[exchangeContract, tokenA, tokenB]
 	);
 
 	useEffect(() => {
 		debouncedFetch();
+		return () => debouncedFetch.cancel(); // Cancela la llamada si el efecto se desmonta
 	}, [debouncedFetch]);
 
 	return reserves;

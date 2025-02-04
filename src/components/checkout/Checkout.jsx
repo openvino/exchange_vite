@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { client } from "../../config/thirdwebClient";
 import { base, defineChain, optimismSepolia } from "thirdweb/chains";
@@ -163,10 +163,12 @@ export default function Checkout({
 	// 	setRefreshTrigger
 	// );
 
-	const library = ethers5Adapter.provider.toEthers({
-		client,
-		chain: base,
-	});
+	const library = useMemo(() => {
+		return ethers5Adapter.provider.toEthers({
+			client,
+			chain: base,
+		});
+	}, [client]);
 
 	const account = useActiveAccount();
 	const [state, setState] = useAppContext();

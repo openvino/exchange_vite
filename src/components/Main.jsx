@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Checkout from "./checkout/Checkout";
 import BeatLoader from "react-spinners/BeatLoader";
 import { useAppContext } from "../context";
@@ -62,22 +62,35 @@ import { axiosClient } from "../config/axiosClient";
 import Header from "./Header/Header";
 import Tabs from "./Tabs/Tabs";
 import Sensors from "./Sensors/Sensors";
+import { useAddressBalances } from "../hooks";
+import { useAllBalances } from "../hooks";
+import { useContracts } from "../hooks";
 
 export default function Main({ key, setKey }) {
-	const library = ethers5Adapter.provider.toEthers({
-		client,
-		chain: base,
-	});
-	const signer = ethers5Adapter.signer.toEthers({
-		client,
-		chain: base,
-		account: account,
-	});
+	const library = useMemo(() => {
+		return ethers5Adapter.provider.toEthers({
+			client,
+			chain: base,
+		});
+	}, [client]);
 
+	// const signer = useMemo(()=> {
+	// 	return ethers5Adapter.signer.toEthers({
+	// 	client,
+	// 	chain: base,
+	// 	account: account,
+	// })},[account]);
 	const account = useActiveAccount();
 	const { wineryId, productId } = useParams();
 	const [state, setState] = useAppContext();
 	const [refreshTrigger, setRefreshTrigger] = useState(0);
+	const {
+		tokenContractWINES,
+		exchangeContractSelectedToken,
+		routerContract,
+		pairMTBwETH,
+		crowdsaleContract,
+	} = useContracts(state?.tokenAddress, state?.crowdsaleAddress);
 
 	const getProductList = async () => {
 		const productsWineries = await axiosClient.get("/token", {
@@ -87,21 +100,21 @@ export default function Main({ key, setKey }) {
 		const filterProduct = productsWineries.data.filter(
 			(product) => product.id === productId
 		);
-		console.log(
-			import.meta.env.VITE_APIURL,
+		// console.log(
+		// 	import.meta.env.VITE_APIURL,
 
-			filterProduct[0].crow_sale_address,
-			filterProduct[0].networkId,
-			filterProduct[0].token_address,
-			filterProduct[0].bottle_image,
-			filterProduct[0].year.toString(),
-			filterProduct[0].id,
-			filterProduct[0].token_icon,
-			"Token",
-			filterProduct[0].shipping_account,
-			undefined,
-			true
-		);
+		// 	filterProduct[0].crow_sale_address,
+		// 	filterProduct[0].networkId,
+		// 	filterProduct[0].token_address,
+		// 	filterProduct[0].bottle_image,
+		// 	filterProduct[0].year.toString(),
+		// 	filterProduct[0].id,
+		// 	filterProduct[0].token_icon,
+		// 	"Token",
+		// 	filterProduct[0].shipping_account,
+		// 	undefined,
+		// 	true
+		// );
 
 		setState((prevState) => ({
 			...prevState,
@@ -161,38 +174,59 @@ export default function Main({ key, setKey }) {
 		TOKEN_SYMBOLS.ETH
 	);
 
-	const routerContract = useRouterContract();
-	const pairMTBwETH = usePairContract(state?.tokenAddress);
+	// const routerContract = useRouterContract();
+	// const pairMTBwETH = usePairContract(state?.tokenAddress);
 	// console.log("token", state?.tokenAddress);
 	// console.log("pair", pairMTBwETH.address);
 
 	// get exchange contracts
 	// const exchangeContractWINES = useExchangeContract(state?.tokenAddress);
-	const exchangeContractSelectedToken = useExchangeContract(
-		state?.tokenAddress
-	);
-	const exchangeContractDAI = useExchangeContract(TOKEN_ADDRESSES.DAI);
+	// const exchangeContractSelectedToken = useExchangeContract(
+	// 	state?.tokenAddress
+	// );
+	// const exchangeContractDAI = useExchangeContract(TOKEN_ADDRESSES.DAI);
 
-	console.log(state?.tokenAddress);
 	// get token contracts
-	const tokenContractWINES = useTokenContract(state?.tokenAddress);
-	const tokenContractSelectedToken = useTokenContract(state?.tokenAddress);
+	// const tokenContractWINES = useTokenContract(state?.tokenAddress);
+	// const tokenContractSelectedToken = useTokenContract(state?.tokenAddress);
 
 	// crowdsale contract
-	const crowdsaleContract = useCrowdsaleContract(state?.crowdsaleAddress);
+	// const crowdsaleContract = useCrowdsaleContract(state?.crowdsaleAddress);
 
 	// get balances
-	const balanceETH = useAddressBalance(account?.address, TOKEN_ADDRESSES.ETH);
-	const balanceWINES = useAddressBalance(
+	const {
+		balanceETH,
+		balanceWINES,
+		balanceSelectedToken,
+		reserveDAIETH,
+		reserveDAIToken,
+		reserveSelectedTokenETH,
+		reserveSelectedTokenToken,
+	} = useAllBalances(
 		account?.address,
 		state?.tokenAddress,
+		selectedTokenSymbol,
 		refreshTrigger
 	);
-	const balanceSelectedToken = useAddressBalance(
-		account?.address,
-		TOKEN_ADDRESSES[selectedTokenSymbol],
-		refreshTrigger
-	);
+
+	// const { balanceETH, balanceWINES, balanceSelectedToken } = useAddressBalances(
+	// 	account?.address,
+	// 	state?.tokenAddress,
+	// 	selectedTokenSymbol,
+	// 	refreshTrigger
+	// );
+
+	// const balanceETH = useAddressBalance(account?.address, TOKEN_ADDRESSES.ETH);
+	// const balanceWINES = useAddressBalance(
+	// 	account?.address,
+	// 	state?.tokenAddress,
+	// 	refreshTrigger
+	// );
+	// const balanceSelectedToken = useAddressBalance(
+	// 	account?.address,
+	// 	TOKEN_ADDRESSES[selectedTokenSymbol],
+	// 	refreshTrigger
+	// );
 
 	// tokenSupply
 	const tokenSupply = useTokenSupply(tokenContractWINES);
@@ -223,19 +257,26 @@ export default function Main({ key, setKey }) {
 	const reserveWINESToken =
 		token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
 
-	const {
-		reserveETH: reserveSelectedTokenETH,
-		reserveToken: reserveSelectedTokenToken,
-	} = useExchangeReserves(TOKEN_ADDRESSES[selectedTokenSymbol]);
+	// const {
+	// 	reserveETH: reserveSelectedTokenETH,
+	// 	reserveToken: reserveSelectedTokenToken,
+	// } = useExchangeReserves(TOKEN_ADDRESSES[selectedTokenSymbol]);
 
-	const reserveDAIETH = useAddressBalance(
-		exchangeContractDAI && exchangeContractDAI.address,
-		TOKEN_ADDRESSES.ETH
-	);
-	const reserveDAIToken = useAddressBalance(
-		exchangeContractDAI && exchangeContractDAI.address,
-		TOKEN_ADDRESSES.DAI
-	);
+	// const { reserveTokenA: reserveDAIETH, reserveTokenB: reserveDAIToken } =
+	// 	useExchangeReserves(
+	// 		exchangeContractDAI,
+	// 		TOKEN_ADDRESSES.ETH,
+	// 		TOKEN_ADDRESSES.DAI
+	// 	);
+
+	// const reserveDAIETH = useAddressBalance(
+	// 	exchangeContractDAI && exchangeContractDAI.address,
+	// 	TOKEN_ADDRESSES.ETH
+	// );
+	// const reserveDAIToken = useAddressBalance(
+	// 	exchangeContractDAI && exchangeContractDAI.address,
+	// 	TOKEN_ADDRESSES.DAI
+	// );
 
 	const [USDExchangeRateETH, setUSDExchangeRateETH] = useState();
 	const [USDExchangeRateSelectedToken, setUSDExchangeRateSelectedToken] =
@@ -336,23 +377,25 @@ export default function Main({ key, setKey }) {
 		}
 	}, [crowdsaleContract, USDExchangeRateETH]);
 
-	const ready = !!(
-		(isCrowdsale && tokenCap > tokenSupply + 6) ||
-		(!isCrowdsale &&
-			(account?.address === null || allowanceWINES) &&
-			(selectedTokenSymbol === "ETH" ||
-				account?.address === null ||
-				allowanceSelectedToken) &&
-			(account?.address === null || balanceETH) &&
-			(account?.address === null || balanceWINES) &&
-			(account?.address === null || balanceSelectedToken) &&
-			reserveWINESETH &&
-			reserveWINESToken &&
-			(selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
-			(selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
-			selectedTokenSymbol &&
-			(USDExchangeRateETH || USDExchangeRateSelectedToken))
-	);
+	const ready = true;
+
+	// !!(
+	// 	(isCrowdsale && tokenCap > tokenSupply + 6) ||
+	// 	(!isCrowdsale &&
+	// 		(account?.address === null || allowanceWINES) &&
+	// 		(selectedTokenSymbol === "ETH" ||
+	// 			account?.address === null ||
+	// 			allowanceSelectedToken) &&
+	// 		(account?.address === null || balanceETH) &&
+	// 		(account?.address === null || balanceWINES) &&
+	// 		(account?.address === null || balanceSelectedToken) &&
+	// 		reserveWINESETH &&
+	// 		reserveWINESToken &&
+	// 		(selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
+	// 		(selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
+	// 		selectedTokenSymbol &&
+	// 		(USDExchangeRateETH || USDExchangeRateSelectedToken))
+	// );
 
 	function _dollarize(amount, exchangeRate) {
 		if (exchangeRate) {
@@ -612,7 +655,7 @@ export default function Main({ key, setKey }) {
 									{state?.validationState &&
 										state?.validationState > 0 &&
 										`$${amountFormatter(
-											dollarize(state.validationState),
+											dollarize(state?.validationState),
 											18,
 											2
 										)} USDC`}
