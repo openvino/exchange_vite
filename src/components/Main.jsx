@@ -65,6 +65,7 @@ import Sensors from "./Sensors/Sensors";
 import { useAddressBalances } from "../hooks";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
+import { Height } from "@styled-icons/material";
 
 export default function Main() {
 	const library = useMemo(() => {
@@ -557,8 +558,9 @@ export default function Main() {
 										: "$0.00"}
 								</CurrentPrice>
 							)}
-							{!isCrowdsale && !loadingPrice && (
-								<CurrentPrice>
+							{!isCrowdsale && (
+								// !loadingPrice &&
+								<CurrentPrice style={{ minHeight: "30px" }}>
 									{state?.validationState &&
 										state?.validationState > 0 &&
 										`$${amountFormatter(

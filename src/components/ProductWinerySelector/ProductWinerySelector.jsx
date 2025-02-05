@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./ProductWinerySelector.module.css"; // Importa los módulos CSS
+import styles from "./ProductWinerySelector.module.css";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -28,6 +28,7 @@ const ProductWinerySelector = ({ winery }) => {
 								className={styles["card-img-top"]}
 								src={winery?.image}
 								alt="Winery"
+								loading="lazy"
 							/>
 						</div>
 					) : (
@@ -36,6 +37,7 @@ const ProductWinerySelector = ({ winery }) => {
 								className={styles["card-img-top"]}
 								src={"/images/empty_winery.png"}
 								alt="Empty Winery"
+								loading="lazy"
 							/>
 						</div>
 					)}

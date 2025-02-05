@@ -42,6 +42,7 @@ const WinerySelector = () => {
 								src="/images/openvino-logo.png"
 								alt="Openvino"
 								style={{ width: 200 }}
+								loading="lazy"
 							/>
 						</a>
 					</div>
