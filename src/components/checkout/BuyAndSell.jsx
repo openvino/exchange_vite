@@ -53,6 +53,7 @@ export function Account({ $ready, $balanceWINES, setShowConnect }) {
 	const account = useActiveAccount();
 	const [state] = useAppContext();
 	const { t } = useTranslation();
+
 	return (
 		<>
 			{account ? (
@@ -515,7 +516,8 @@ export default function BuyAndSell({
 								contract: tokenContractWINES,
 								method: "approve",
 								params: [
-									routerContract.address,
+									// routerContract.address,
+									import.meta.env.VITE_ROUTER_ADDRESS,
 									BigInt(ethers.constants.MaxUint256),
 								],
 							})

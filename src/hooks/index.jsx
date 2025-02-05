@@ -312,8 +312,9 @@ export function useAllBalances(
 			try {
 				console.log("📡 Fetching balances from RPC...");
 
-				const fetchBalances = async () =>
-					await Promise.all([
+				// 🚨 Verificar si los contratos existen antes de usarlos
+				const fetchBalances = async () => {
+					const promises = [
 						getEtherBalance(address, library),
 						getTokenBalance(tokenAddress, address, library),
 						selectedToken === "ETH"
@@ -323,42 +324,67 @@ export function useAllBalances(
 									address,
 									library
 							  ),
-						getTokenBalance(
-							TOKEN_ADDRESSES.ETH,
-							exchangeContractDAI?.address,
-							library
-						),
-						getTokenBalance(
-							TOKEN_ADDRESSES.DAI,
-							exchangeContractDAI?.address,
-							library
-						),
-						getTokenBalance(
-							TOKEN_ADDRESSES.ETH,
-							exchangeContractSelectedToken?.address,
-							library
-						),
-						getTokenBalance(
-							TOKEN_ADDRESSES[selectedToken],
-							exchangeContractSelectedToken?.address,
-							library
-						),
-					]);
+					];
 
+					// if (!!exchangeContractDAI) {
+					// 	promises.push(
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES.ETH,
+					// 			exchangeContractDAI?.address,
+					// 			library
+					// 		),
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES.DAI,
+					// 			exchangeContractDAI?.address,
+					// 			library
+					// 		)
+					// 	);
+					// } else {
+					// 	console.warn(
+					// 		"⚠️ exchangeContractDAI no está definido. Saltando balances de DAI."
+					// 	);
+					// }
+
+					// if (!!exchangeContractSelectedToken) {
+					// 	promises.push(
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES.ETH,
+					// 			exchangeContractSelectedToken?.address,
+					// 			library
+					// 		),
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES[selectedToken],
+					// 			exchangeContractSelectedToken?.address,
+					// 			library
+					// 		)
+					// 	);
+					// } else {
+					// 	console.warn(
+					// 		"⚠️ exchangeContractSelectedToken no está definido. Saltando balances de token seleccionado."
+					// 	);
+					// }
+
+					return await Promise.all(promises);
+				};
+
+				const results = await rateLimiter(fetchBalances);
+
+				// Mapeamos los resultados dependiendo de qué contratos estaban disponibles
 				const [
 					ethBalance,
 					winesBalance,
 					selectedTokenBalance,
-					reserveDAIETH,
-					reserveDAIToken,
-					reserveSelectedTokenETH,
-					reserveSelectedTokenToken,
-				] = await rateLimiter(fetchBalances);
+					reserveDAIETH = null,
+					reserveDAIToken = null,
+					reserveSelectedTokenETH = null,
+					reserveSelectedTokenToken = null,
+				] = results;
+				console.log(results.ethBalance, results.winesBalance);
 
 				const newBalances = {
 					balanceETH: ethBalance,
 					balanceWINES: winesBalance,
-					balanceSelectedToken,
+					balanceSelectedToken: selectedTokenBalance,
 					reserveDAIETH,
 					reserveDAIToken,
 					reserveSelectedTokenETH,
@@ -370,7 +396,7 @@ export function useAllBalances(
 			} catch (error) {
 				console.error("❌ Error obteniendo balances:", error);
 			}
-		}, 8000), // Aumento debounce a 8s
+		}, 8000),
 		[address, tokenAddress, selectedToken, refreshTrigger]
 	);
 
@@ -399,13 +425,11 @@ export function useAddressBalances(
 			if (!isAddress(address) || !isAddress(tokenAddress)) return;
 
 			try {
-				// Obtener balance de ETH y WINES
 				const [ethBalance, winesBalance] = await Promise.all([
-					getEtherBalance(address, library), // Balance de ETH
-					getTokenBalance(tokenAddress, address, library), // Balance de WINES
+					getEtherBalance(address, library),
+					getTokenBalance(tokenAddress, address, library),
 				]);
 
-				// Si el token seleccionado es ETH, usamos el balance que ya obtuvimos
 				let balanceSelectedToken =
 					selectedToken === "ETH"
 						? ethBalance
@@ -428,13 +452,13 @@ export function useAddressBalances(
 					balanceSelectedToken: null,
 				});
 			}
-		}, 1000), // 1s de debounce para evitar spam de requests
+		}, 1000),
 		[address, tokenAddress, selectedToken, refreshTrigger]
 	);
 
 	useEffect(() => {
 		debouncedFetch();
-		return () => debouncedFetch.cancel(); // Cancela la llamada si el efecto se desmonta
+		return () => debouncedFetch.cancel();
 	}, [debouncedFetch]);
 
 	return balances;

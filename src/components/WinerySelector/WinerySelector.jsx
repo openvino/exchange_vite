@@ -99,15 +99,17 @@ const WinerySelector = () => {
 						</div>
 					</div>
 					<div className={`${styles["card-group"]} card-group`}>
-						{wineries.map((winery) => (
+						{wineries.map((winery, index) => (
 							<ProductWinerySelector
-								key={winery.id && "current"}
+								key={winery.id ? `winery-${winery.id}` : `winery-${index}`}
 								winery={winery}
 							/>
 						))}
-						{comingSoonWineies.map((winery) => (
+						{comingSoonWineies.map((winery, index) => (
 							<ProductComingSoonWinerySelector
-								key={winery.id && "soon"}
+								key={
+									winery.id ? `comingSoon-${winery.id}` : `comingSoon-${index}`
+								}
 								winery={winery}
 							/>
 						))}

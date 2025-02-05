@@ -286,25 +286,23 @@ export default function Main() {
 		}
 	}, [crowdsaleContract, USDExchangeRateETH]);
 
-	const ready = true;
-
-	// !!(
-	// 	(isCrowdsale && tokenCap > tokenSupply + 6) ||
-	// 	(!isCrowdsale &&
-	// 		(account?.address === null || allowanceWINES) &&
-	// 		(selectedTokenSymbol === "ETH" ||
-	// 			account?.address === null ||
-	// 			allowanceSelectedToken) &&
-	// 		(account?.address === null || balanceETH) &&
-	// 		(account?.address === null || balanceWINES) &&
-	// 		(account?.address === null || balanceSelectedToken) &&
-	// 		reserveWINESETH &&
-	// 		reserveWINESToken &&
-	// 		(selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
-	// 		(selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
-	// 		selectedTokenSymbol &&
-	// 		(USDExchangeRateETH || USDExchangeRateSelectedToken))
-	// );
+	const ready = !!(
+		(isCrowdsale && tokenCap > tokenSupply + 6) ||
+		(!isCrowdsale &&
+			(account?.address === null || allowanceWINES) &&
+			(selectedTokenSymbol === "ETH" ||
+				account?.address === null ||
+				allowanceSelectedToken) &&
+			(account?.address === null || balanceETH) &&
+			(account?.address === null || balanceWINES) &&
+			(account?.address === null || balanceSelectedToken) &&
+			reserveWINESETH &&
+			reserveWINESToken &&
+			(selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
+			(selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
+			selectedTokenSymbol &&
+			(USDExchangeRateETH || USDExchangeRateSelectedToken))
+	);
 
 	function _dollarize(amount, exchangeRate) {
 		if (exchangeRate) {
