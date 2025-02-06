@@ -534,19 +534,21 @@ export default function Main() {
 							<Image src={state.image} />
 						</ImageContainer>
 						<MarketData>
-							<Title>
-								{state.title} ({state.tokenName}){" "}
-								<InfoIcon
-									onClick={(e) => {
-										e.preventDefault();
-										setState((state) => ({
-											...state,
-											visible: !state.visible,
-										}));
-										setShowWorks(true);
-									}}
-								></InfoIcon>
-							</Title>
+							{state?.title && state?.tokenName && (
+								<Title>
+									{state.title} ({state.tokenName}){" "}
+									<InfoIcon
+										onClick={(e) => {
+											e.preventDefault();
+											setState((state) => ({
+												...state,
+												visible: !state.visible,
+											}));
+											setShowWorks(true);
+										}}
+									></InfoIcon>
+								</Title>
+							)}
 							{isCrowdsale && !loadingPrice && (
 								<CurrentPrice>
 									{crowdsaleExchangeRateUSD
