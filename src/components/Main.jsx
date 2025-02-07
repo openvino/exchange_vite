@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+	useEffect,
+	useState,
+	useCallback,
+	useMemo,
+	useRef,
+} from "react";
 import Checkout from "./checkout/Checkout";
 import BeatLoader from "react-spinners/BeatLoader";
 import { useAppContext } from "../context";
@@ -66,15 +72,18 @@ import { useAddressBalances } from "../hooks";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
 import { Height } from "@styled-icons/material";
+import useWeb3Store from "../config/zustandStore";
 
-export default function Main() {
+export default function Main({ key, setKey }) {
+	const usdPrice = useWeb3Store.getState().usdPrice;
+	const { setUsdPrice } = useWeb3Store();
 	const library = useMemo(() => {
 		return ethers5Adapter.provider.toEthers({
 			client,
 			chain: base,
 		});
 	}, [client]);
-
+	const priceRef = useRef(null);
 	const account = useActiveAccount();
 	const { wineryId, productId } = useParams();
 	const [state, setState] = useAppContext();
@@ -86,7 +95,17 @@ export default function Main() {
 		pairMTBwETH,
 		crowdsaleContract,
 	} = useContracts(state?.tokenAddress, state?.crowdsaleAddress);
+	useEffect(() => {
+		// Si el precio es válido, ocultar el loader
+		if (priceRef.current && priceRef.current !== "~<0") {
+			setLoadingPrice(false);
+		}
 
+		// Si el precio es "~<0", forzar un re-render
+		if (priceRef.current === "~<0") {
+			setKey((prevKey) => prevKey + 1);
+		}
+	}, [state.validationState, dollarize(state?.validationState)]);
 	const getProductList = async () => {
 		const productsWineries = await axiosClient.get("/token", {
 			params: { winerie_id: wineryId },
@@ -99,7 +118,6 @@ export default function Main() {
 		setState((prevState) => ({
 			...prevState,
 			apiUrl: import.meta.env.VITE_APIURL,
-
 			crowdsaleAddress: filterProduct[0].crow_sale_address,
 			networkId: filterProduct[0].networkId,
 			tokenAddress: filterProduct[0].token_address,
@@ -117,24 +135,23 @@ export default function Main() {
 	};
 
 	useEffect(() => {
-		// Limpiar estado anterior antes de actualizar
-		// setState((prevState) => ({
-		// 	...prevState,
-		// 	tokenName: "",
-		// 	crowdsaleAddress: "",
-		// 	networkId: "",
-		// 	tokenAddress: "",
-		// 	image: "",
-		// 	tokenYear: "",
-		// 	tokenIcon: "",
-		// }));
 		setUSDExchangeRateETH(undefined);
 		setUSDExchangeRateSelectedToken(undefined);
 		setDollarPrice(undefined);
 
-		// Obtener el nuevo producto
 		getProductList();
 	}, [productId, wineryId]);
+
+	// useEffect(() => {
+	// 	if (state?.validationState && state?.validationState < 0) {
+	// 		setTimeout(() => {
+	// 			if (state?.validationState && state?.validationState < 0) {
+	// 				setKey((prevKey) => prevKey + 1);
+	// 			}
+	// 		}, 5000);
+	// 	}
+	// 	console.log("validationState", state?.validationState?.toString());
+	// }, []);
 
 	const [showFarming, setShowFarming] = useState(false);
 
@@ -193,11 +210,24 @@ export default function Main() {
 		useState();
 
 	const [loadingPrice, setLoadingPrice] = useState(false);
-
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, []);
 	useEffect(() => {
 		const fetchPriceAndSetState = async () => {
 			try {
-				const usdPrice = await fetchPrice();
+				if (usdPrice > 0) {
+					fetchPrice().then((result) => {
+						console.log(usdPrice);
+
+						console.log(result);
+						setUsdPrice(result);
+					});
+				} else {
+					const price = await fetchPrice();
+					setUsdPrice(price);
+				}
+
 				const formatedUsdPrice = usdPrice.split(".")[0];
 				const exchangeRateDAI = getExchangeRate(
 					BigNumber.from(1),
@@ -563,15 +593,17 @@ export default function Main() {
 							{!isCrowdsale && (
 								// !loadingPrice &&
 								<CurrentPrice style={{ minHeight: "30px" }}>
-									{state?.validationState &&
-										state?.validationState > 0 &&
-										`$${amountFormatter(
-											dollarize(state?.validationState),
-											18,
-											2
-										)} USDC`}
-
-									{(!state?.validationState || !state?.validationState > 0) && (
+									{state?.validationState && state?.validationState > 0 ? (
+										<>
+											{
+												(priceRef.current = `$${amountFormatter(
+													dollarize(state?.validationState),
+													18,
+													2
+												)} USDC`)
+											}
+										</>
+									) : (
 										<BeatLoader
 											color="#d68513"
 											loading={true}

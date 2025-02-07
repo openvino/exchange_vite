@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { axiosClient } from "../../config/axiosClient";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import ProductSelector from "./ProductSelector/ProductSelector";
 import styles from "./Selector.module.css";
 import { useTranslation } from "react-i18next";
 import BeatLoader from "react-spinners/BeatLoader";
+import { useAppContext } from "../../context";
+import useWeb3Store from "../../config/zustandStore";
+import { fetchPrice } from "../../utils/fetchPrice";
 
 const Selector = () => {
 	const [products, setProducts] = useState([]);
@@ -13,7 +16,36 @@ const Selector = () => {
 	const { wineryId } = useParams();
 
 	const { t } = useTranslation();
+	const location = useLocation();
+	const [state, setState] = useAppContext();
+	const { setUsdPrice } = useWeb3Store();
 
+	useEffect(() => {
+		setState((prevState) => ({
+			...prevState,
+			tokenName: "",
+			crowdsaleAddress: "",
+			networkId: "",
+			tokenAddress: "",
+			image: "",
+			tokenYear: "",
+			tokenIcon: "",
+			apiUrl: import.meta.env.VITE_APIURL,
+			title: "",
+			shippingAccount: "",
+			validationState: undefined,
+			loading: true,
+		}));
+
+		fetchPrice()
+			.then((result) => {
+				console.log(result);
+				setUsdPrice(result);
+			})
+			.catch((error) => {
+				console.error("Error fetching price:", error);
+			});
+	}, [location.pathname]);
 	const getProductList = async () => {
 		try {
 			const productsWineries = await axiosClient.get("/token", {
