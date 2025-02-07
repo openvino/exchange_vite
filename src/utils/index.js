@@ -218,10 +218,7 @@ export function amountFormatter(
 		const minimumDisplayAmount = baseAmount.div(
 			BigNumber.from(10).pow(BigNumber.from(displayDecimals))
 		);
-		console.log(
-			"AAAAAAAAAAAAAAAAAAAAAAAA",
-			`${ethers.utils.formatUnits(minimumDisplayAmount, baseDecimals)}`
-		);
+
 		// if balance is less than the minimum display amount
 		if (amount.lt(minimumDisplayAmount)) {
 			return useLessThan
