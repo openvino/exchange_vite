@@ -55,6 +55,8 @@ import Tabs from "./Tabs/Tabs";
 import Sensors from "./Sensors/Sensors";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
+import { Height } from "@styled-icons/material";
+import useWeb3Store from "../config/zustandStore";
 
 export default function Main() {
 	const library = useMemo(() => {
