@@ -11,14 +11,11 @@ import { base } from "thirdweb/chains";
 import styles from "./Header/Header.module.css"; // Importa el archivo CSS Module
 import {
 	TOKEN_SYMBOLS,
-	TOKEN_ADDRESSES,
 	TRADE_TYPES,
 	getExchangeRate,
-	getCrowdsaleContract,
 	calculateGasMargin,
 	amountFormatter,
-	getProviderOrSigner,
-	getNetworkId,
+
 } from "../utils";
 import {
 	validateBuyHelper,
@@ -26,18 +23,12 @@ import {
 	validateSellHelper,
 } from "../utils/checkout-utils";
 import {
-	useTokenContract,
-	useExchangeContract,
-	useCrowdsaleContract,
-	useAddressBalance,
 	useAddressAllowance,
-	useExchangeReserves,
 	useRouterAllowance,
 	useTokenSupply,
 	useTokenCap,
-	usePairContract,
 	useReserves,
-	useRouterContract,
+	
 } from "../hooks";
 import Farming from "./farming/Farming";
 import { fetchPrice } from "../utils/fetchPrice";
@@ -62,10 +53,8 @@ import { axiosClient } from "../config/axiosClient";
 import Header from "./Header/Header";
 import Tabs from "./Tabs/Tabs";
 import Sensors from "./Sensors/Sensors";
-import { useAddressBalances } from "../hooks";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
-import { Height } from "@styled-icons/material";
 
 export default function Main() {
 	const library = useMemo(() => {
@@ -468,7 +457,7 @@ export default function Main() {
 
 		return signer.sendTransaction({
 			to: ethers.utils.getAddress("0x2E54D912361f6A4b1e57E239138Ff4C1344940Ae"),
-			// value: ethers.utils.parseEther("0.001")
+			
 			value: amount,
 		});
 	}
