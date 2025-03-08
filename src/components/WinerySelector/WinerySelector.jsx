@@ -19,7 +19,6 @@ const WinerySelector = () => {
 
 		//coming soon wineries
 		const comingSoonWineries = getComingSoonWineriesList();
-		console.log(comingSoonWineries);
 
 		setComingSoonWineies(comingSoonWineries);
 		return;
@@ -37,7 +36,7 @@ const WinerySelector = () => {
 				<div className="d-flex justify-content-between w-100">
 					<div>
 						<a className="navbar-brand">
-							{" "}
+						
 							<img
 								src="/images/openvino-logo.png"
 								alt="Openvino"

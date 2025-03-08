@@ -28,7 +28,7 @@ import {
 	useTokenSupply,
 	useTokenCap,
 	useReserves,
-	
+
 } from "../hooks";
 import Farming from "./farming/Farming";
 import { fetchPrice } from "../utils/fetchPrice";
@@ -57,6 +57,7 @@ import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
 import { Height } from "@styled-icons/material";
 import useWeb3Store from "../config/zustandStore";
+import Countdown from "./countdown/Countdown";
 
 export default function Main() {
 	const library = useMemo(() => {
@@ -90,9 +91,8 @@ export default function Main() {
 		setState((prevState) => ({
 			...prevState,
 			apiUrl: import.meta.env.VITE_APIURL,
-
 			crowdsaleAddress: filterProduct[0].crow_sale_address,
-			networkId: filterProduct[0].networkId,
+			wineryId: filterProduct[0].WinerieID,
 			tokenAddress: filterProduct[0].token_address,
 			image: filterProduct[0].bottle_image,
 			tokenYear: filterProduct[0].year.toString(),
@@ -364,7 +364,6 @@ export default function Main() {
 				gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
 			);
 
-		console.log(estimatedGasPrice);
 
 		return contract.approve(spenderAddress, ethers.constants.MaxUint256, {
 			gasLimit: calculateGasMargin(estimatedGasLimit),
@@ -459,7 +458,7 @@ export default function Main() {
 
 		return signer.sendTransaction({
 			to: ethers.utils.getAddress("0x2E54D912361f6A4b1e57E239138Ff4C1344940Ae"),
-			
+
 			value: amount,
 		});
 	}
@@ -511,16 +510,19 @@ export default function Main() {
 
 	return (
 		<>
-			<Header>
+			<Header wineryId={state.wineryId}>
 				<Container>
 					<CardWrapper>
-						<div>
-							<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
-							<Redeem onClick={handleRedeemClick}>
-								{" "}
-								{t("labels.redeem")}{" "}
-							</Redeem>
-						</div>
+						{state.tokenName !== "PDC19" && state.tokenName !== 'ESKERE' ? (
+							<div>
+								<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
+								<Redeem onClick={handleRedeemClick}>
+									{t("labels.redeem")}
+								</Redeem>
+							</div>
+						) : (
+							<></>
+						)}
 						<ImageContainer>
 							<Image src={state.image} />
 						</ImageContainer>
@@ -538,54 +540,72 @@ export default function Main() {
 									}}
 								></InfoIcon>
 							</Title>
-							{isCrowdsale && !loadingPrice && (
-								<CurrentPrice>
-									{crowdsaleExchangeRateUSD
-										? `$${amountFormatter(
-												crowdsaleExchangeRateUSD,
-												18,
-												2
-										  )} USDC`
-										: "$0.00"}
-								</CurrentPrice>
-							)}
-							{!isCrowdsale && (
-								// !loadingPrice &&
-								<CurrentPrice style={{ minHeight: "30px" }}>
-									{state?.validationState &&
-										state?.validationState > 0 &&
-										`$${amountFormatter(
-											dollarize(state?.validationState),
-											18,
-											2
-										)} USDC`}
-
-									{(!state?.validationState || !state?.validationState > 0) && (
-										<BeatLoader
-											color="#d68513"
-											loading={true}
-											cssOverride={{
-												display: "flex",
-												flexDirection: "row",
-											}}
-											size={25}
-											aria-label="Loading Spinner"
-											data-testid="loader"
-										/>
+							{state?.tokenName !== 'PDC19' ? (
+								<>
+									{isCrowdsale && !loadingPrice && (
+										<CurrentPrice>
+											{crowdsaleExchangeRateUSD
+												? `$${amountFormatter(
+													crowdsaleExchangeRateUSD,
+													18,
+													2
+												)} USDC`
+												: "$0.00"}
+										</CurrentPrice>
 									)}
-								</CurrentPrice>
+									{!isCrowdsale && (
+										// !loadingPrice &&
+										<CurrentPrice style={{ minHeight: "30px" }}>
+											{state?.validationState &&
+												state?.validationState > 0 &&
+												`$${amountFormatter(
+													dollarize(state?.validationState),
+													18,
+													2
+												)} USDC`}
+
+											{(!state?.validationState || !state?.validationState > 0) && (
+												<BeatLoader
+													color="#d68513"
+													loading={true}
+													cssOverride={{
+														display: "flex",
+														flexDirection: "row",
+													}}
+													size={25}
+													aria-label="Loading Spinner"
+													data-testid="loader"
+												/>
+											)}
+										</CurrentPrice>
+									)}
+								</>
+							) : (
+								<>
+									<TokenIconContainer>
+										<TokenIconText>
+											{state?.tokenYear?.substring(2, 4)}
+										</TokenIconText>
+										<TokenIcon src={state.tokenIcon}></TokenIcon>
+									</TokenIconContainer>
+									<Countdown year={2025} month={5} day={1} /></>
 							)}
-							<TokenIconContainer>
-								<TokenIconText>
-									{state?.tokenYear?.substring(2, 4)}
-								</TokenIconText>
-								<TokenIcon src={state.tokenIcon}></TokenIcon>
-							</TokenIconContainer>
-							<TradeButtons
-								balanceWINES={balanceWINES}
-								isCrowdsale={isCrowdsale}
-							></TradeButtons>
+
+							{state?.tokenName !== 'PDC19' && (
+								<>
+									<TokenIconContainer>
+										<TokenIconText>
+											{state?.tokenYear?.substring(2, 4)}
+										</TokenIconText>
+										<TokenIcon src={state.tokenIcon}></TokenIcon>
+									</TokenIconContainer>
+									<TradeButtons
+										balanceWINES={balanceWINES}
+										isCrowdsale={isCrowdsale}
+									></TradeButtons></>
+							)}
 						</MarketData>
+
 					</CardWrapper>
 
 					<Checkout

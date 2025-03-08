@@ -90,7 +90,6 @@ export default function Redeem({
   const { t } = useTranslation();
 
   useEffect(() => {
-    console.log(transactionHash);
 
     if (transactionHash) {
       library.waitForTransaction(transactionHash).then(() => {
@@ -146,13 +145,11 @@ export default function Redeem({
     setLoading(true)
     try {
       let res = await axios.get(`${import.meta.env.VITE_DASHBOARD_URL}/api/routes/shippingCostsRoute?token=${state.tokenName}&province_id=${redeemToUpdate.province_id}&amount=${redeemToUpdate.amount}`)
-      console.log(USDExchangeRateETH.toString());
 
       let dollarCost;
       if (res.data) {
         dollarCost = BigNumber.from(res.data.cost * 100)
         setShippingCost(dollarCost)
-        console.log(shippingCost)
       }
 
       const response = await transferShippingCosts(USDToEth(USDExchangeRateETH, dollarCost))

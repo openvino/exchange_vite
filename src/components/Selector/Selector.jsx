@@ -39,7 +39,6 @@ const Selector = () => {
 
 		fetchPrice()
 			.then((result) => {
-				console.log(result);
 				setUsdPrice(result);
 			})
 			.catch((error) => {
@@ -132,7 +131,10 @@ const Selector = () => {
 						)}
 					</div>
 					<div className={styles["selector-content-button"]}>
-						{t("selection.know-more")}
+
+						<a style={{ color: 'white', textDecoration: 'none' }} target="_blank" href="https://openvino.atlassian.net/wiki/spaces/OPENVINO/overview">
+							{t("selection.know-more")}
+						</a>
 					</div>
 				</div>
 			</div>

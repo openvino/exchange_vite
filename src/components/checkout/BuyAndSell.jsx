@@ -430,7 +430,8 @@ export default function BuyAndSell({
 
 	return (
 		<Wrapper>
-			<Header>
+			
+			<Header >
 				<ConnectButton client={client} chain={defineChain(base)} />
 				<Account
 					$ready={ready}

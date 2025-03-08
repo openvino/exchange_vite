@@ -13,7 +13,6 @@ const App = () => {
 	const { setUsdPrice } = useWeb3Store;
 	useEffect(() => {
 		fetchPrice().then((result) => {
-			console.log(result);
 			setUsdPrice(result);
 		});
 	}, []);
