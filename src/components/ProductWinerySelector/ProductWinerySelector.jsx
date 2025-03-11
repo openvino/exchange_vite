@@ -12,12 +12,13 @@ const ProductWinerySelector = ({ winery }) => {
 		navigate(`/${wineryId}`);
 	};
 
-
 	return (
 		<div className={styles["card-winery"]}>
 			<div className={` card ${styles.card} `}>
-				<div onClick={() => handleWineryClick(winery.ID)} className={`${styles["card-body"]} card-body`}>
-
+				<div
+					onClick={() => handleWineryClick(winery.ID)}
+					className={`${styles["card-body"]} card-body`}
+				>
 					<p className={styles["card-img-link"]}>
 						{t("wineries.visit-winery")}{" "}
 					</p>
@@ -33,9 +34,21 @@ const ProductWinerySelector = ({ winery }) => {
 							alt={winery.name}
 							loading="lazy"
 						/>
-						{winery.name === 'Tequendama' && (
+						{winery.name === "Tequendama" && (
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown />
+							</div>
+						)}
+						{winery.name === "Serrera" && (
+							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
+								<Countdown
+									year={2025}
+									month={6}
+									day={1}
+									hours={12}
+									minutes={0}
+									seconds={0}
+								/>
 							</div>
 						)}
 					</div>

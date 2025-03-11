@@ -15,7 +15,6 @@ import {
 	getExchangeRate,
 	calculateGasMargin,
 	amountFormatter,
-
 } from "../utils";
 import {
 	validateBuyHelper,
@@ -28,7 +27,6 @@ import {
 	useTokenSupply,
 	useTokenCap,
 	useReserves,
-
 } from "../hooks";
 import Farming from "./farming/Farming";
 import { fetchPrice } from "../utils/fetchPrice";
@@ -364,7 +362,6 @@ export default function Main() {
 				gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
 			);
 
-
 		return contract.approve(spenderAddress, ethers.constants.MaxUint256, {
 			gasLimit: calculateGasMargin(estimatedGasLimit),
 			gasPrice: estimatedGasPrice,
@@ -513,7 +510,7 @@ export default function Main() {
 			<Header wineryId={state.wineryId}>
 				<Container>
 					<CardWrapper>
-						{state.tokenName !== "PDC19" && state.tokenName !== 'ESKERE' ? (
+						{state.tokenName !== "PDC19" && state.tokenName !== "BCN24" ? (
 							<div>
 								<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
 								<Redeem onClick={handleRedeemClick}>
@@ -540,16 +537,16 @@ export default function Main() {
 									}}
 								></InfoIcon>
 							</Title>
-							{state?.tokenName !== 'PDC19' ? (
+							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" ? (
 								<>
 									{isCrowdsale && !loadingPrice && (
 										<CurrentPrice>
 											{crowdsaleExchangeRateUSD
 												? `$${amountFormatter(
-													crowdsaleExchangeRateUSD,
-													18,
-													2
-												)} USDC`
+														crowdsaleExchangeRateUSD,
+														18,
+														2
+												  )} USDC`
 												: "$0.00"}
 										</CurrentPrice>
 									)}
@@ -564,7 +561,8 @@ export default function Main() {
 													2
 												)} USDC`}
 
-											{(!state?.validationState || !state?.validationState > 0) && (
+											{(!state?.validationState ||
+												!state?.validationState > 0) && (
 												<BeatLoader
 													color="#d68513"
 													loading={true}
@@ -588,10 +586,11 @@ export default function Main() {
 										</TokenIconText>
 										<TokenIcon src={state.tokenIcon}></TokenIcon>
 									</TokenIconContainer>
-									<Countdown year={2025} month={5} day={1} /></>
+									<Countdown year={2025} month={5} day={1} />
+								</>
 							)}
 
-							{state?.tokenName !== 'PDC19' && (
+							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" && (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -602,10 +601,10 @@ export default function Main() {
 									<TradeButtons
 										balanceWINES={balanceWINES}
 										isCrowdsale={isCrowdsale}
-									></TradeButtons></>
+									></TradeButtons>
+								</>
 							)}
 						</MarketData>
-
 					</CardWrapper>
 
 					<Checkout
