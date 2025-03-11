@@ -7,16 +7,10 @@ import Main from "./components/Main";
 import Bridge from "./components/bridge/bridge";
 import { useAppContext } from "./context";
 import { fetchPrice } from "./utils/fetchPrice";
-import useWeb3Store from "./config/zustandStore";
+
 const App = () => {
 	const [key, setKey] = useState(0);
-	const { setUsdPrice } = useWeb3Store;
-	useEffect(() => {
-		fetchPrice().then((result) => {
-			console.log(result);
-			setUsdPrice(result);
-		});
-	}, []);
+
 	return (
 		<>
 			<Router>

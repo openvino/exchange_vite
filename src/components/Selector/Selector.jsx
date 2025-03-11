@@ -6,7 +6,7 @@ import styles from "./Selector.module.css";
 import { useTranslation } from "react-i18next";
 import BeatLoader from "react-spinners/BeatLoader";
 import { useAppContext } from "../../context";
-import useWeb3Store from "../../config/zustandStore";
+// import useWeb3Store from "../../config/zustandStore";
 import { fetchPrice } from "../../utils/fetchPrice";
 
 const Selector = () => {
@@ -18,7 +18,7 @@ const Selector = () => {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const [state, setState] = useAppContext();
-	const { setUsdPrice } = useWeb3Store();
+	// const { setUsdPrice } = useWeb3Store();
 
 	useEffect(() => {
 		setState((prevState) => ({
@@ -37,20 +37,22 @@ const Selector = () => {
 			loading: true,
 		}));
 
-		fetchPrice()
-			.then((result) => {
-				console.log(result);
-				setUsdPrice(result);
-			})
-			.catch((error) => {
-				console.error("Error fetching price:", error);
-			});
+		// fetchPrice()
+		// 	.then((result) => {
+		// 		console.log(result);
+		// 		setUsdPrice(result);
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error("Error fetching price:", error);
+		// 	});
 	}, [location.pathname]);
 	const getProductList = async () => {
 		try {
 			const productsWineries = await axiosClient.get("/token", {
 				params: { winerie_id: wineryId },
 			});
+			console.log(productsWineries.data);
+
 			setProducts(productsWineries.data);
 		} catch (error) {
 			console.log(error);

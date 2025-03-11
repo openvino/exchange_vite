@@ -3,6 +3,8 @@ import styles from "./ProductSelector.module.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppContext } from "../../../context";
 const ProductSelector = ({ product }) => {
+	console.log(product);
+
 	const { wineryId } = useParams();
 	const [state, setState] = useAppContext();
 	const navigate = useNavigate();

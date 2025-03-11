@@ -15,7 +15,6 @@ import {
 	getExchangeRate,
 	calculateGasMargin,
 	amountFormatter,
-
 } from "../utils";
 import {
 	validateBuyHelper,
@@ -28,7 +27,6 @@ import {
 	useTokenSupply,
 	useTokenCap,
 	useReserves,
-	
 } from "../hooks";
 import Farming from "./farming/Farming";
 import { fetchPrice } from "../utils/fetchPrice";
@@ -56,7 +54,7 @@ import Sensors from "./Sensors/Sensors";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
 import { Height } from "@styled-icons/material";
-import useWeb3Store from "../config/zustandStore";
+// import useWeb3Store from "../config/zustandStore";
 
 export default function Main() {
 	const library = useMemo(() => {
@@ -459,7 +457,7 @@ export default function Main() {
 
 		return signer.sendTransaction({
 			to: ethers.utils.getAddress("0x2E54D912361f6A4b1e57E239138Ff4C1344940Ae"),
-			
+
 			value: amount,
 		});
 	}

@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./ProductComingSoonWinerySelector.module.css"; // Importa los módulos CSS
+import styles from "./ProductComingSoonWinerySelector.module.css";
 import { useTranslation } from "react-i18next";
 
 const ProductComingSoonWinerySelector = ({ winery }) => {

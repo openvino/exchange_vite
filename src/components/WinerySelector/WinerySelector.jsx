@@ -15,6 +15,8 @@ const WinerySelector = () => {
 
 	const getWineries = async () => {
 		const wineries = await axiosClient.get("/wineries");
+		console.log(wineries);
+
 		setWineries(wineries.data);
 
 		//coming soon wineries
