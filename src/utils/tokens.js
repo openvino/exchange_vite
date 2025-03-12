@@ -1,13 +1,13 @@
 export const tokensInfo = {
 	PDC19: {
 		fullDescription:
-			"Palma de Cera de bodega Tequendama 2019 - un blend de Merlot 70% / Malbec 30% de Tequendama Wines",
+			"Palma de Cera de bodega Tequendama 2019 - un blend de Merlot 70% / Malbec 30% de <0>Tequendama Wines</0>.",
 		redeemDate: "1 de agosto de 2025",
 		wineryUrl: "https://www.instagram.com/tequendamawines/?hl=es",
 	},
 	BCN24: {
 		fullDescription:
-			"MINIMAL 0,7, INTERDITO, BACO 2024 - 100 % Baco Noir de Serrera Wines",
+			"MINIMAL 0,7, INTERDITO, BACO 2024 - 100 % Baco Noir de <0>Serrera Wines</0>.",
 		redeemDate: "1 de agosto de 2028",
 		wineryUrl: "https://www.serrerawines.com/",
 	},

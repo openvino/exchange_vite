@@ -62,7 +62,6 @@ export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 			<Title>{t("info.1")}</Title>
 
 			<Desc>
-				{/* {fullDescription} */}
 				<Trans
 					i18nKey="info.2"
 					values={{
@@ -75,6 +74,7 @@ export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 							href={wineryUrl}
 							style={{ color: "white", "text-decoration": "underline" }}
 							key={state.tokenName + "info.2"}
+							target="_blank"
 						>
 							{state.wineryId}
 						</a>,
