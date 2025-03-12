@@ -579,7 +579,7 @@ export default function Main() {
 										</CurrentPrice>
 									)}
 								</>
-							) : (
+							) : state.tokenName === 'PDC19' ? (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -589,7 +589,21 @@ export default function Main() {
 									</TokenIconContainer>
 									<Countdown year={2025} month={5} day={1} />
 								</>
-							)}
+							) :(
+								<>
+									<TokenIconContainer>
+										<TokenIconText>
+											{state?.tokenYear?.substring(2, 4)}
+										</TokenIconText>
+										<TokenIcon src={state.tokenIcon}></TokenIcon>
+									</TokenIconContainer>
+									<Countdown year={2025}
+									month={6}
+									day={1}
+									hours={12}
+									 />
+								</>
+							) }
 
 							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" && (
 								<>

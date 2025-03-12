@@ -74,7 +74,7 @@
 
 @media (min-width: 1024px) {
 	.simply-countdown-dark {
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 	}
 	.simply-countdown-dark > .simply-section {
 		width: 80px;
