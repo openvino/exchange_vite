@@ -1,16 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./Header.module.css"; // Importa el archivo CSS Module
+import styles from "./Header.module.css";
 import { useTranslation } from "react-i18next";
 
 const Header = ({ children, wineryId }) => {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
 	console.log(wineryId);
-	
+	function capitalizeFirstLetter(str) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
+	// console.log(capitalizeFirstLetter(wineryId));
 	return (
 		<>
-			<div className={styles["product-header"]} style={{backgroundImage: `url('/images/background-${wineryId}.JPG')`}}>
+			<div
+				className={styles["product-header"]}
+				style={{
+					backgroundImage: `url('/images/background-${wineryId}.JPG')`,
+				}}
+			>
 				<div className={styles["product-header-logo"]}>
 					<picture>
 						<source

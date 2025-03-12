@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useActiveAccount } from "thirdweb/react";
 import { client } from "../config/thirdwebClient";
 import { base } from "thirdweb/chains";
-import styles from "./Header/Header.module.css"; // Importa el archivo CSS Module
+import styles from "./Header/Header.module.css";
 import {
 	TOKEN_SYMBOLS,
 	TRADE_TYPES,

@@ -15,6 +15,8 @@ const WinerySelector = () => {
 
 	const getWineries = async () => {
 		const wineries = await axiosClient.get("/wineries");
+		console.log(wineries);
+
 		setWineries(wineries.data);
 
 		//coming soon wineries
@@ -36,7 +38,6 @@ const WinerySelector = () => {
 				<div className="d-flex justify-content-between w-100">
 					<div>
 						<a className="navbar-brand">
-						
 							<img
 								src="/images/openvino-logo.png"
 								alt="Openvino"
