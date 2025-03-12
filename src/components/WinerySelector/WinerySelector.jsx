@@ -15,11 +15,12 @@ const WinerySelector = () => {
 
 	const getWineries = async () => {
 		const wineries = await axiosClient.get("/wineries");
+		console.log(wineries);
+
 		setWineries(wineries.data);
 
 		//coming soon wineries
 		const comingSoonWineries = getComingSoonWineriesList();
-		console.log(comingSoonWineries);
 
 		setComingSoonWineies(comingSoonWineries);
 		return;
@@ -37,11 +38,11 @@ const WinerySelector = () => {
 				<div className="d-flex justify-content-between w-100">
 					<div>
 						<a className="navbar-brand">
-							{" "}
 							<img
 								src="/images/openvino-logo.png"
 								alt="Openvino"
 								style={{ width: 200 }}
+								loading="lazy"
 							/>
 						</a>
 					</div>
@@ -99,12 +100,17 @@ const WinerySelector = () => {
 						</div>
 					</div>
 					<div className={`${styles["card-group"]} card-group`}>
-						{wineries.map((winery) => (
-							<ProductWinerySelector key={winery.id} winery={winery} />
+						{wineries.map((winery, index) => (
+							<ProductWinerySelector
+								key={winery.id ? `winery-${winery.id}` : `winery-${index}`}
+								winery={winery}
+							/>
 						))}
-						{comingSoonWineies.map((winery) => (
+						{comingSoonWineies.map((winery, index) => (
 							<ProductComingSoonWinerySelector
-								key={winery.ID}
+								key={
+									winery.id ? `comingSoon-${winery.id}` : `comingSoon-${index}`
+								}
 								winery={winery}
 							/>
 						))}

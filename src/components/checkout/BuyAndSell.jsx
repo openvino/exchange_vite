@@ -53,6 +53,7 @@ export function Account({ $ready, $balanceWINES, setShowConnect }) {
 	const account = useActiveAccount();
 	const [state] = useAppContext();
 	const { t } = useTranslation();
+
 	return (
 		<>
 			{account ? (
@@ -68,7 +69,11 @@ export function Account({ $ready, $balanceWINES, setShowConnect }) {
 				<WineCount>{t("wallet.connect")}</WineCount>
 			)}
 
-			<Status $balanceWINES={$balanceWINES} $ready={$ready} $account={account} />
+			<Status
+				$balanceWINES={$balanceWINES}
+				$ready={$ready}
+				$account={account}
+			/>
 		</>
 	);
 }
@@ -230,7 +235,10 @@ export default function BuyAndSell({
 
 	// sell state validation
 	useEffect(() => {
-		if (ready && selling) {
+		if (
+			// ready &&
+			selling
+		) {
 			try {
 				const { error: validationError, ...validationState } = validateSell(
 					String(state.count)
@@ -280,27 +288,37 @@ export default function BuyAndSell({
 
 	function renderFormData() {
 		let conditionalRender;
+		// console.log(buying, buyValidationState.inputValue);
+		// console.log(
+		// 	amountFormatter(dollarize(buyValidationState.inputValue), 18, 2)
+		// );
+
 		if (buying && buyValidationState.inputValue) {
 			conditionalRender = (
 				<>
 					<p>
 						$
-						{ready &&
-							amountFormatter(dollarize(buyValidationState.inputValue), 18, 2)}
+						{
+							// ready &&
+							amountFormatter(dollarize(state.validationState), 18, 2)
+						}
 					</p>
 				</>
 			);
-		} else if (selling && sellValidationState.outputValue) {
+		} else if (
+			selling &&
+			// sellValidationState.outputValue
+			state.validationState
+		) {
 			conditionalRender = (
 				<>
 					<p>
 						$
-						{ready &&
-							amountFormatter(
-								dollarize(sellValidationState.outputValue),
-								18,
-								2
-							)}
+						{
+							// ready &&
+							// amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)
+							amountFormatter(dollarize(state.validationState), 18, 2)
+						}
 					</p>
 				</>
 			);
@@ -387,7 +405,7 @@ export default function BuyAndSell({
 		return (
 			<>
 				<Wrapper>
-				<CloseIcon onClick={() => closeCheckout()} />
+					<CloseIcon onClick={() => closeCheckout()} />
 					<ContentWrapper>
 						<ConnectButton
 							client={client}
@@ -412,7 +430,8 @@ export default function BuyAndSell({
 
 	return (
 		<Wrapper>
-			<Header>
+			
+			<Header >
 				<ConnectButton client={client} chain={defineChain(base)} />
 				<Account
 					$ready={ready}
@@ -432,8 +451,8 @@ export default function BuyAndSell({
 								{buying
 									? t("wallet.pay")
 									: selling
-										? t("wallet.sell")
-										: t("wallet.crowdsale")}
+									? t("wallet.sell")
+									: t("wallet.crowdsale")}
 							</Description>
 							<WineTitle>
 								{state.title} <b>{state.tokenName}</b>
@@ -451,7 +470,7 @@ export default function BuyAndSell({
 				</TopFrame>
 
 				{pending && currentTransactionHash ? (
-					<CheckoutControls >
+					<CheckoutControls>
 						<CheckoutPrompt>
 							<i>{t("wallet.pending-transaction")}</i>
 						</CheckoutPrompt>
@@ -498,7 +517,8 @@ export default function BuyAndSell({
 								contract: tokenContractWINES,
 								method: "approve",
 								params: [
-									routerContract.address,
+									// routerContract.address,
+									import.meta.env.VITE_ROUTER_ADDRESS,
 									BigInt(ethers.constants.MaxUint256),
 								],
 							})
@@ -506,8 +526,9 @@ export default function BuyAndSell({
 						onError={(e) => console.error(e)}
 					>
 						{" "}
-						{`${t("wallet.unlock")} ${buying ? selectedTokenSymbol : state.tokenName
-							}`}
+						{`${t("wallet.unlock")} ${
+							buying ? selectedTokenSymbol : state.tokenName
+						}`}
 					</TransactionButton>
 				) : buying ? (
 					<TransactionButton

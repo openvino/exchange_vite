@@ -9,7 +9,8 @@
 }
 
 .heatmap {
-    width: -webkit-fill-available
+    width: -webkit-fill-available;
+    overflow-x: hidden !important;
 }
 
 .heatmap-tabs-item {
@@ -40,8 +41,8 @@
 }
 
 .heatmap-chart-data {
-    overflow-x: hidden;
-    overflow-y: hidden;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
     flex: 1;
     display: flex;
 }

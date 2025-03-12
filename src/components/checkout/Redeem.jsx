@@ -90,8 +90,7 @@ export default function Redeem({
   const { t } = useTranslation();
 
   useEffect(() => {
-      console.log(transactionHash);
-      
+
     if (transactionHash) {
       library.waitForTransaction(transactionHash).then(() => {
         setLastTransactionHash(transactionHash)
@@ -143,17 +142,14 @@ export default function Redeem({
   }
 
   const handlePaidShipping = async (redeemToUpdate) => {
-
     setLoading(true)
     try {
       let res = await axios.get(`${import.meta.env.VITE_DASHBOARD_URL}/api/routes/shippingCostsRoute?token=${state.tokenName}&province_id=${redeemToUpdate.province_id}&amount=${redeemToUpdate.amount}`)
-      console.log(USDExchangeRateETH.toString());
 
       let dollarCost;
       if (res.data) {
         dollarCost = BigNumber.from(res.data.cost * 100)
         setShippingCost(dollarCost)
-        console.log(shippingCost)
       }
 
       const response = await transferShippingCosts(USDToEth(USDExchangeRateETH, dollarCost))
@@ -193,16 +189,7 @@ export default function Redeem({
 
   function link(hash) {
     return `https://basescan.org/tx/${hash}`
-    switch (parseInt(state.networkId)) {
-      case 3:
-        return `https://sepolia.basescan.org//tx/${hash}`
-      case 4:
-        return `https://rinkeby.etherscan.io/tx/${hash}`
-      case 10:
-        return `https://optimistic.etherscan.io/tx/${hash}`
-      default:
-        return `https://etherscan.io/tx/${hash}`
-    }
+   
   }
 
   function renderContent() {
@@ -262,7 +249,7 @@ export default function Redeem({
       )
     } else if (!account?.address) {
       return (
-        <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",width: "100%"}}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", width: "100%" }}>
           <ConnectButton client={client} chain={defineChain(base)}
             connectButton={{
               label: 'Conectar Wallet',
@@ -506,11 +493,29 @@ export default function Redeem({
             <TransactionButton onTransactionConfirmed={async (response) => {
               setTransactionHash(response.transactionHash)
               setBurnTxHash(response.transactionHash)
+              sendEmailMessage(userForm.email, 'sucess')
+              let body = {
+                "public_key": account?.address,
+                "name": userForm.name,
+                "email": userForm.email,
+                "amount": numberBurned,
+                "year": state.tokenName,
+                "street": userForm.line1,
+                "number": userForm.line2,
+                "country_id": userForm.country,
+                "province_id": userForm.state,
+                "zip": userForm.zip,
+                "telegram_id": userForm.telegram,
+                "signature": userForm.signature,
+                "burn_tx_hash": response.transactionHash,
+                "winerie_id": state.winerie_id,
+                "shipping_paid_status": "false",
+                "pickup": userForm.pickup.toString(),
+                "city": userForm.city
+              };
+              await axios.post(`${state.apiUrl}/redeem/`, body)
               if (userForm.pickup === false) {
                 const transfer = await transferShippingCosts(USDToEth(USDExchangeRateETH, shippingCost))
-
-                console.log(transfer, 'transfer shipping costs');
-
                 setTransactionHash(transfer.hash)
               }
 
@@ -554,15 +559,15 @@ export default function Redeem({
               </Owned>
             </InfoFrame>
             <CheckoutPrompt>
-            {t('redeem.estimated-time')}
-          </CheckoutPrompt>
-          <div style={{ margin: '16px 0 16px 16px' }}>
-            <EtherscanLink href={link(lastTransactionHash)} target="_blank" rel="noopener noreferrer">
-              {t('wallet.view-etherscan')}
-            </EtherscanLink>
-          </div>
+              {t('redeem.estimated-time')}
+            </CheckoutPrompt>
+            <div style={{ margin: '16px 0 16px 16px' }}>
+              <EtherscanLink href={link(lastTransactionHash)} target="_blank" rel="noopener noreferrer">
+                {t('wallet.view-etherscan')}
+              </EtherscanLink>
+            </div>
           </TopFrame>
-        
+
         </>
       )
     }

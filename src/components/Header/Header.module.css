@@ -4,7 +4,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('/images/background-image.JPG');
+    /* background-image: url('/images/background-image.JPG'); */
     background-size: cover;
     padding: 8px 0;
   }

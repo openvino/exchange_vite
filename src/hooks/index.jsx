@@ -2,422 +2,685 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { client } from "../config/thirdwebClient";
 import { defineChain, base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
-import FACTORY_ABI from '../contracts/factory.json';
+import FACTORY_ABI from "../contracts/factory.json";
 import {
-  isAddress,
-  getTokenContract,
-  getExchangeContract,
-  getEtherBalance,
-  getTokenBalance,
-  getTokenAllowance,
-  TOKEN_ADDRESSES,
-  ROUTER_ADDRESS,
-  getCrowdsaleContract,
-  getPairContract,
-  getNetworkId,
-  getRouterContract,
-  getContract,
+	isAddress,
+	getTokenContract,
+	getExchangeContract,
+	getEtherBalance,
+	getTokenBalance,
+	getTokenAllowance,
+	TOKEN_ADDRESSES,
+	ROUTER_ADDRESS,
+	getCrowdsaleContract,
+	getPairContract,
+	getNetworkId,
+	getRouterContract,
+	getContract,
 } from "../utils";
 import { ethers } from "ethers";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
+import debounce from "lodash.debounce";
+import { getPairAddressFromTokenAddress } from "../utils/whitelistedPools";
+const library = ethers5Adapter.provider.toEthers({
+	client,
+	chain: base,
+});
 
 export function useCrowdsaleContract(
-  crowdsaleAddress,
-  withSignerIfPossible = true
+	crowdsaleAddress,
+	withSignerIfPossible = true
 ) {
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
-
-  const account = useActiveAccount();
-
-  return useMemo(() => {
-    try {
-      return getCrowdsaleContract(
-        crowdsaleAddress,
-        library,
-        withSignerIfPossible ? account?.address : undefined
-      );
-    } catch {
-      return null;
-    }
-  }, [account?.address, crowdsaleAddress, withSignerIfPossible]);
+	const account = useActiveAccount();
+	const debouncedFetch = useCallback(
+		debounce(() => {
+			return getCrowdsaleContract(
+				crowdsaleAddress,
+				library,
+				withSignerIfPossible ? account?.address : undefined
+			);
+		}, 1000),
+		[account?.address, crowdsaleAddress, withSignerIfPossible]
+	);
+	return useMemo(() => debouncedFetch(), [debouncedFetch]);
 }
 
+//
 export function useTokenContract(tokenAddress, withSignerIfPossible = true) {
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+	const account = useActiveAccount();
+	const [contract, setContract] = useState(null); // Nuevo estado para almacenar el contrato
 
-  const account = useActiveAccount();
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!isAddress(tokenAddress)) return;
+			try {
+				const contractInstance = getTokenContract(
+					tokenAddress,
+					library,
+					withSignerIfPossible ? account?.address : undefined
+				);
 
-  return useMemo(() => {
-    try {
-      return getTokenContract(
-        tokenAddress,
-        library,
-        withSignerIfPossible ? account?.address : undefined
-      );
-    } catch {
-      return null;
-    }
-  }, [account?.address]);
+				setContract(contractInstance); // Almacenar el contrato en el estado
+			} catch (e) {
+				console.error("Error obteniendo el contrato del token:", e);
+				setContract(null);
+			}
+		}, 1000),
+		[account?.address, tokenAddress, withSignerIfPossible]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+	}, [debouncedFetch]);
+
+	return contract;
 }
 
 export function useRouterContract(withSignerIfPossible = true) {
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+	const account = useActiveAccount();
 
-  const account = useActiveAccount();
-
-  return useMemo(() => {
-    try {
-      return getRouterContract(
-        library,
-        withSignerIfPossible ? account?.address : undefined
-      );
-    } catch (e) {
-      return null;
-    }
-  }, [account?.address, library, withSignerIfPossible]);
+	const debouncedFetch = useCallback(
+		debounce(() => {
+			return getRouterContract(
+				library,
+				withSignerIfPossible ? account?.address : undefined
+			);
+		}, 1000),
+		[account?.address, withSignerIfPossible]
+	);
+	return useMemo(() => debouncedFetch(), [debouncedFetch]);
 }
 
 export function useExchangeContract(tokenAddress, withSignerIfPossible = true) {
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+	const account = useActiveAccount();
+	const exchangeAddress = import.meta.env.VITE_FACTORY_ADDRESS;
 
-  const account = useActiveAccount();
+	const debouncedFetch = useCallback(
+		debounce(() => {
+			try {
+				return getExchangeContract(
+					exchangeAddress,
+					library,
+					withSignerIfPossible ? account?.address : undefined
+				);
+			} catch (e) {
+				console.log(e);
+				return null;
+			}
+		}, 1000),
+		[exchangeAddress, withSignerIfPossible, account?.address]
+	);
 
-  const [exchangeAddress, setExchangeAddress] = useState();
-  // useEffect(() => {
-  //   if (isAddress(tokenAddress)) {
-  //     let stale = false;
-  //     getTokenExchangeAddressFromFactory(tokenAddress, library).then(
-  //       (exchangeAddress) => {
-  //         if (!stale) {
-  //           setExchangeAddress(exchangeAddress);
-  //         }
-  //       }
-  //     );
-  //     return () => {
-  //       stale = true;
-  //       setExchangeAddress();
-  //     };
-  //   }
-  // }, [library, tokenAddress]);
-
-  return useMemo(() => {
-    try {
-      return getExchangeContract(
-        exchangeAddress,
-        library,
-        withSignerIfPossible ? account?.address : undefined
-      );
-    } catch (e) {
-      return null;
-    }
-  }, [exchangeAddress, withSignerIfPossible, account?.address]);
+	return useMemo(() => debouncedFetch(), [debouncedFetch]);
 }
 
 export function usePairContract(tokenAddress, withSignerIfPossible = true) {
-  const [pairAddress, setPairAddress] = useState(null); // Estado para guardar la dirección del par
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+	const [pairAddress, setPairAddress] = useState(null);
+	const account = useActiveAccount();
 
-  const account = useActiveAccount();
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			try {
+				if (!isAddress(tokenAddress)) return;
+				const pairAddr = getPairAddressFromTokenAddress(tokenAddress);
+				setPairAddress(pairAddr);
+			} catch (error) {
+				console.error("Error obteniendo la dirección del par:", error);
+			}
+		}, 1000),
+		[tokenAddress]
+	);
 
-  useEffect(() => {
-    const fetchPairAddress = async () => {
-      try {
-        if (tokenAddress) {
-          const factoryAddress = import.meta.env.VITE_FACTORY_ADDRESS;
-          const token1 = import.meta.env.VITE_WETH_ADDRESS; // WETH
-          const token0 = tokenAddress;
+	useEffect(() => {
+		debouncedFetch();
+	}, [debouncedFetch]);
 
-          const factoryContract = getContract(factoryAddress, FACTORY_ABI, library);
-
-          const pairAddress = await factoryContract.getPair(token0, token1); // Espera que se resuelva la promesa
-          setPairAddress(pairAddress); // Guarda la dirección del par en el estado
-        }
-      } catch (error) {
-        console.error("Error obteniendo la dirección del par:", error);
-      }
-    };
-
-    fetchPairAddress();
-  }, [tokenAddress, library]);
-
-  return useMemo(() => {
-    if (pairAddress) {
-      return getPairContract(
-        pairAddress,
-        library,
-        withSignerIfPossible ? account?.address : undefined
-      );
-    }
-  }, [pairAddress, withSignerIfPossible]);
+	return useMemo(() => {
+		if (!isAddress(pairAddress)) return null;
+		return getPairContract(
+			pairAddress,
+			library,
+			withSignerIfPossible ? account?.address : undefined
+		);
+	}, [pairAddress, withSignerIfPossible, account?.address]);
 }
-
-
 
 export function useReserves(pairContract) {
-  const [reserves, setReserves] = useState({ reserve0: null, reserve1: null });
-  const [token0, setToken0] = useState(null);
-  const [token1, setToken1] = useState(null);
+	const [reserves, setReserves] = useState({ reserve0: null, reserve1: null });
+	const [token0, setToken0] = useState(null);
+	const [token1, setToken1] = useState(null);
 
-  const updateReserves = useCallback(() => {
-    if (!!pairContract) {
-      pairContract
-        .getReserves()
-        .then((value) => {
-          setReserves({ reserve0: value[0], reserve1: value[1] });
-        })
-        .catch(() => {
-          setReserves({ reserve0: null, reserve1: null });
-        });
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!pairContract) return;
+			try {
+				const [reserve0, reserve1] = await pairContract.getReserves();
+				setReserves({ reserve0, reserve1 });
+				setToken0(await pairContract.token0());
+				setToken1(await pairContract.token1());
+			} catch (error) {
+				console.error("Error obteniendo reservas del par:", error);
+				setReserves({ reserve0: null, reserve1: null });
+				setToken0(null);
+				setToken1(null);
+			}
+		}, 1000),
+		[pairContract]
+	);
 
-      pairContract
-        .token0()
-        .then(setToken0)
-        .catch(() => setToken0(null));
-      pairContract
-        .token1()
-        .then(setToken1)
-        .catch(() => setToken1(null));
+	useEffect(() => {
+		debouncedFetch();
+	}, [debouncedFetch]);
 
-      return () => {
-        setReserves({ reserve0: null, reserve1: null });
-      };
-    }
-  }, [pairContract]);
-
-  useEffect(() => {
-    updateReserves();
-  }, [updateReserves]);
-
-  if (token0 && token1) {
-    return { reserves, token0, token1 };
-  } else {
-    return {
-      reserves: { reserve0: null, reserve1: null },
-      token0: null,
-      token1: null,
-    };
-  }
+	return { reserves, token0, token1 };
 }
 
+export function useContracts(
+	tokenAddress,
+	crowdsaleAddress,
+	withSignerIfPossible = true
+) {
+	const account = useActiveAccount();
+	const [contracts, setContracts] = useState({
+		tokenContractWINES: null,
+		exchangeContractSelectedToken: null,
+		routerContract: null,
+		pairMTBwETH: null,
+		crowdsaleContract: null,
+	});
 
-// Objeto de caché para almacenar balances temporalmente
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!isAddress(tokenAddress)) return;
+
+			try {
+				console.log("📡 Fetching contracts...");
+				const library = ethers5Adapter.provider.toEthers({
+					client,
+					chain: base,
+				});
+
+				// Validar la dirección del par antes de llamar a `getPairContract`
+				const pairAddress = getPairAddressFromTokenAddress(tokenAddress);
+				const pairPromise = pairAddress
+					? getPairContract(
+							pairAddress,
+							library,
+							withSignerIfPossible ? account?.address : undefined
+					  )
+					: Promise.resolve(null);
+
+				// Validar `crowdsaleAddress` antes de llamar a `getCrowdsaleContract`
+				const crowdsalePromise =
+					crowdsaleAddress && isAddress(crowdsaleAddress)
+						? getCrowdsaleContract(
+								crowdsaleAddress,
+								library,
+								withSignerIfPossible ? account?.address : undefined
+						  )
+						: Promise.resolve(null);
+
+				// Ejecutar todas las promesas en paralelo
+				const [token, exchange, router, pair, crowdsale] = await Promise.all([
+					getTokenContract(
+						tokenAddress,
+						library,
+						withSignerIfPossible ? account?.address : undefined
+					),
+					getExchangeContract(
+						tokenAddress,
+						library,
+						withSignerIfPossible ? account?.address : undefined
+					),
+					getRouterContract(
+						library,
+						withSignerIfPossible ? account?.address : undefined
+					),
+					pairPromise,
+					crowdsalePromise,
+				]);
+
+				setContracts((prevContracts) => ({
+					tokenContractWINES: token ?? prevContracts.tokenContractWINES,
+					exchangeContractSelectedToken:
+						exchange ?? prevContracts.exchangeContractSelectedToken,
+					routerContract: router ?? prevContracts.routerContract,
+					pairMTBwETH: pair ?? prevContracts.pairMTBwETH,
+					crowdsaleContract: crowdsale ?? prevContracts.crowdsaleContract,
+				}));
+			} catch (error) {
+				console.error("❌ Error obteniendo contratos:", error);
+			}
+		}, 1000),
+		[tokenAddress, crowdsaleAddress, withSignerIfPossible, account?.address]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+	}, [debouncedFetch]);
+
+	return contracts;
+}
+
 const balanceCache = new Map();
+const callTimestamps = [];
+
+export function useAllBalances(
+	address,
+	tokenAddress,
+	selectedToken,
+	refreshTrigger
+) {
+	const [balances, setBalances] = useState({
+		balanceETH: null,
+		balanceWINES: null,
+		balanceSelectedToken: null,
+		reserveDAIETH: null,
+		reserveDAIToken: null,
+		reserveSelectedTokenETH: null,
+		reserveSelectedTokenToken: null,
+	});
+
+	const rateLimiter = async (fn) => {
+		// 🚨 Si se hicieron más de 5 llamadas en los últimos 10 segundos, espera
+		const now = Date.now();
+		callTimestamps.push(now);
+
+		// Limpiar timestamps viejos
+		while (callTimestamps.length > 0 && now - callTimestamps[0] > 10000) {
+			callTimestamps.shift();
+		}
+
+		if (callTimestamps.length > 5) {
+			console.warn("⏳ Límite de llamadas alcanzado. Esperando...");
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+		}
+
+		return fn();
+	};
+
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!isAddress(address) || !isAddress(tokenAddress)) return;
+
+			const cacheKey = `${address}-${tokenAddress}-${selectedToken}`;
+			if (balanceCache.has(cacheKey)) {
+				setBalances(balanceCache.get(cacheKey));
+				return;
+			}
+
+			try {
+				console.log("📡 Fetching balances from RPC...");
+
+				// 🚨 Verificar si los contratos existen antes de usarlos
+				const fetchBalances = async () => {
+					const promises = [
+						getEtherBalance(address, library),
+						getTokenBalance(tokenAddress, address, library),
+						selectedToken === "ETH"
+							? getEtherBalance(address, library)
+							: getTokenBalance(
+									TOKEN_ADDRESSES[selectedToken],
+									address,
+									library
+							  ),
+					];
+
+					// if (!!exchangeContractDAI) {
+					// 	promises.push(
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES.ETH,
+					// 			exchangeContractDAI?.address,
+					// 			library
+					// 		),
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES.DAI,
+					// 			exchangeContractDAI?.address,
+					// 			library
+					// 		)
+					// 	);
+					// } else {
+					// 	console.warn(
+					// 		"⚠️ exchangeContractDAI no está definido. Saltando balances de DAI."
+					// 	);
+					// }
+
+					// if (!!exchangeContractSelectedToken) {
+					// 	promises.push(
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES.ETH,
+					// 			exchangeContractSelectedToken?.address,
+					// 			library
+					// 		),
+					// 		getTokenBalance(
+					// 			TOKEN_ADDRESSES[selectedToken],
+					// 			exchangeContractSelectedToken?.address,
+					// 			library
+					// 		)
+					// 	);
+					// } else {
+					// 	console.warn(
+					// 		"⚠️ exchangeContractSelectedToken no está definido. Saltando balances de token seleccionado."
+					// 	);
+					// }
+
+					return await Promise.all(promises);
+				};
+
+				const results = await rateLimiter(fetchBalances);
+
+				// Mapeamos los resultados dependiendo de qué contratos estaban disponibles
+				const [
+					ethBalance,
+					winesBalance,
+					selectedTokenBalance,
+					reserveDAIETH = null,
+					reserveDAIToken = null,
+					reserveSelectedTokenETH = null,
+					reserveSelectedTokenToken = null,
+				] = results;
+				console.log(results.ethBalance, results.winesBalance);
+
+				const newBalances = {
+					balanceETH: ethBalance,
+					balanceWINES: winesBalance,
+					balanceSelectedToken: selectedTokenBalance,
+					reserveDAIETH,
+					reserveDAIToken,
+					reserveSelectedTokenETH,
+					reserveSelectedTokenToken,
+				};
+
+				balanceCache.set(cacheKey, newBalances);
+				setBalances(newBalances);
+			} catch (error) {
+				console.error("❌ Error obteniendo balances:", error);
+			}
+		}, 8000),
+		[address, tokenAddress, selectedToken, refreshTrigger]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+		return () => debouncedFetch.cancel();
+	}, [debouncedFetch]);
+
+	return balances;
+}
+
+export function useAddressBalances(
+	address,
+	tokenAddress,
+	selectedToken,
+	refreshTrigger
+) {
+	const [balances, setBalances] = useState({
+		balanceETH: null,
+		balanceWINES: null,
+		balanceSelectedToken: null,
+	});
+
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!isAddress(address) || !isAddress(tokenAddress)) return;
+
+			try {
+				const [ethBalance, winesBalance] = await Promise.all([
+					getEtherBalance(address, library),
+					getTokenBalance(tokenAddress, address, library),
+				]);
+
+				let balanceSelectedToken =
+					selectedToken === "ETH"
+						? ethBalance
+						: await getTokenBalance(
+								TOKEN_ADDRESSES[selectedToken],
+								address,
+								library
+						  );
+
+				setBalances({
+					balanceETH: ethBalance,
+					balanceWINES: winesBalance,
+					balanceSelectedToken,
+				});
+			} catch (error) {
+				console.error("Error obteniendo balances:", error);
+				setBalances({
+					balanceETH: null,
+					balanceWINES: null,
+					balanceSelectedToken: null,
+				});
+			}
+		}, 1000),
+		[address, tokenAddress, selectedToken, refreshTrigger]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+		return () => debouncedFetch.cancel();
+	}, [debouncedFetch]);
+
+	return balances;
+}
 
 export function useAddressBalance(address, tokenAddress, refreshTrigger) {
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+	const [balance, setBalance] = useState();
 
-  // const library = new ethers.providers.JsonRpcProvider("https://base-mainnet.infura.io/v3/ce8d632a5fdf485ea8e0f041b48c3f69");
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (
+				isAddress(address) &&
+				(tokenAddress === "ETH" || isAddress(tokenAddress))
+			) {
+				try {
+					const value =
+						tokenAddress === "ETH"
+							? await getEtherBalance(address, library)
+							: await getTokenBalance(tokenAddress, address, library);
+					setBalance(value);
+				} catch (error) {
+					console.error("Error obteniendo balance:", error);
+					setBalance(null);
+				}
+			}
+		}, 100000),
+		[address, tokenAddress, refreshTrigger]
+	);
 
-  const [balance, setBalance] = useState();
+	useEffect(() => {
+		debouncedFetch();
+	}, [debouncedFetch]);
 
-  const updateBalance = useCallback(() => {
-    if (isAddress(address) && (tokenAddress === "ETH" || isAddress(tokenAddress))) {
-      const cacheKey = `${address}-${tokenAddress}`;
-
-      // Verificar si el balance ya está en caché
-      if (balanceCache.has(cacheKey)) {
-        setBalance(balanceCache.get(cacheKey));
-        return;
-      }
-
-      let stale = false;
-
-      (tokenAddress === "ETH"
-        ? getEtherBalance(address, library)
-        : getTokenBalance(tokenAddress, address, library)
-      )
-        .then((value) => {
-          if (!stale) {
-            setBalance(value);
-            balanceCache.set(cacheKey, value); // Guardar en caché
-          }
-        })
-        .catch((error) => {
-          if (!stale) {
-            setBalance(null);
-          }
-        });
-
-      return () => {
-        stale = true;
-        setBalance();
-      };
-    }
-  }, [address, tokenAddress, refreshTrigger]);
-
-  useEffect(() => {
-    return updateBalance();
-  }, [updateBalance]);
-
-  return balance;
+	return balance;
 }
 
 export function useTokenSupply(contract) {
-  const [tokenSupply, setTokenSupply] = useState();
+	const [tokenSupply, setTokenSupply] = useState();
 
-  const updateTokenSupply = useCallback(() => {
-    if (!!contract) {
-      let stale = false;
+	const updateTokenSupply = useCallback(() => {
+		if (!!contract) {
+			let stale = false;
 
-      contract
-        .totalSupply()
-        .then((value) => {
-          if (!stale) {
-            setTokenSupply(value);
-          }
-        })
-        .catch(() => {
-          if (!stale) {
-            setTokenSupply(null);
-          }
-        });
-      return () => {
-        stale = true;
-        setTokenSupply();
-      };
-    }
-  }, [contract]);
+			contract
+				.totalSupply()
+				.then((value) => {
+					if (!stale) {
+						setTokenSupply(value);
+					}
+				})
+				.catch(() => {
+					if (!stale) {
+						setTokenSupply(null);
+					}
+				});
+			return () => {
+				stale = true;
+				setTokenSupply();
+			};
+		}
+	}, [contract]);
 
-  useEffect(() => {
-    return updateTokenSupply();
-  }, [updateTokenSupply]);
+	useEffect(() => {
+		return updateTokenSupply();
+	}, [updateTokenSupply]);
 
-  // useBlockEffect(updateTokenSupply)
+	// useBlockEffect(updateTokenSupply)
 
-  return tokenSupply && Math.round(Number(ethers.utils.formatEther(tokenSupply)));
+	return (
+		tokenSupply && Math.round(Number(ethers.utils.formatEther(tokenSupply)))
+	);
 }
 
 export function useTokenCap(contract) {
-  const [tokenCap, setTokenCap] = useState();
+	const [tokenCap, setTokenCap] = useState();
 
-  const updateTokenCap = useCallback(() => {
-    if (!!contract) {
-      let stale = false;
+	const updateTokenCap = useCallback(() => {
+		if (!!contract) {
+			let stale = false;
 
-      contract
-        .cap()
-        .then((value) => {
-          if (!stale) {
-            setTokenCap(value);
-          }
-        })
-        .catch(() => {
-          if (!stale) {
-            setTokenCap(null);
-          }
-        });
-      return () => {
-        stale = true;
-        setTokenCap();
-      };
-    }
-  }, [contract]);
+			contract
+				.cap()
+				.then((value) => {
+					if (!stale) {
+						setTokenCap(value);
+					}
+				})
+				.catch(() => {
+					if (!stale) {
+						setTokenCap(null);
+					}
+				});
+			return () => {
+				stale = true;
+				setTokenCap();
+			};
+		}
+	}, [contract]);
 
-  useEffect(() => {
-    return updateTokenCap();
-  }, [updateTokenCap]);
+	useEffect(() => {
+		return updateTokenCap();
+	}, [updateTokenCap]);
 
-  // useBlockEffect(updateTokenCap)
+	// useBlockEffect(updateTokenCap)
 
-  return tokenCap && Math.round(Number(ethers.utils.formatEther(tokenCap)));
+	return tokenCap && Math.round(Number(ethers.utils.formatEther(tokenCap)));
 }
 
-export function useExchangeReserves(tokenAddress) {
-  const exchangeContract = useExchangeContract(tokenAddress);
+// export function useExchangeReserves(exchangeContract) {
+// 	const [reserves, setReserves] = useState({ reserve0: null, reserve1: null });
 
-  const reserveETH = useAddressBalance(
-    exchangeContract && exchangeContract.address,
-    TOKEN_ADDRESSES.ETH
-  );
-  const reserveToken = useAddressBalance(
-    exchangeContract && exchangeContract.address,
-    tokenAddress
-  );
+// 	const debouncedFetch = useCallback(
+// 		debounce(async () => {
+// 			if (!exchangeContract) return;
+// 			try {
+// 				const [reserve0, reserve1] = await exchangeContract.getReserves();
+// 				setReserves({ reserve0, reserve1 });
+// 			} catch (error) {
+// 				console.error("Error obteniendo reservas del exchange:", error);
+// 				setReserves({ reserve0: null, reserve1: null });
+// 			}
+// 		}, 1000),
+// 		[exchangeContract]
+// 	);
 
-  return { reserveETH, reserveToken };
+// 	useEffect(() => {
+// 		debouncedFetch();
+// 	}, [debouncedFetch]);
+
+// 	return reserves;
+// }
+export function useExchangeReserves(exchangeContract, tokenA, tokenB) {
+	const [reserves, setReserves] = useState({
+		reserveTokenA: null,
+		reserveTokenB: null,
+	});
+
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (!exchangeContract || !isAddress(exchangeContract.address)) return;
+
+			try {
+				const [reserveA, reserveB] = await Promise.all([
+					getTokenBalance(tokenA, exchangeContract.address, library),
+					getTokenBalance(tokenB, exchangeContract.address, library),
+				]);
+
+				setReserves({
+					reserveTokenA: reserveA,
+					reserveTokenB: reserveB,
+				});
+			} catch (error) {
+				console.error("Error obteniendo reservas del exchange:", error);
+				setReserves({ reserveTokenA: null, reserveTokenB: null });
+			}
+		}, 1000), // 1s de debounce para evitar spam de requests
+		[exchangeContract, tokenA, tokenB]
+	);
+
+	useEffect(() => {
+		debouncedFetch();
+		return () => debouncedFetch.cancel(); // Cancela la llamada si el efecto se desmonta
+	}, [debouncedFetch]);
+
+	return reserves;
 }
 
-export function useAddressAllowance(address, tokenAddress, spenderAddress, refreshTrigger) {
+export function useAddressAllowance(
+	address,
+	tokenAddress,
+	spenderAddress,
+	refreshTrigger
+) {
+	const [allowance, setAllowance] = useState();
 
+	const debouncedFetch = useCallback(
+		debounce(async () => {
+			if (
+				isAddress(address) &&
+				isAddress(tokenAddress) &&
+				isAddress(spenderAddress)
+			) {
+				try {
+					const value = await getTokenAllowance(
+						address,
+						tokenAddress,
+						spenderAddress,
+						library
+					);
+					setAllowance(value);
+				} catch (error) {
+					console.error("Error obteniendo allowance:", error);
+					setAllowance(null);
+				}
+			}
+		}, 1000),
+		[address, tokenAddress, spenderAddress, refreshTrigger]
+	);
 
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+	useEffect(() => {
+		debouncedFetch();
+	}, [debouncedFetch]);
 
-  const [allowance, setAllowance] = useState();
-
-  const updateAllowance = useCallback(() => {
-    if (
-      isAddress(address) &&
-      isAddress(tokenAddress) &&
-      isAddress(spenderAddress)
-    ) {
-      let stale = false;
-
-      getTokenAllowance(address, tokenAddress, spenderAddress, library)
-        .then((allowance) => {
-
-          if (!stale) {
-            setAllowance(allowance);
-          }
-        })
-        .catch(() => {
-          if (!stale) {
-            setAllowance(null);
-          }
-        });
-
-      return () => {
-        stale = true;
-        setAllowance();
-      };
-    }
-  }, [address, spenderAddress, tokenAddress, refreshTrigger]);
-
-  useEffect(() => {
-    return updateAllowance();
-  }, [updateAllowance]);
-
-  // useBlockEffect(updateAllowance)
-
-  return allowance;
+	return allowance;
 }
 
 export function useExchangeAllowance(address, tokenAddress) {
-  const exchangeContract = useExchangeContract(tokenAddress);
+	const exchangeContract = useExchangeContract(tokenAddress);
 
-  return useAddressAllowance(
-    address,
-    tokenAddress,
-    exchangeContract && exchangeContract.address
-  );
+	return useAddressAllowance(
+		address,
+		tokenAddress,
+		exchangeContract && exchangeContract.address
+	);
 }
 
 export function useRouterAllowance(address, tokenAddress) {
-  const routerContract = useRouterContract();
+	const routerContract = useRouterContract();
 
-  return useAddressAllowance(
-    address,
-    tokenAddress,
-    routerContract && routerContract.address
-  );
+	return useAddressAllowance(
+		address,
+		tokenAddress,
+		routerContract && routerContract.address
+	);
 }
