@@ -590,6 +590,41 @@ export function useTokenCap(contract) {
 
 // 	return reserves;
 // }
+
+export function useTokenName(contract) {
+	const [tokenName, setTokenName] = useState(null);
+
+	const updateTokenName = useCallback(() => {
+		if (!!contract) {
+			let stale = false;
+
+			contract
+				.name()
+				.then((value) => {
+					if (!stale) {
+						setTokenName(value);
+					}
+				})
+				.catch(() => {
+					if (!stale) {
+						setTokenName(null);
+					}
+				});
+
+			return () => {
+				stale = true;
+				setTokenName(null);
+			};
+		}
+	}, [contract]);
+
+	useEffect(() => {
+		updateTokenName();
+	}, [updateTokenName]);
+
+	return tokenName;
+}
+
 export function useExchangeReserves(exchangeContract, tokenA, tokenB) {
 	const [reserves, setReserves] = useState({
 		reserveTokenA: null,

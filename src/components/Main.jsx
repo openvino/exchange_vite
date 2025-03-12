@@ -81,6 +81,7 @@ export default function Main() {
 		const productsWineries = await axiosClient.get("/token", {
 			params: { winerie_id: wineryId },
 		});
+		console.log(productsWineries.data);
 
 		const filterProduct = productsWineries.data.filter(
 			(product) => product.id === productId
@@ -636,6 +637,7 @@ export default function Main() {
 						setShowWorks={setShowWorks}
 						setRefreshTrigger={setRefreshTrigger}
 						loadingPrice={loadingPrice}
+						tokenName={state.tokenName}
 					/>
 					{showFarming && (
 						<Farming

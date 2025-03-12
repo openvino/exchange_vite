@@ -69,6 +69,7 @@ export default function Checkout({
 	crowdsaleExchangeRateUSD,
 	tokenSupply,
 	tokenCap,
+	tokenName,
 	selectedTokenSymbol,
 	setSelectedTokenSymbol,
 	ready,
@@ -221,7 +222,13 @@ export default function Checkout({
 				/>
 			);
 		} else if (showWorks) {
-			return <Works tokenSupply={tokenSupply} closeCheckout={closeCheckout} />;
+			return (
+				<Works
+					tokenSupply={tokenSupply}
+					closeCheckout={closeCheckout}
+					tokenName={tokenName}
+				/>
+			);
 		} else if (lastTransactionHash) {
 			return (
 				<Confirmed

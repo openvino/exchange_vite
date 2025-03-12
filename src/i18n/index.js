@@ -1,32 +1,25 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-import LanguageDetector from 'i18next-browser-languagedetector';
-
-import HttpApi from 'i18next-http-backend'
+import en from "./en.json";
+import es from "./es.json";
 
 i18n
-  // detect user language
-  // learn more: https://github.com/i18next/i18next-browser-languageDetector
-  .use(LanguageDetector)
-  .use(HttpApi)
-  // pass the i18n instance to react-i18next.
-  .use(initReactI18next)
-  // init i18next
-  // for all options read: https://www.i18next.com/overview/configuration-options
-  .init({
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false, // not needed for react as it escapes by default
-    },
-    load: 'languageOnly',
-    backend: {
-      loadPath: 'https://costaflores.openvino.exchange/language/{{lng}}'
-    },
-    react: { 
-      useSuspense: false //   <---- this will do the magic
-    }
-  });
-
+	.use(LanguageDetector) // Detecta el idioma del navegador
+	.use(initReactI18next)
+	.init({
+		fallbackLng: "en", // Si no encuentra el idioma, usa inglés
+		interpolation: { escapeValue: false }, // React ya maneja el escape
+		resources: {
+			en: { translation: en },
+			es: { translation: es },
+		},
+		react: { useSuspense: false },
+		detection: {
+			order: ["localStorage", "navigator"], // Detecta idioma primero en localStorage, luego en navegador
+			caches: ["localStorage"], // Guarda la preferencia en localStorage
+		},
+	});
 
 export default i18n;

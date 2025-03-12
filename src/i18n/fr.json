@@ -1,64 +1,554 @@
 {
-    "label": {
-        "buy": "Acheter",
-        "sell": "Vendre",
-        "redeem": "Racheter",
-        "pay": "Payer"
-    },
-    "wallet": {
-        "invalid-network": "Ce token n'est pas compatible avec la red sélection.",
-        "select-op" : "Veuillez sélectionner la xarxa OPTIMISM",
-        "select-eth" : "Veuillez sélectionner la xarxa Ethereum mainnet",
-        "select-sepolia-op" : "Veuillez sélectionner la xarxa OP Sepolia",
-        "select-button" : "Sélectionnez réseau",
-        "email": "Email",
-        "your-email": "Votre email",
-        "connect": "Connect wallet",
-        "invalid-amount": "Montant invalide",
-        "invalid-trade": "Échange invalide",
-        "no-allowance": "Définir l'allocation pour continuer",
-        "no-eth": "Pas d'ETH suficiente",
-        "no-tokens": "Pas assez de token sélectionné",
-        "not-available": "Indisponible",
-        "unknown-error": "Erreur inconnue",
-        "loading": "Chargement...",
-        "waiting-confirmation": "En attente de confirmation",
-        "buy-wine": "Acheter du vin",
-        "sell-wine": "Vendre du vin",
-        "pay": "Payer",
-        "sell": "Vendre",
-        "crowdsale": "Crowdsale",
-        "available": "Disponible",
-        "pending-transaction": "Votre transaction est en attente",
-        "view-etherscan": "Voir sur Etherscan.",
-        "what-to-receive": "Quel token souhaitez-vous recevoir?",
-        "what-to-pay": "Comment voulez-vous payer?",
-        "unlock": "Ouvrir",
-        "unlock-token": "Token déverrouillé!",
-        "you-got-tokens": "Vous avez {{amount}} {{token}}!",
-        "transaction-details": "Détails de la transaction",
-        "redeem-token": "Utiliser {{token}}",
-        "redeem-your-token": "Échangez votre {{token}} maintenant",
-        "sold-wine": "Vous avez vendu du vin!",
-        "browser-wallet": "Wallet de navigateur",
-        "wallet-connect": "Wallet Connect",
-        "scan-to-connect": "Numérisez pour vous connecter",
-        "learn-more": "Apprendre encore plus",
-        "dont-have-one": "Vous n'en avez pas?",
-        "connection-error": "Erreur de connexion",
-        "you-own": "Vous possédez {{amount}}",
-        "redeem-message": "Vous pouvez échanger vos tokens {{token}} contre des bouteilles de vin à partir du {{date}}."
-    },
-    "info": {
-        "1": "Comment ça fonctionne:",
-        "2": "Un token {{token}} vous donne droit à une bouteille de délicieux vin bio argentin (Mike Tango Bravo {{year}} - un coupage de Malbec / Petit Verdot / Cabernet Sauvignon) de <0>Costaflores Organic Vineyard</0>.",
-        "3": "Regardez <0>ici</0> pour comprendre comment fonctionne l'ensemble du processus <1>OpenVino</1>.",
-        "4": "Vous pouvez revendre le token à tout moment, et à partir du {{date}}, vous pouvez échanger votre token {{token}} contre 1 bouteille de vin.",
-        "5": "Comment prix est-il déterminé?:",
-        "6": "Chaque achat ou vente modifie le prix. L'augmentation ou la diminution suit la bonding curve d'Uniswap. Ainsi, le prix de nos vins est défini par l'offre et la demande, et la valorisation évolue dans le temps... <0>comme un bon vin</0>!",
-        "7": "En savoir plus sur le fonctionnement d'Uniswap.",
-        "8": "Voir le fonctionnement du projet OpenVino.",
-        "9": "Rejoignez notre groupe de Telegram.",
-        "10": "Contacter nous."
-    }
+	"evidences": {
+		"attachment": "Include attachment",
+		"bounty": "Bounty",
+		"cancel": "Cancel",
+		"challenge-motive": "Explain to the jurors why you should think this submission should be rejected.",
+		"challenge-submission": "Challenge submission",
+		"contract-address": "Contract address",
+		"deposit": "To challenge a submission, a deposit is required. This value will be awarded to the party that wins the dispute.",
+		"description": "Write your description",
+		"ending-date": "Ending date",
+		"first-request": "First request submission",
+		"info": {
+			"description": "Each token has its tag where the evidence of our product organic veracity is uploaded for everyone to see. If you find anything that's not right you can easily create a challenge to contradict the proofs presented so far by displaying yours.",
+			"title": "Check the evidences that proof our wine is organic"
+		},
+		"listing-criteria": "lisiting criteria",
+		"public-name": "Public tag name",
+		"public-note": "Public note",
+		"read": "Read the",
+		"request-type": "Request type",
+		"requester": "Requester",
+		"state": "State",
+		"submit": "Submit",
+		"tag-details": "Tag's details",
+		"tag-history": "Tag’s history",
+		"tag-list": {
+			"more-info": "More info",
+			"see-details": "See details",
+			"status": "Status",
+			"title": "Tags"
+		},
+		"title": "BioDigital Cert",
+		"tooltip": {
+			"contract-address": "Contract address description",
+			"first-request": "First request description",
+			"public-name": "Public name description",
+			"public-note": "Public note description",
+			"website": "Website description"
+		},
+		"total": "Total submitted",
+		"upload-file": "Upload file",
+		"view-evidence": "View evidence",
+		"website": "Website link"
+	},
+	"expenses": {
+		"all-categories": "All categories",
+		"categories": {
+			"0": "Grape cultivation",
+			"1": "Wine production",
+			"2": "Packaging",
+			"3": "Logistics",
+			"4": "Administration",
+			"5": "Marketing and communication"
+		},
+		"empty-state": "No expenses found",
+		"list": "Expenses list"
+	},
+	"info": {
+		"1": "Comment ça fonctionne:",
+		"10": "Contacter nous.",
+		"2": "Un token {{token}} vous donne droit à une bouteille de délicieux vin bio argentin (Mike Tango Bravo {{year}} - un coupage de Malbec / Petit Verdot / Cabernet Sauvignon) de \u003C0\u003ECostaflores Organic Vineyard\u003C/0\u003E.",
+		"3": "Regardez \u003C0\u003Eici\u003C/0\u003E pour comprendre comment fonctionne l'ensemble du processus \u003C1\u003EOpenVino\u003C/1\u003E.",
+		"4": "Vous pouvez revendre le token à tout moment, et à partir du {{date}}, vous pouvez échanger votre token {{token}} contre 1 bouteille de vin.",
+		"5": "Comment prix est-il déterminé?:",
+		"6": "Chaque achat ou vente modifie le prix. L'augmentation ou la diminution suit la bonding curve d'Uniswap. Ainsi, le prix de nos vins est défini par l'offre et la demande, et la valorisation évolue dans le temps... \u003C0\u003Ecomme un bon vin\u003C/0\u003E!",
+		"7": "En savoir plus sur le fonctionnement d'Uniswap.",
+		"8": "Voir le fonctionnement du projet OpenVino.",
+		"9": "Rejoignez notre groupe de Telegram."
+	},
+	"labels": {
+		"buy": "Acheter",
+		"change": "Changer",
+		"day": "Jour",
+		"dry": "Sec",
+		"none": "Aucun",
+		"pay": "Payer",
+		"redeem": "Racheter",
+		"sell": "Vendre",
+		"wet": "Humide"
+	},
+	"months": {
+		"0": "Janvier",
+		"1": "Février",
+		"10": "November",
+		"11": "Décdembre",
+		"2": "Mars",
+		"3": "Avril",
+		"4": "Mai",
+		"5": "Juin",
+		"6": "Juillet",
+		"7": "Août",
+		"8": "Septembre",
+		"9": "Octobnre"
+	},
+	"product": {
+		"humidity": "Humidité",
+		"irradiance-ir": "Irradiation solaire (IR)",
+		"irradiance-uv": "Irradiation solaire (UV)",
+		"irradiance-vi": "Irradiation solaire (VI)",
+		"pressure": "Pression",
+		"rain": "Pluie",
+		"redeem": {
+			"18": "6 Mai 2021",
+			"19": "6 Mai 2022",
+			"20": "6 Mai 2023",
+			"21": "6 Mai 2024"
+		},
+		"solar": "Radiation solaire",
+		"stages": {
+			"bud_burst": "Bud burst",
+			"flowering": "Flowering",
+			"harvest": "Harvest",
+			"pruning": "Pruning",
+			"setting": "Setting",
+			"thinning": "Thinning and ulling",
+			"veraison": "Veraison"
+		},
+		"subsoil_humidity": {
+			"title": "Humidité du sol",
+			"zones": {
+				"cabernet_sauvignon": "Cabernet Sauvignon",
+				"malbec_este": "Malbec Est",
+				"malbec_oeste": "Malbec Ouest",
+				"petit_verdot": "Petit Verdot"
+			}
+		},
+		"tabs": {
+			"business": "Entreprise",
+			"sensoric": "Capteurs",
+			"test1": "Test 1",
+			"test2": "Test 2"
+		},
+		"temperature": "Température",
+		"wind-direction": "Direction du vent",
+		"wind-speed": "Vitesse du vent"
+	},
+	"redeem": {
+		"address": "Ethereum Address",
+		"amount": "Quantité",
+		"burn": "Burn",
+		"city": "City",
+		"countries": {
+			"1": {
+				"name": "USA",
+				"province": {
+					"1": "Alabama",
+					"10": "Georgia",
+					"11": "Hawaii",
+					"12": "Idaho",
+					"13": "Illinois",
+					"14": "Indiana",
+					"15": "Iowa",
+					"16": "Kansas",
+					"17": "Kentucky",
+					"18": "Louisiana",
+					"19": "Maine",
+					"2": "Alaska",
+					"20": "Maryland",
+					"21": "Massachusetts",
+					"22": "Michigan",
+					"23": "Minnesota",
+					"24": "Mississippi",
+					"25": "Missouri",
+					"26": "Montana",
+					"27": "Nebraska",
+					"28": "Nevada",
+					"29": "New Hampshire",
+					"3": "Arizona",
+					"30": "New Jersey",
+					"31": "New Mexico",
+					"32": "New York",
+					"33": "North Carolina",
+					"34": "North Dakota",
+					"35": "Ohio",
+					"36": "Oklahoma",
+					"37": "Oregon",
+					"38": "Pennsylvania",
+					"39": "Rhode Island",
+					"4": "Arkansas",
+					"40": "South Carolina",
+					"41": "South Dakota",
+					"42": "Tennessee",
+					"43": "Texas",
+					"44": "Utah",
+					"45": "Vermont",
+					"46": "Virginia",
+					"47": "Washington",
+					"48": "West Virginia",
+					"49": "Wisconsin",
+					"5": "California",
+					"50": "Wyoming",
+					"51": "Direct Import",
+					"6": "Colorado",
+					"7": "Connecticut",
+					"8": "Delaware",
+					"9": "Florida"
+				}
+			},
+			"33": {
+				"name": "France",
+				"province": {
+					"1": "Auvergn-Rhône-Alpes",
+					"10": "Nouvelle-Aquitaine",
+					"11": "Occitanie",
+					"12": "Pays de la Loire",
+					"13": "Provence Alpes Côte d'Azur",
+					"2": "Bourgogne-France-Comté",
+					"3": "Brittany",
+					"4": "Centre-Val de Loire",
+					"5": "Corsica",
+					"6": "Grand Est",
+					"7": "Hauts-de-France",
+					"8": "Paris Region",
+					"9": "Normandie"
+				}
+			},
+			"34": {
+				"name": "Spain",
+				"province": {
+					"1": "Andalucía",
+					"10": "Valencia",
+					"11": "Extremadura",
+					"12": "Galicia",
+					"13": "La Rioja",
+					"14": "Madrid",
+					"15": "Murcia",
+					"16": "Navarra",
+					"17": "País Vasco",
+					"18": "Ceuta",
+					"19": "Melilla",
+					"2": "Aragón",
+					"20": "Direct Import",
+					"3": "Asturias",
+					"4": "Islas Baleares",
+					"5": "Canarias",
+					"6": "Cantabria",
+					"7": "Castilla La Mancha",
+					"8": "Castilla y León",
+					"9": "Catalunya"
+				}
+			},
+			"54": {
+				"name": "Argentina",
+				"province": {
+					"1": "Mendoza",
+					"10": "Entre Ríos",
+					"11": "Formosa",
+					"12": "Jujuy",
+					"13": "La Pampa",
+					"14": "La Rioja",
+					"15": "Misiones",
+					"16": "Neuquén",
+					"17": "Rio Negro",
+					"18": "Salta",
+					"19": "San Juan",
+					"2": "CABA",
+					"20": "San Luis",
+					"21": "Santa Cruz",
+					"22": "Santa Fé",
+					"23": "Santiago del Estero",
+					"24": "Tierra del Fuego",
+					"25": "Tucuman",
+					"3": "Buenos Aires",
+					"4": "Costaflores",
+					"5": "Catamarca",
+					"6": "Chaco",
+					"7": "Chubut",
+					"8": "Córdoba",
+					"9": "Corrientes"
+				}
+			}
+		},
+		"country": "Country",
+		"email": "Email",
+		"estimated-time": "Estimated shipping time 2-3 weeks. Shipping time will vary by region.",
+		"line1": "Street Address",
+		"line2": "Unit",
+		"name": "Name",
+		"next": "Next",
+		"noClose": "Veuillez ne pas fermer cette fenêtre avant d'avoir terminé toutes les étapes",
+		"numberBurned": "Token Redeemed",
+		"omit": "Omettre",
+		"paidRedeem": "Vous avez des envois en attente de paiement, souhaitez-vous les payer maintenant ?",
+		"pickup": "Voulez-vous le retirer à la cave ?",
+		"place-order": "Place order",
+		"shipping-cost": "Calculated shipping costs",
+		"shipping-cost-not-found": "We currently do not support shipping to this province.",
+		"state": "State",
+		"step1": "Étape 1/2:",
+		"step2": "Étape 2/2:",
+		"telegram": "Telegram ID",
+		"timestamp": "Time",
+		"token": "Jeton",
+		"transfer-shipping-costs": "Transfer shipping costs",
+		"you-got-wine": "You got wine!",
+		"zip": "ZIP code"
+	},
+	"selection": {
+		"know-more": "Plus d'informations",
+		"subtitle": "La première crypto-monnaie au monde soutenue par un délicieux vin argentin biologique!",
+		"title": "Achetez, vendez et échangez votre MTB*"
+	},
+	"sensors": {
+		"dashboard": {
+			"bx": "BX",
+			"co": "CO",
+			"cs": "CS",
+			"grapeStatus": "Grape status",
+			"guano": "Guano",
+			"h2o": "H2O",
+			"inputMolecules": "Input molecules",
+			"kg": "KG",
+			"lastImage": "Last image",
+			"lastUpdate": "Last update",
+			"livestream": "Livestream",
+			"location": "Location",
+			"mbe": "MBE",
+			"mbo": "MBO",
+			"ph": "pH",
+			"pressure": "Pressure",
+			"pv": "PV",
+			"relativeHumidity": "RH",
+			"s": "S",
+			"solarIR": "Solar irrradiation (IR)",
+			"solarUV": "Solar irradiation (UV)",
+			"solarVI": "Solar irradiation (VI)",
+			"ta": "TA",
+			"temperature": "Temperature",
+			"timelapse": "Timelapse",
+			"wind": "Wind",
+			"windDirection": "Wind direction"
+		},
+		"subtitle": "How much money do we spend per bottle?",
+		"title": "Costaflores Organic Vineyard"
+	},
+	"tasks": {
+		"categories": {
+			"0": "Grape cultivation",
+			"1": "Wine production",
+			"2": "Packaging",
+			"3": "Logistics",
+			"4": "Administration",
+			"5": "Marketing and communication"
+		},
+		"chemicals": {
+			"1": {
+				"interval": "1",
+				"max": "20",
+				"min": "1",
+				"name": "Copper oxychloride (Kg)"
+			},
+			"2": {
+				"interval": "1",
+				"max": "20",
+				"min": "1",
+				"name": "Sulfur (Kg)"
+			},
+			"3": {
+				"interval": "1",
+				"max": "20",
+				"min": "1",
+				"name": "Diatomaceous earth (Kg)"
+			},
+			"4": {
+				"interval": "1",
+				"max": "100",
+				"min": "1",
+				"name": "Bacillus thuringiensis (g)"
+			}
+		},
+		"labels": {
+			"categories": "Category",
+			"chemicals": "Chemicals",
+			"end": "End date",
+			"location-end": "End location",
+			"location-start": "Inital location",
+			"notes": "Notes",
+			"start": "Start date",
+			"tools": "Tools",
+			"type": "Task type"
+		},
+		"locations": {
+			"zones": {
+				"cabernet-sauvignon": "Cabernet Sauvignon",
+				"malbec": "Malbec",
+				"petit-verdot": "Petit Verdot"
+			}
+		},
+		"see-details": "See details",
+		"tools": {
+			"1": "Tractor",
+			"10": "Machete",
+			"11": "Harvest bin",
+			"12": "Chisel",
+			"13": "Plow",
+			"14": "Subsoiler",
+			"15": "Healing tank",
+			"16": "Brush",
+			"2": "Pincers",
+			"3": "Shovel",
+			"4": "Zapa",
+			"5": "Gloves",
+			"6": "Trimming scissors",
+			"7": "Harvest scissors",
+			"8": "Lenses",
+			"9": "Healing backpack"
+		},
+		"types": {
+			"0": {
+				"description": "Open furrows",
+				"name": "Derail"
+			},
+			"1": {
+				"description": "Close the furrows",
+				"name": "Cover"
+			},
+			"10": {
+				"description": "Cross the fallen buds",
+				"name": "Cross"
+			},
+			"11": {
+				"description": "Cut the tips of the plant",
+				"name": "Cut the tips"
+			},
+			"12": {
+				"description": "Cut and take out some bunches of grapes",
+				"name": "Thin"
+			},
+			"13": {
+				"description": "Cut and remove all the grape bunches",
+				"name": "Harvest"
+			},
+			"14": {
+				"description": "Apply products to the plant",
+				"name": "Cure"
+			},
+			"2": {
+				"description": "Change the broken sticks of the farm",
+				"name": "Change sticks"
+			},
+			"3": {
+				"description": "Zap all the weeds near the plant",
+				"name": "Zap"
+			},
+			"4": {
+				"description": "Eliminate new shoots emerging from the trunk of the stock",
+				"name": "Sprout"
+			},
+			"5": {
+				"description": "Tie the branches after pruning the vines",
+				"name": "Tie"
+			},
+			"6": {
+				"description": "Cutting of a strain to a certain extent to regulate and increase production and give it a certain shape",
+				"name": "Prune"
+			},
+			"7": {
+				"description": "Use the machine to clean the farm",
+				"name": "Weed"
+			},
+			"8": {
+				"description": "Paint the cuts after pruning",
+				"name": "Paint the cuts"
+			},
+			"9": {
+				"description": "It is watered through the water that comes from the canal",
+				"name": "Water"
+			}
+		}
+	},
+	"tasks-app": {
+		"home": {
+			"domain": "Domain",
+			"empty-state": "No tasks found",
+			"public-key": "Public key",
+			"title": "Task list"
+		},
+		"login": {
+			"copy": "Copy",
+			"create": "Create account",
+			"enter-mnemonic": "Enter mnemonic...",
+			"import": "Import account",
+			"next": "Next"
+		},
+		"new": {
+			"title": "Create new task"
+		},
+		"ogin": {
+			"enter-mnemonic": "Enter mnemonic..."
+		}
+	},
+	"verifier": {
+		"error": "Erreur",
+		"label": "Vérifier",
+		"success": "OK"
+	},
+	"wallet": {
+		"available": "Disponible",
+		"browser-wallet": "Wallet de navigateur",
+		"buy-wine": "Acheter du vin",
+		"connect": "Connect wallet",
+		"connection-error": "Erreur de connexion",
+		"crowdsale": "Crowdsale",
+		"dont-have-one": "Vous n'en avez pas?",
+		"email": "Email",
+		"estimane": "Assurez-vous d'avoir suffisamment d'ETH pour le gas de votre transaction.",
+		"invalid-amount": "Montant invalide",
+		"invalid-network": "Ce token n'est pas compatible avec la red sélection.",
+		"invalid-trade": "Échange invalide",
+		"learn-more": "Apprendre encore plus",
+		"loading": "Chargement...",
+		"no-allowance": "Définir l'allocation pour continuer",
+		"no-eth": "Pas d'ETH suficiente",
+		"no-tokens": "Pas assez de token sélectionné",
+		"not-available": "Indisponible",
+		"pay": "Payer",
+		"pending-transaction": "Votre transaction est en attente",
+		"redeem-message": "Vous pouvez échanger vos tokens {{token}} contre des bouteilles de vin à partir du {{date}}.",
+		"redeem-token": "Utiliser {{token}}",
+		"redeem-your-token": "Échangez votre {{token}} maintenant",
+		"scan-to-connect": "Numérisez pour vous connecter",
+		"select-button": "Sélectionnez réseau",
+		"select-eth": "Veuillez sélectionner la xarxa Ethereum mainnet",
+		"select-op": "Veuillez sélectionner la xarxa OPTIMISM",
+		"select-sepolia-op": "Veuillez sélectionner la xarxa OP Sepolia",
+		"sell": "Vendre",
+		"sell-wine": "Vendre du vin",
+		"sold-wine": "Vous avez vendu du vin!",
+		"transaction-details": "Détails de la transaction",
+		"unknown-error": "Erreur inconnue",
+		"unlock": "Ouvrir",
+		"unlock-token": "Token déverrouillé!",
+		"view-etherscan": "Voir sur Etherscan.",
+		"waiting-confirmation": "En attente de confirmation",
+		"wallet-connect": "Wallet Connect",
+		"what-to-pay": "Comment voulez-vous payer?",
+		"what-to-receive": "Quel token souhaitez-vous recevoir?",
+		"you-got-tokens": "Vous avez {{amount}} {{token}}!",
+		"you-own": "Vous possédez {{amount}}",
+		"your-email": "Votre email",
+		"your-name": "Votre nom"
+	},
+	"wineries": {
+		"back": "Back to wineries",
+		"coming-soon": "Coming soon",
+		"contact": "Contact",
+		"empty-state": "No wineries added yet",
+		"openvino-wiki": "Wiki",
+		"search": "Search for your winery here",
+		"title": "Wineries",
+		"visit-winery": "Visit winery"
+	}
 }
