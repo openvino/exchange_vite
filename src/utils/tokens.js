@@ -1,4 +1,10 @@
 export const tokensInfo = {
+	TTTM25: {
+		fullDescription:
+			"Un token TT TM25 te da derecho a una botella de un Malbec único de la región de Alto Verde. Nace en nuestros viñedos, conducido en espaldero y cultivado de manera orgánica, elaborado en pequeñas partidas por el enólogo Marcelo Trilla. Estará en tanques de acero inoxidable para su limpieza natural y posteriormente, pasará por barricas de roble francés por 18 meses, para que sus aromas terciarios cobren vida siempre en equilibrio con la fruta aportada por nuestras uvas. <0>Territorios Trilla</0>",
+		redeemDate: "20 de mayo de 2028",
+		wineryUrl: "https://territoriostrilla.com.ar/",
+	},
 	VARSI22: {
 		fullDescription:
 			"Un token VARSI22 te da derecho a una botella de delicioso vino Varsi Sangiovese 2022 -  blend 88% Sangiovese y 12% Malbec. Elaborado con maceración carbónica y añejado por 30 meses en barrica de roble. Producido por la Bodega de  <0>Ricardo Santos</0>, conocido como el padre del Malbec Argentino. ",

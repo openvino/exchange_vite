@@ -694,7 +694,6 @@ export default function Main() {
 					<Sensors />
 				</div>
 			)}
-
 		</>
 	);
 }
