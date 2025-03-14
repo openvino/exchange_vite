@@ -137,7 +137,7 @@ export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 				/>
 			</Desc>
 			<Desc>
-				<a
+				{/* <a
 					href="https://docs.uniswap.io/"
 					target="_blank"
 					rel="noopener noreferrer"
@@ -145,7 +145,7 @@ export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 					key={state.tokenName + "info.7"}
 				>
 					{t("info.7")}
-				</a>
+				</a> */}
 			</Desc>
 			<Desc>
 				<a

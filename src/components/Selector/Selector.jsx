@@ -69,12 +69,12 @@ const Selector = () => {
 					<picture>
 						<source
 							media="(min-width: 576px)"
-							srcSet="/images/logo-costaflores.png"
+							srcSet="images/openvino-logo.png"
 						/>
 						<img
-							src="assets/images/logo-costaflores-reduced.png"
+							src="images/openvino-logo.png"
 							alt="Costaflores"
-							style={{ width: "auto" }}
+							style={{ width: 200 }}
 							loading="lazy"
 						/>
 					</picture>
@@ -85,25 +85,18 @@ const Selector = () => {
 							{t("wineries.back")}
 						</a>
 					</div>
-					<div className={`${styles["selector-content-header"]} py-4 py-sm-5`}>
-						<h1>{t("selection.title")}</h1>
-						<h2 className={styles["subtitle"]}>{t("selection.subtitle")}</h2>
+					
+					{products[0]?.id && (
+						<div className={`${styles["selector-content-header"]} py-4 py-sm-5`}>
+						<h1>{t("selection.title") + " " + products[0]?.id.slice(0, -2)}</h1>
+
+						{products[0]?.WinerieID === 'costaflores' && (
+								<h2 className={styles["subtitle"]}>{t("selection.subtitle")}</h2>
+						)}
+					
 					</div>
-					<div className={styles["selector-content-button-base"]}>
-						<a
-							target="_blank"
-							style={{ textDecoration: "none", color: "white" }}
-							href="https://openvino.atlassian.net/wiki/x/AYA2JQ"
-						>
-							OpenVino @ Base!
-						</a>
-						<img
-							src="https://www.base.org/_next/static/media/logo.f6fdedfc.svg"
-							width={30}
-							alt=""
-							loading="lazy"
-						/>
-					</div>
+					)}
+					
 					<div
 						className={`row justify-content-center ${styles["selector-content-items"]}`}
 					>

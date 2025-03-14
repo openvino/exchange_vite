@@ -506,12 +506,15 @@ export default function Main() {
 
 	const { t } = useTranslation();
 
+
+
+
 	return (
 		<>
 			<Header wineryId={state.wineryId}>
 				<Container>
 					<CardWrapper>
-						{state.tokenName !== "PDC19" && state.tokenName !== "BCN24" ? (
+						{state.tokenName !== "PDC19" && state.tokenName !== "BCN24" && state.tokenName !== 'VARSI22' && state.tokenName !== 'TTTM25' ? (
 							<div>
 								<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
 								<Redeem onClick={handleRedeemClick}>
@@ -538,16 +541,16 @@ export default function Main() {
 									}}
 								></InfoIcon>
 							</Title>
-							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" ? (
+							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" && state?.tokenName !== 'VARSI22' && state?.tokenName !== 'TTTM25' ? (
 								<>
 									{isCrowdsale && !loadingPrice && (
 										<CurrentPrice>
 											{crowdsaleExchangeRateUSD
 												? `$${amountFormatter(
-														crowdsaleExchangeRateUSD,
-														18,
-														2
-												  )} USDC`
+													crowdsaleExchangeRateUSD,
+													18,
+													2
+												)} USDC`
 												: "$0.00"}
 										</CurrentPrice>
 									)}
@@ -564,21 +567,22 @@ export default function Main() {
 
 											{(!state?.validationState ||
 												!state?.validationState > 0) && (
-												<BeatLoader
-													color="#d68513"
-													loading={true}
-													cssOverride={{
-														display: "flex",
-														flexDirection: "row",
-													}}
-													size={25}
-													aria-label="Loading Spinner"
-													data-testid="loader"
-												/>
-											)}
+													<BeatLoader
+														color="#d68513"
+														loading={true}
+														cssOverride={{
+															display: "flex",
+															flexDirection: "row",
+														}}
+														size={25}
+														aria-label="Loading Spinner"
+														data-testid="loader"
+													/>
+												)}
 										</CurrentPrice>
 									)}
 								</>
+
 							) : state.tokenName === 'PDC19' ? (
 								<>
 									<TokenIconContainer>
@@ -589,7 +593,27 @@ export default function Main() {
 									</TokenIconContainer>
 									<Countdown year={2025} month={5} day={1} />
 								</>
-							) :(
+							) : state.tokenName === 'VARSI22' ? (
+								<>
+									<TokenIconContainer>
+										<TokenIconText>
+											{state?.tokenYear?.substring(2, 4)}
+										</TokenIconText>
+										<TokenIcon src={state.tokenIcon}></TokenIcon>
+									</TokenIconContainer>
+									<Countdown year={2025} month={5} day={6} />
+								</>
+							) : state.tokenName === 'TTTM25' ? (
+								<>
+									<TokenIconContainer>
+										<TokenIconText>
+											{state?.tokenYear?.substring(2, 4)}
+										</TokenIconText>
+										<TokenIcon src={state.tokenIcon}></TokenIcon>
+									</TokenIconContainer>
+									<Countdown year={2025} month={5} day={6} />
+								</>
+							) : (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -598,14 +622,14 @@ export default function Main() {
 										<TokenIcon src={state.tokenIcon}></TokenIcon>
 									</TokenIconContainer>
 									<Countdown year={2025}
-									month={6}
-									day={1}
-									hours={12}
-									 />
+										month={6}
+										day={1}
+										hours={12}
+									/>
 								</>
-							) }
+							)}
 
-							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" && (
+							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" && state?.tokenName !== 'VARSI22' && state?.tokenName !== 'TTTM25' && (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -619,6 +643,8 @@ export default function Main() {
 									></TradeButtons>
 								</>
 							)}
+
+
 						</MarketData>
 					</CardWrapper>
 
@@ -662,10 +688,13 @@ export default function Main() {
 				</Container>
 			</Header>
 
-			<div className={styles["product-content"]}>
-				<Tabs />
-				<Sensors />
-			</div>
+			{state.wineryId === 'costaflores' && (
+				<div className={styles["product-content"]}>
+					<Tabs />
+					<Sensors />
+				</div>
+			)}
+
 		</>
 	);
 }

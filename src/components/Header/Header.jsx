@@ -22,16 +22,14 @@ const Header = ({ children, wineryId }) => {
 			>
 				<div className={styles["product-header-logo"]}>
 					<picture>
-						<source
-							media="(min-width: 576px)"
-							srcSet="/images/logo-costaflores.png"
-						/>
+						
 						<img
-							src="/images/logo-costaflores-reduced.png"
-							alt="Costaflores"
-							style={{ width: "auto" }}
+							src="/images/openvino-logo.png"
+							alt="winery"
+							style={{ width: 200 }}
 						/>
 					</picture>
+
 
 					<div
 						className={styles["product-header-change"]}

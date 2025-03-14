@@ -1,14 +1,20 @@
 export const tokensInfo = {
+	VARSI22: {
+		fullDescription:
+			"Un token VARSI22 te da derecho a una botella de delicioso vino Varsi Sangiovese 2022 -  blend 88% Sangiovese y 12% Malbec. Elaborado con maceración carbónica y añejado por 30 meses en barrica de roble. Producido por la Bodega de  <0>Ricardo Santos</0>, conocido como el padre del Malbec Argentino. ",
+		redeemDate: "6 de mayo de 2028",
+		wineryUrl: "https://ricardosantos.com/",
+	},
 	PDC19: {
 		fullDescription:
 			"Palma de Cera de bodega Tequendama 2019 - un blend de Merlot 70% / Malbec 30% de <0>Tequendama Wines</0>.",
-		redeemDate: "1 de agosto de 2025",
+		redeemDate: "1 de mayo de 2028",
 		wineryUrl: "https://www.instagram.com/tequendamawines/?hl=es",
 	},
 	BCN24: {
 		fullDescription:
 			"MINIMAL 0,7, INTERDITO, BACO 2024 - 100 % Baco Noir de <0>Serrera Wines</0>.",
-		redeemDate: "1 de agosto de 2028",
+		redeemDate: "1 de junio de 2028",
 		wineryUrl: "https://www.serrerawines.com/",
 	},
 	MTB18: {
