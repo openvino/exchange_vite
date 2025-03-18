@@ -56,6 +56,7 @@ import { useContracts } from "../hooks";
 import { Height } from "@styled-icons/material";
 import useWeb3Store from "../config/zustandStore";
 import Countdown from "./countdown/Countdown";
+import { getTokenImageUrl } from "../utils/getStaticImages";
 
 export default function Main() {
 	const library = useMemo(() => {
@@ -87,16 +88,23 @@ export default function Main() {
 			(product) => product.id === productId
 		);
 
+		const { bottleUrl, imageUrl, tokenUrl } = getTokenImageUrl(
+			filterProduct[0].id.toLowerCase(),
+			filterProduct[0].WinerieID.toLowerCase()
+		);
+
 		setState((prevState) => ({
 			...prevState,
 			apiUrl: import.meta.env.VITE_APIURL,
 			crowdsaleAddress: filterProduct[0].crow_sale_address,
 			wineryId: filterProduct[0].WinerieID,
 			tokenAddress: filterProduct[0].token_address,
-			image: filterProduct[0].bottle_image,
+			image: bottleUrl,
+			// image: filterProduct[0].bottle_image,
 			tokenYear: filterProduct[0].year.toString(),
 			tokenName: filterProduct[0].id,
-			tokenIcon: filterProduct[0].token_icon,
+			tokenIcon: tokenUrl,
+			// tokenIcon: filterProduct[0].token_icon,
 			title: "Token",
 			shippingAccount: filterProduct[0].shipping_account,
 			validationState: undefined,
@@ -506,15 +514,15 @@ export default function Main() {
 
 	const { t } = useTranslation();
 
-
-
-
 	return (
 		<>
 			<Header wineryId={state.wineryId}>
 				<Container>
 					<CardWrapper>
-						{state.tokenName !== "PDC19" && state.tokenName !== "BCN24" && state.tokenName !== 'VARSI22' && state.tokenName !== 'TTTM25' ? (
+						{state.tokenName !== "PDC19" &&
+						state.tokenName !== "BCN24" &&
+						state.tokenName !== "VARSI22" &&
+						state.tokenName !== "TTTM25" ? (
 							<div>
 								<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
 								<Redeem onClick={handleRedeemClick}>
@@ -541,16 +549,19 @@ export default function Main() {
 									}}
 								></InfoIcon>
 							</Title>
-							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" && state?.tokenName !== 'VARSI22' && state?.tokenName !== 'TTTM25' ? (
+							{state?.tokenName !== "PDC19" &&
+							state?.tokenName !== "BCN24" &&
+							state?.tokenName !== "VARSI22" &&
+							state?.tokenName !== "TTTM25" ? (
 								<>
 									{isCrowdsale && !loadingPrice && (
 										<CurrentPrice>
 											{crowdsaleExchangeRateUSD
 												? `$${amountFormatter(
-													crowdsaleExchangeRateUSD,
-													18,
-													2
-												)} USDC`
+														crowdsaleExchangeRateUSD,
+														18,
+														2
+												  )} USDC`
 												: "$0.00"}
 										</CurrentPrice>
 									)}
@@ -567,23 +578,22 @@ export default function Main() {
 
 											{(!state?.validationState ||
 												!state?.validationState > 0) && (
-													<BeatLoader
-														color="#d68513"
-														loading={true}
-														cssOverride={{
-															display: "flex",
-															flexDirection: "row",
-														}}
-														size={25}
-														aria-label="Loading Spinner"
-														data-testid="loader"
-													/>
-												)}
+												<BeatLoader
+													color="#d68513"
+													loading={true}
+													cssOverride={{
+														display: "flex",
+														flexDirection: "row",
+													}}
+													size={25}
+													aria-label="Loading Spinner"
+													data-testid="loader"
+												/>
+											)}
 										</CurrentPrice>
 									)}
 								</>
-
-							) : state.tokenName === 'PDC19' ? (
+							) : state.tokenName === "PDC19" ? (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -593,7 +603,7 @@ export default function Main() {
 									</TokenIconContainer>
 									<Countdown year={2025} month={5} day={1} />
 								</>
-							) : state.tokenName === 'VARSI22' ? (
+							) : state.tokenName === "VARSI22" ? (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -603,7 +613,7 @@ export default function Main() {
 									</TokenIconContainer>
 									<Countdown year={2025} month={5} day={6} />
 								</>
-							) : state.tokenName === 'TTTM25' ? (
+							) : state.tokenName === "TTTM25" ? (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -621,30 +631,27 @@ export default function Main() {
 										</TokenIconText>
 										<TokenIcon src={state.tokenIcon}></TokenIcon>
 									</TokenIconContainer>
-									<Countdown year={2025}
-										month={6}
-										day={1}
-										hours={12}
-									/>
+									<Countdown year={2025} month={6} day={1} hours={12} />
 								</>
 							)}
 
-							{state?.tokenName !== "PDC19" && state?.tokenName !== "BCN24" && state?.tokenName !== 'VARSI22' && state?.tokenName !== 'TTTM25' && (
-								<>
-									<TokenIconContainer>
-										<TokenIconText>
-											{state?.tokenYear?.substring(2, 4)}
-										</TokenIconText>
-										<TokenIcon src={state.tokenIcon}></TokenIcon>
-									</TokenIconContainer>
-									<TradeButtons
-										balanceWINES={balanceWINES}
-										isCrowdsale={isCrowdsale}
-									></TradeButtons>
-								</>
-							)}
-
-
+							{state?.tokenName !== "PDC19" &&
+								state?.tokenName !== "BCN24" &&
+								state?.tokenName !== "VARSI22" &&
+								state?.tokenName !== "TTTM25" && (
+									<>
+										<TokenIconContainer>
+											<TokenIconText>
+												{state?.tokenYear?.substring(2, 4)}
+											</TokenIconText>
+											<TokenIcon src={state.tokenIcon}></TokenIcon>
+										</TokenIconContainer>
+										<TradeButtons
+											balanceWINES={balanceWINES}
+											isCrowdsale={isCrowdsale}
+										></TradeButtons>
+									</>
+								)}
 						</MarketData>
 					</CardWrapper>
 
@@ -688,7 +695,7 @@ export default function Main() {
 				</Container>
 			</Header>
 
-			{state.wineryId === 'costaflores' && (
+			{state.wineryId === "costaflores" && (
 				<div className={styles["product-content"]}>
 					<Tabs />
 					<Sensors />
