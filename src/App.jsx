@@ -5,7 +5,6 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Selector from "./components/Selector/Selector";
 import Main from "./components/Main";
 import Bridge from "./components/bridge/bridge";
-import { useAppContext } from "./context";
 import { fetchPrice } from "./utils/fetchPrice";
 import useWeb3Store from "./config/zustandStore";
 const App = () => {

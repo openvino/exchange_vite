@@ -58,6 +58,7 @@ import useWeb3Store from "../config/zustandStore";
 import Countdown from "./countdown/Countdown";
 import { getTokenImageUrl } from "../utils/getStaticImages";
 import { useRef } from "react";
+import { Spinner } from "@styled-icons/icomoon";
 
 export default function Main(key, setKey) {
 	const library = useMemo(() => {
@@ -92,6 +93,7 @@ export default function Main(key, setKey) {
 		window.scrollTo(0, 0);
 		setState((state) => ({ ...state, visible: false }));
 	}, []);
+
 	useEffect(() => {
 		// Si el precio es válido, ocultar el loader
 		if (priceRef.current && priceRef.current !== "~<0") {
@@ -125,11 +127,9 @@ export default function Main(key, setKey) {
 			wineryId: filterProduct[0].WinerieID,
 			tokenAddress: filterProduct[0].token_address,
 			image: bottleUrl,
-			// image: filterProduct[0].bottle_image,
 			tokenYear: filterProduct[0].year.toString(),
 			tokenName: filterProduct[0].id,
 			tokenIcon: tokenUrl,
-			// tokenIcon: filterProduct[0].token_icon,
 			title: "Token",
 			shippingAccount: filterProduct[0].shipping_account,
 			validationState: undefined,
@@ -140,22 +140,10 @@ export default function Main(key, setKey) {
 	};
 
 	useEffect(() => {
-		// Limpiar estado anterior antes de actualizar
-		// setState((prevState) => ({
-		// 	...prevState,
-		// 	tokenName: "",
-		// 	crowdsaleAddress: "",
-		// 	networkId: "",
-		// 	tokenAddress: "",
-		// 	image: "",
-		// 	tokenYear: "",
-		// 	tokenIcon: "",
-		// }));
 		setUSDExchangeRateETH(undefined);
 		setUSDExchangeRateSelectedToken(undefined);
 		setDollarPrice(undefined);
 
-		// Obtener el nuevo producto
 		getProductList();
 	}, [productId, wineryId]);
 
@@ -248,6 +236,7 @@ export default function Main(key, setKey) {
 	]);
 
 	let [isCrowdsale, setCrowdsale] = useState();
+
 	useEffect(() => {
 		try {
 			if (state.crowdsaleAddress === "") {
@@ -357,6 +346,7 @@ export default function Main(key, setKey) {
 			}
 		}
 	}, [USDExchangeRateETH, reserveWINESETH, reserveWINESToken]);
+
 	useEffect(() => {
 		if (typeof state.validationState !== "undefined") setLoadingPrice(false);
 	}, [state.validationState]);
@@ -527,7 +517,29 @@ export default function Main(key, setKey) {
 	const [showWorks, setShowWorks] = useState(false);
 
 	const { t } = useTranslation();
-
+	if (!state.tokenName)
+		return (
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+				}}
+			>
+				<BeatLoader
+					color="#d68513"
+					loading={true}
+					cssOverride={{
+						display: "flex",
+						flexDirection: "row",
+					}}
+					size={40}
+					aria-label="Loading Spinner"
+					data-testid="loader"
+				/>
+			</div>
+		);
 	return (
 		<>
 			<Header wineryId={state.wineryId}>
