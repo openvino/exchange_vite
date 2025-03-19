@@ -14,6 +14,7 @@ import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 
 import Confetti from "react-dom-confetti";
 import { CheckoutBackground, CheckoutFrame } from "../../styles";
+import { useLocation } from "react-router-dom";
 
 const config = {
 	angle: 90,
@@ -115,6 +116,7 @@ export default function Checkout({
 	const [lastTransactionAmount, setLastTransactionAmount] = useState("");
 
 	const pending = !!currentTransactionHash;
+
 	useEffect(() => {
 		if (currentTransactionHash) {
 			library.waitForTransaction(currentTransactionHash).then(() => {

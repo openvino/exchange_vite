@@ -90,6 +90,7 @@ export default function Main(key, setKey) {
 
 	useEffect(() => {
 		window.scrollTo(0, 0);
+		setState((state) => ({ ...state, visible: false }));
 	}, []);
 	useEffect(() => {
 		// Si el precio es válido, ocultar el loader
