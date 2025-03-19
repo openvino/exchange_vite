@@ -78,6 +78,10 @@ export default function Main(key, setKey) {
 		pairMTBwETH,
 		crowdsaleContract,
 	} = useContracts(state?.tokenAddress, state?.crowdsaleAddress);
+
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, []);
 	useEffect(() => {
 		// Si el precio es válido, ocultar el loader
 		if (priceRef.current && priceRef.current !== "~<0") {
