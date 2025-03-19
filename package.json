@@ -34,7 +34,6 @@
     "simplycountdown.js": "^3.0.1",
     "styled-components": "^6.1.13",
     "thirdweb": "^5.13.0",
-    "vite-plugin-babel": "^1.2.0",
     "vite-plugin-node-polyfills": "^0.22.0",
     "zustand": "^5.0.3"
   },

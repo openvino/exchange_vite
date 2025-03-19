@@ -66,6 +66,15 @@ export default function Main(key, setKey) {
 			chain: base,
 		});
 	}, [client]);
+	// selected token
+	const [selectedTokenSymbol, setSelectedTokenSymbol] = useState(
+		TOKEN_SYMBOLS.ETH
+	);
+	const [USDExchangeRateETH, setUSDExchangeRateETH] = useState();
+	const [USDExchangeRateSelectedToken, setUSDExchangeRateSelectedToken] =
+		useState();
+
+	const [loadingPrice, setLoadingPrice] = useState(false);
 	const priceRef = useRef(null);
 	const account = useActiveAccount();
 	const { wineryId, productId } = useParams();
@@ -151,11 +160,6 @@ export default function Main(key, setKey) {
 
 	const [showFarming, setShowFarming] = useState(false);
 
-	// selected token
-	const [selectedTokenSymbol, setSelectedTokenSymbol] = useState(
-		TOKEN_SYMBOLS.ETH
-	);
-
 	// get balances
 	const {
 		balanceETH,
@@ -200,12 +204,6 @@ export default function Main(key, setKey) {
 			: reserves.reserve1;
 	const reserveWINESToken =
 		token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
-
-	const [USDExchangeRateETH, setUSDExchangeRateETH] = useState();
-	const [USDExchangeRateSelectedToken, setUSDExchangeRateSelectedToken] =
-		useState();
-
-	const [loadingPrice, setLoadingPrice] = useState(false);
 
 	useEffect(() => {
 		const fetchPriceAndSetState = async () => {
