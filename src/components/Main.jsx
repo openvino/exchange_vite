@@ -57,15 +57,16 @@ import { Height } from "@styled-icons/material";
 import useWeb3Store from "../config/zustandStore";
 import Countdown from "./countdown/Countdown";
 import { getTokenImageUrl } from "../utils/getStaticImages";
+import { useRef } from "react";
 
-export default function Main() {
+export default function Main(key, setKey) {
 	const library = useMemo(() => {
 		return ethers5Adapter.provider.toEthers({
 			client,
 			chain: base,
 		});
 	}, [client]);
-
+	const priceRef = useRef(null);
 	const account = useActiveAccount();
 	const { wineryId, productId } = useParams();
 	const [state, setState] = useAppContext();
@@ -77,7 +78,17 @@ export default function Main() {
 		pairMTBwETH,
 		crowdsaleContract,
 	} = useContracts(state?.tokenAddress, state?.crowdsaleAddress);
+	useEffect(() => {
+		// Si el precio es válido, ocultar el loader
+		if (priceRef.current && priceRef.current !== "~<0") {
+			setLoadingPrice(false);
+		}
 
+		// Si el precio es "~<0", forzar un re-render
+		if (priceRef.current === "~<0") {
+			setKey((prevKey) => prevKey + 1);
+		}
+	}, [state.validationState, dollarize(state?.validationState)]);
 	const getProductList = async () => {
 		const productsWineries = await axiosClient.get("/token", {
 			params: { winerie_id: wineryId },
@@ -568,16 +579,17 @@ export default function Main() {
 									{!isCrowdsale && (
 										// !loadingPrice &&
 										<CurrentPrice style={{ minHeight: "30px" }}>
-											{state?.validationState &&
-												state?.validationState > 0 &&
-												`$${amountFormatter(
-													dollarize(state?.validationState),
-													18,
-													2
-												)} USDC`}
-
-											{(!state?.validationState ||
-												!state?.validationState > 0) && (
+											{state?.validationState && state?.validationState > 0 ? (
+												<>
+													{
+														(priceRef.current = `$${amountFormatter(
+															dollarize(state?.validationState),
+															18,
+															2
+														)} USDC`)
+													}
+												</>
+											) : (
 												<BeatLoader
 													color="#d68513"
 													loading={true}
