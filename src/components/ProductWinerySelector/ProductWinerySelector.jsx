@@ -81,7 +81,7 @@ const ProductWinerySelector = ({ winery }) => {
 						)}
 					</div>
 					<h5 className={styles["card-title"]} style={{ color: "#141414" }}>
-						{winery.name}
+						{winery.name=="Trilla"? "Territorios Trilla" : winery.name}
 					</h5>
 				</div>
 			</div>
