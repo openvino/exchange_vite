@@ -34,11 +34,13 @@ const ProductWinerySelector = ({ winery }) => {
 							alt={winery.name}
 							loading="lazy"
 						/>
+
 						{winery.name === "Tequendama" && (
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown />
 							</div>
 						)}
+						
 						{winery.name === "Serrera" && (
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown
@@ -69,8 +71,8 @@ const ProductWinerySelector = ({ winery }) => {
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown
 									year={2025}
-									month={4}
-									day={15}
+									month={5}
+									day={6}
 									hours={12}
 									minutes={0}
 									seconds={0}
