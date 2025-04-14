@@ -222,7 +222,7 @@ export default function BuyAndSell({
 			validationState: validationState.inputValue,
 			loading: false,
 		}));
-	}, [buying, validateBuy]);
+	}, [buying, validateBuy, state.count]);
 
 	// sell state validation
 	useEffect(() => {
@@ -291,7 +291,7 @@ export default function BuyAndSell({
 						$
 						{
 							// ready &&
-							(amountFormatter(dollarize(state.validationState), 18, 2)   * state.count).toFixed(2)
+							amountFormatter(dollarize(state.validationState), 18, 2) 
 						}
 					</p>
 				</>
@@ -308,7 +308,7 @@ export default function BuyAndSell({
 						{
 							// ready &&
 							// amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)
-							(amountFormatter(dollarize(state.validationState), 18, 2)   * state.count).toFixed(2)
+							amountFormatter(dollarize(state.validationState), 18, 2)   
 						}
 					</p>
 				</>

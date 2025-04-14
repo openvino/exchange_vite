@@ -22,7 +22,8 @@ const initialState = {
   emailValid: false,
   name:'',
   validationState: undefined,
-  loading: true
+  loading: true,
+  bottlePrice : 0,
 }
 
 

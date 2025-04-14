@@ -597,6 +597,7 @@ export default function Main(key, setKey) {
 											{state?.validationState && state?.validationState > 0 ? (
 												<>
 													{
+														
 														(priceRef.current = `$${amountFormatter(
 															dollarize(state?.validationState),
 															18,
