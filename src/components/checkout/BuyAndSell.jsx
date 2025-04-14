@@ -61,6 +61,7 @@ export function Account({ $ready, $balanceWINES, setShowConnect }) {
 					<WineCount>
 						{$balanceWINES && `${amountFormatter($balanceWINES, 18, 0)}`}{" "}
 						{state.tokenName}
+						
 					</WineCount>
 				) : (
 					<WineCount>{account?.address.slice(0, 6)}...</WineCount>
@@ -191,16 +192,6 @@ export default function BuyAndSell({
 
 	function link(hash) {
 		return `https://basescan.org/tx/${hash}`;
-		switch (parseInt(state.networkId)) {
-			case 3:
-				return `https://sepolia.basescan.org//tx/${hash}`;
-			case 4:
-				return `https://rinkeby.etherscan.io/tx/${hash}`;
-			case 10:
-				return `https://optimistic.etherscan.io/tx/${hash}`;
-			default:
-				return `https://etherscan.io/tx/${hash}`;
-		}
 	}
 
 	// buy state validation
@@ -300,7 +291,7 @@ export default function BuyAndSell({
 						$
 						{
 							// ready &&
-							amountFormatter(dollarize(state.validationState), 18, 2)
+							(amountFormatter(dollarize(state.validationState), 18, 2)   * state.count).toFixed(2)
 						}
 					</p>
 				</>
@@ -317,7 +308,7 @@ export default function BuyAndSell({
 						{
 							// ready &&
 							// amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)
-							amountFormatter(dollarize(state.validationState), 18, 2)
+							(amountFormatter(dollarize(state.validationState), 18, 2)   * state.count).toFixed(2)
 						}
 					</p>
 				</>
@@ -465,7 +456,7 @@ export default function BuyAndSell({
 					</InfoFrame>
 
 					{(!pending || !currentTransactionHash) && (
-						<IncrementToken initialValue={selling ? 1 : 1} step={1} />
+						<IncrementToken max={amountFormatter(reserveWINESToken, 18, 0)}  initialValue={selling ? 1 : 1} step={1} />
 					)}
 				</TopFrame>
 

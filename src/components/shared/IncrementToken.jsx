@@ -1,9 +1,9 @@
-import React from 'react'
+import React from "react";
 
-import styled from 'styled-components'
-import { Plus } from '@styled-icons/evil';
-import { Minus } from '@styled-icons/evil';
-import { useCount } from '../checkout/Checkout'
+import styled from "styled-components";
+import { Plus } from "@styled-icons/evil";
+import { Minus } from "@styled-icons/evil";
+import { useCount } from "../checkout/Checkout";
 
 const SelectFrame = styled.div`
   display: flex;
@@ -16,7 +16,7 @@ const SelectFrame = styled.div`
 
   /* margin-top: 0.5rem;
   margin-bottom: 0.5rem; */
-`
+`;
 
 const SelectMenu = styled.div`
   font-size: 1.5rem;
@@ -26,7 +26,7 @@ const SelectMenu = styled.div`
   margin: 0;
   border: none;
   text-align: center;
-`
+`;
 
 const IncrementButton = styled(Plus)`
   cursor: pointer;
@@ -35,14 +35,14 @@ const IncrementButton = styled(Plus)`
   display: flex;
   align-items: center;
   justify-content: center;
-`
+`;
 const DecrementButton = styled(Minus)`
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-`
+`;
 
 const InputCount = styled.input`
   font-size: 1.5rem;
@@ -63,21 +63,38 @@ const InputCount = styled.input`
   }
 
   /* Ocultar flechas en Firefox */
-  &[type=number] {
+  &[type="number"] {
     -moz-appearance: textfield;
   }
-`
+`;
 
 export default function IncrementToken({ initialValue, max, step }) {
-  const [count, incrementCount, decrementCount, setCount] = useCount(initialValue, max, step)
+  const [count, incrementCount, decrementCount, setCount] = useCount(
+    initialValue,
+    max,
+    step
+  );
   return (
     <SelectFrame>
       <DecrementButton size="34" onClick={decrementCount}></DecrementButton>
       {/* <SelectMenu>{count}</SelectMenu>
        */}
 
-       <InputCount value={count} type='number' onChange={e => setCount(parseInt(e.target.value))} />
+      <InputCount
+        value={count}
+        max={max}
+        type="number"
+        onChange={(e) => {
+          const value = parseInt(e.target.value) || 0;
+          if (value <= max) {
+            setCount(value);
+          } else {
+            setCount(max);
+          }
+        }}
+      />
+
       <IncrementButton size="34" onClick={incrementCount}></IncrementButton>
     </SelectFrame>
-  )
+  );
 }
