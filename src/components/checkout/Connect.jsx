@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useTranslation } from 'react-i18next';
-import { defineChain, base } from "thirdweb/chains";
+import { defineChain,  base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import Button from '../shared/Button'
 import { Controls } from './Redeem'

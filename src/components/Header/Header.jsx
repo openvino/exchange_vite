@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 const Header = ({ children, wineryId }) => {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
-	console.log(wineryId);
 	function capitalizeFirstLetter(str) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
 	}

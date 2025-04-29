@@ -82,10 +82,11 @@ export default function IncrementToken({ initialValue, max, step }) {
 
       <InputCount
         value={count}
+        
         max={max}
         type="number"
         onChange={(e) => {
-          const value = parseInt(e.target.value) || 0;
+          const value = parseInt(e.target.value) || 1;
           if (value <= max) {
             setCount(value);
           } else {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import styled from "styled-components";
 import { client } from "../../config/thirdwebClient";
-import { base, defineChain, optimismSepolia } from "thirdweb/chains";
+import {base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import Connect from "./Connect";
 import Works from "./Works";
@@ -11,10 +10,8 @@ import Confirmed from "./Confirmed";
 import { useAppContext } from "../../context";
 import { TRADE_TYPES } from "../../utils";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
-
 import Confetti from "react-dom-confetti";
 import { CheckoutBackground, CheckoutFrame } from "../../styles";
-import { useLocation } from "react-router-dom";
 
 const config = {
 	angle: 90,
@@ -78,7 +75,6 @@ export default function Checkout({
 	validateBuy,
 	buy,
 	validateCrowdsale,
-	crowdsale,
 	validateSell,
 	sell,
 	transferShippingCosts,
@@ -195,7 +191,6 @@ export default function Checkout({
 						validateBuy={validateBuy}
 						buy={buy}
 						validateCrowdsale={validateCrowdsale}
-						crowdsale={crowdsale}
 						validateSell={validateSell}
 						sell={sell}
 						dollarize={dollarize}

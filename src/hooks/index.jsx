@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import{ useEffect, useState, useCallback, useMemo } from "react";
 import { client } from "../config/thirdwebClient";
 import { defineChain, base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
-import FACTORY_ABI from "../contracts/factory.json";
 import {
 	isAddress,
 	getTokenContract,
@@ -11,12 +10,9 @@ import {
 	getTokenBalance,
 	getTokenAllowance,
 	TOKEN_ADDRESSES,
-	ROUTER_ADDRESS,
 	getCrowdsaleContract,
 	getPairContract,
-	getNetworkId,
 	getRouterContract,
-	getContract,
 } from "../utils";
 import { ethers } from "ethers";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
@@ -326,44 +322,6 @@ export function useAllBalances(
 							  ),
 					];
 
-					// if (!!exchangeContractDAI) {
-					// 	promises.push(
-					// 		getTokenBalance(
-					// 			TOKEN_ADDRESSES.ETH,
-					// 			exchangeContractDAI?.address,
-					// 			library
-					// 		),
-					// 		getTokenBalance(
-					// 			TOKEN_ADDRESSES.DAI,
-					// 			exchangeContractDAI?.address,
-					// 			library
-					// 		)
-					// 	);
-					// } else {
-					// 	console.warn(
-					// 		"⚠️ exchangeContractDAI no está definido. Saltando balances de DAI."
-					// 	);
-					// }
-
-					// if (!!exchangeContractSelectedToken) {
-					// 	promises.push(
-					// 		getTokenBalance(
-					// 			TOKEN_ADDRESSES.ETH,
-					// 			exchangeContractSelectedToken?.address,
-					// 			library
-					// 		),
-					// 		getTokenBalance(
-					// 			TOKEN_ADDRESSES[selectedToken],
-					// 			exchangeContractSelectedToken?.address,
-					// 			library
-					// 		)
-					// 	);
-					// } else {
-					// 	console.warn(
-					// 		"⚠️ exchangeContractSelectedToken no está definido. Saltando balances de token seleccionado."
-					// 	);
-					// }
-
 					return await Promise.all(promises);
 				};
 
@@ -567,29 +525,7 @@ export function useTokenCap(contract) {
 	return tokenCap && Math.round(Number(ethers.utils.formatEther(tokenCap)));
 }
 
-// export function useExchangeReserves(exchangeContract) {
-// 	const [reserves, setReserves] = useState({ reserve0: null, reserve1: null });
 
-// 	const debouncedFetch = useCallback(
-// 		debounce(async () => {
-// 			if (!exchangeContract) return;
-// 			try {
-// 				const [reserve0, reserve1] = await exchangeContract.getReserves();
-// 				setReserves({ reserve0, reserve1 });
-// 			} catch (error) {
-// 				console.error("Error obteniendo reservas del exchange:", error);
-// 				setReserves({ reserve0: null, reserve1: null });
-// 			}
-// 		}, 1000),
-// 		[exchangeContract]
-// 	);
-
-// 	useEffect(() => {
-// 		debouncedFetch();
-// 	}, [debouncedFetch]);
-
-// 	return reserves;
-// }
 
 export function useTokenName(contract) {
 	const [tokenName, setTokenName] = useState(null);

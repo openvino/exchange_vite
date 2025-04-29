@@ -46,10 +46,7 @@ export const EtherscanLink = styled.a`
 
 export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 	const [state] = useAppContext();
-	console.log(state);
 	const { fullDescription, wineryUrl, redeemDate } = tokensInfo[tokenName];
-	console.log(fullDescription);
-	console.log(tokenName);
 
 	const { t } = useTranslation();
 

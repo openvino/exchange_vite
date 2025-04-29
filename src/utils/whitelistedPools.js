@@ -39,6 +39,12 @@ export const whitelistedPools = [
 		pair: ["0xeD9eC0f741F52c9B62b7154B30Ed89AC2F389Cfe", WETH_ADDRESS],
 	},
 
+	//TTS BASE SEPOLIA 
+	{
+		address: "0xD1a44b30c43D4B0EcEa44b44704392F4F744AAe5",
+		pair: ["0xBF5e461B887F6a7037b3FE1D7C8fF0ad46209f68", WETH_ADDRESS],
+	}
+
 	// {
 	//   // OP
 	//   address: "0x5F518BD5abBE87D7ace08c5976003bd763089F98",

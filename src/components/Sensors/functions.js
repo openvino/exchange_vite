@@ -8,13 +8,12 @@ export function getSensorsData(wineryId, year, month, day) {
     let params = [];
     if (wineryId) params.push(`winerie_id=${wineryId}`);
     if (year) params.push(`year=${month > 4 ? year - 1 : year}`);
-    console.log(year);
     
     if (month) params.push(`month=${month}`);
     if (day) params.push(`day=${day}`);
     const queryString = params.length > 0 ? `?${params.join("&")}` : "";
     // Solicitud a la API
-    return axios.get(`${import.meta.env.VITE_APIURL}sensor_data${queryString}`)
+    return axios.get(`${import.meta.env.VITE_APIURL}/sensor_data${queryString}`)
         .then((response) => {
             const data = response.data;
             const baseDate = new Date(year, month || 0, day || 1);

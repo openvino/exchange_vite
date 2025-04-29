@@ -9,10 +9,13 @@ import { fetchPrice } from "./utils/fetchPrice";
 import useWeb3Store from "./config/zustandStore";
 const App = () => {
 	const [key, setKey] = useState(0);
-	const { setUsdPrice } = useWeb3Store;
+	const setUsdPrice = useWeb3Store((state) => state.setUsdPrice);
+
 	useEffect(() => {
 		fetchPrice().then((result) => {
 			setUsdPrice(result);
+		}).catch((error) => {
+			console.log(error);
 		});
 	}, []);
 	return (
