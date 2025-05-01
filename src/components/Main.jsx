@@ -284,7 +284,7 @@ export default function Main(key, setKey) {
   }, [crowdsaleContract, USDExchangeRateETH]);
 
   const ready = !!(
-    (isCrowdsale && tokenCap > tokenSupply + 6) ||
+    (isCrowdsale && tokenSupply > 6 ) ||
     (!isCrowdsale &&
       (account?.address === null || allowanceWINES) &&
       (selectedTokenSymbol === "ETH" ||
@@ -573,7 +573,7 @@ export default function Main(key, setKey) {
                   }}
                 ></InfoIcon>
               </Title>
-              {state?.tokenName !== "PDC19" &&
+              {
               state?.tokenName !== "BCN24" &&
               state?.tokenName !== "VARSI22" &&
               state?.tokenName !== "TTTM25" ? (
@@ -660,7 +660,7 @@ export default function Main(key, setKey) {
                 </>
               )}
 
-              {state?.tokenName !== "PDC19" &&
+              {
                 state?.tokenName !== "BCN24" &&
                 state?.tokenName !== "VARSI22" &&
                 state?.tokenName !== "TTTM25" && (
