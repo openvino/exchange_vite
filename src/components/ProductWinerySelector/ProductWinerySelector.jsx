@@ -9,6 +9,11 @@ const ProductWinerySelector = ({ winery }) => {
 	const { t } = useTranslation();
 
 	const handleWineryClick = (wineryId) => {
+		
+		if(wineryId === 'tequendama' ) {
+			navigate(`/tequendama/PDC19`);
+			return
+		}
 		navigate(`/${wineryId}`);
 	};
 
