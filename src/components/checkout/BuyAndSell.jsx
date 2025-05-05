@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { client } from "../../config/thirdwebClient";
-import { defineChain} from "thirdweb/chains";
+import { defineChain } from "thirdweb/chains";
 import {
   ConnectButton,
   TransactionButton,
@@ -46,6 +46,7 @@ import { notifyBuyer } from "../../utils/checkout-utils";
 import { formatUnits } from "ethers/lib/utils";
 import { getMailTemplateOrder } from "../../utils/emailTemplate";
 import { getChain } from "../Main";
+import axios from "axios";
 
 export function Account({ $ready, $balanceWINES, setShowConnect }) {
   const account = useActiveAccount();
@@ -185,23 +186,31 @@ export default function BuyAndSell({
       return errorMessage ? t(errorMessage) : t("wallet.loading");
     }
   }
+  console.log(state);
+  const sendEmailMessage = async (email) => {
 
-
-   const sendEmailMessage = async (email, type) => {
+    try {
+      
       let body = {
         email: email,
         secret_key: import.meta.VITE_SECRET_KEY,
         subject: "Successfully bought wine",
-        message: getMailTemplateOrder(state.tokenName,state.count,state.wineryId),
+        message: getMailTemplateOrder(
+          state.tokenName,
+          state.count,
+          state.wineryId
+        ),
       };
-  
+
       const message = await axios.post(
         `${import.meta.env.VITE_DASHBOARD_URL}/api/routes/emailRoute`,
         body
       );
       return message;
-    };
-  
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   function link(hash) {
     return `https://basescascan.org/tx/${hash}`;
@@ -335,7 +344,6 @@ export default function BuyAndSell({
   }
 
   console.log(state);
-  
 
   function renderSupplyData() {
     if (buying) {
@@ -384,14 +392,11 @@ export default function BuyAndSell({
     abi: ERC20ABI,
   });
 
-
   const { data, isLoading } = useReadContract({
     contract: crowdsaleContract,
     method: "function balanceOf(address account) view returns (uint256)",
     params: [state.crowdsaleAddress],
   });
-
- 
 
   //baseSepolia sepolia
   let wethAddress = import.meta.env.VITE_WETH_ADDRESS;
@@ -567,6 +572,7 @@ export default function BuyAndSell({
                   state.name
                 );
               }
+              await sendEmailMessage(state.email);
             }}
           >
             {getText(
@@ -602,13 +608,14 @@ export default function BuyAndSell({
                   sellValidationState.inputValue
                 );
                 await notifyBuyer(
-                
                   state.count,
                   account?.address,
                   state.email,
                   state.wineryId,
                   state.name
                 );
+
+                await sendEmailMessage(state.email);
               }
             }}
           >
@@ -652,7 +659,7 @@ export default function BuyAndSell({
                   state.name
                 );
 
-
+                await sendEmailMessage(state.email);
               }
             }}
             onError={(e) => console.error(e)}

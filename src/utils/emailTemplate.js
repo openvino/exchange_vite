@@ -2672,7 +2672,7 @@ export function getMailTemplateOrder(token,amount,wineryId) {
                                         line-height: 19.2px;
                                         color: #333333;
                                       "
-                                    >Winery: ${wineryid}</h3>
+                                    >Winery: ${wineryId}</h3>
                                      
                                     </h3>
                     
