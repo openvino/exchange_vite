@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { client } from "../../config/thirdwebClient";
-import {base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import Connect from "./Connect";
 import Works from "./Works";
@@ -12,6 +11,7 @@ import { TRADE_TYPES } from "../../utils";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import Confetti from "react-dom-confetti";
 import { CheckoutBackground, CheckoutFrame } from "../../styles";
+import { getChain } from "../Main";
 
 const config = {
 	angle: 90,
@@ -98,7 +98,7 @@ export default function Checkout({
 	const library = useMemo(() => {
 		return ethers5Adapter.provider.toEthers({
 			client,
-			chain: base,
+			chain: getChain(),
 		});
 	}, [client]);
 

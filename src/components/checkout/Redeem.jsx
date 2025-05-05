@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { client } from "../../config/thirdwebClient";
-import { defineChain, base } from "thirdweb/chains";
+import { defineChain } from "thirdweb/chains";
 import {
   ConnectButton,
   TransactionButton,
@@ -31,6 +31,7 @@ import {
   getEmailTemplate,
   getFailRedeemEmailTemplate,
 } from "../../utils/emailTemplate";
+import { getChain } from "../Main";
 const config = {
   angle: 90,
   spread: 76,
@@ -63,14 +64,14 @@ export default function Redeem({
 }) {
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: base,
+    chain: getChain(),
   });
 
   const [state] = useAppContext();
 
   const tokenContract = getContract({
     client,
-    chain: base,
+    chain: getChain(),
     address: state.tokenAddress,
     abi: ERC20,
   });
@@ -310,7 +311,7 @@ export default function Redeem({
         >
           <ConnectButton
             client={client}
-            chain={defineChain(base)}
+            chain={defineChain(getChain())}
             connectButton={{
               label: "Conectar Wallet",
               style: {

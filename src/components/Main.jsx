@@ -7,7 +7,7 @@ import { BigNumber, ethers } from "ethers";
 import { useTranslation } from "react-i18next";
 import { useActiveAccount } from "thirdweb/react";
 import { client } from "../config/thirdwebClient";
-import { base } from "thirdweb/chains";
+import { base, baseSepolia } from "thirdweb/chains";
 import styles from "./Header/Header.module.css";
 import {
   TOKEN_SYMBOLS,
@@ -57,11 +57,20 @@ import Countdown from "./countdown/Countdown";
 import { getTokenImageUrl } from "../utils/getStaticImages";
 import { useRef } from "react";
 
+export const getChain = () => {
+  const productionMode = import.meta.env.VITE_DEV_MODE === "production";
+  if (productionMode) {
+    return base;
+  } else {
+    return baseSepolia;
+  }
+};
+
 export default function Main(key, setKey) {
   const library = useMemo(() => {
     return ethers5Adapter.provider.toEthers({
       client,
-      chain: base,
+      chain: getChain(),
     });
   }, [client]);
   // selected token
@@ -270,7 +279,7 @@ export default function Main(key, setKey) {
           ).div(exchangeRateETH);
           setCrowdsaleExchangeRateUSD(exchangeRateUSD);
         })
-        
+
         .catch((error) => {
           console.error("Error al obtener el rate:", error);
           setCrowdsaleExchangeRateETH();
@@ -284,7 +293,7 @@ export default function Main(key, setKey) {
   }, [crowdsaleContract, USDExchangeRateETH]);
 
   const ready = !!(
-    (isCrowdsale && tokenSupply > 6 ) ||
+    (isCrowdsale && tokenSupply > 6) ||
     (!isCrowdsale &&
       (account?.address === null || allowanceWINES) &&
       (selectedTokenSymbol === "ETH" ||
@@ -423,8 +432,7 @@ export default function Main(key, setKey) {
       balanceSelectedToken,
       crowdsaleExchangeRateETH,
       selectedTokenSymbol,
-      USDExchangeRateETH
-      
+      USDExchangeRateETH,
     ]
   );
 
@@ -459,14 +467,13 @@ export default function Main(key, setKey) {
 
   async function transferShippingCosts(amount) {
     let signer = await ethers5Adapter.signer.toEthers({
-      chain: baseSepolia,
+      chain: getChain(),
       client,
       account,
     });
 
     return signer.sendTransaction({
       to: ethers.utils.getAddress("0x2E54D912361f6A4b1e57E239138Ff4C1344940Ae"),
-
       value: amount,
     });
   }
@@ -573,8 +580,7 @@ export default function Main(key, setKey) {
                   }}
                 ></InfoIcon>
               </Title>
-              {
-              state?.tokenName !== "BCN24" &&
+              {state?.tokenName !== "BCN24" &&
               state?.tokenName !== "VARSI22" &&
               state?.tokenName !== "TTTM25" ? (
                 <>
@@ -660,8 +666,7 @@ export default function Main(key, setKey) {
                 </>
               )}
 
-              {
-                state?.tokenName !== "BCN24" &&
+              {state?.tokenName !== "BCN24" &&
                 state?.tokenName !== "VARSI22" &&
                 state?.tokenName !== "TTTM25" && (
                   <>

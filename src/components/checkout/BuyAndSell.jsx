@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { client } from "../../config/thirdwebClient";
-import { defineChain, base } from "thirdweb/chains";
+import { defineChain} from "thirdweb/chains";
 import {
   ConnectButton,
   TransactionButton,
@@ -44,6 +44,8 @@ import ERC20ABI from "../../contracts/erc20.json";
 import { ethers } from "ethers";
 import { notifyBuyer } from "../../utils/checkout-utils";
 import { formatUnits } from "ethers/lib/utils";
+import { getMailTemplateOrder } from "../../utils/emailTemplate";
+import { getChain } from "../Main";
 
 export function Account({ $ready, $balanceWINES, setShowConnect }) {
   const account = useActiveAccount();
@@ -183,6 +185,23 @@ export default function BuyAndSell({
       return errorMessage ? t(errorMessage) : t("wallet.loading");
     }
   }
+
+
+   const sendEmailMessage = async (email, type) => {
+      let body = {
+        email: email,
+        secret_key: import.meta.VITE_SECRET_KEY,
+        subject: "Successfully bought wine",
+        message: getMailTemplateOrder(state.tokenName,state.count,state.wineryId),
+      };
+  
+      const message = await axios.post(
+        `${import.meta.env.VITE_DASHBOARD_URL}/api/routes/emailRoute`,
+        body
+      );
+      return message;
+    };
+  
 
   function link(hash) {
     return `https://basescascan.org/tx/${hash}`;
@@ -346,21 +365,21 @@ export default function BuyAndSell({
 
   const contract = getContract({
     client: client,
-    chain: base,
+    chain: getChain(),
     address: import.meta.env.VITE_ROUTER_ADDRESS,
     abi: contractABI,
   });
 
   const crowdsaleContract = getContract({
     client: client,
-    chain: base,
+    chain: getChain(),
     address: state.crowdsaleAddress,
     abi: crowdsaleABI,
   });
 
   const tokenContractWINES = getContract({
     client: client,
-    chain: base,
+    chain: getChain(),
     address: state.tokenAddress,
     abi: ERC20ABI,
   });
@@ -385,7 +404,7 @@ export default function BuyAndSell({
           <ContentWrapper>
             <ConnectButton
               client={client}
-              chain={defineChain(base)}
+              chain={defineChain(getChain())}
               connectButton={{
                 label: "Conectar Wallet",
                 style: {
@@ -407,7 +426,7 @@ export default function BuyAndSell({
   return (
     <Wrapper>
       <Header>
-        <ConnectButton client={client} chain={defineChain(base)} />
+        <ConnectButton client={client} chain={defineChain(getChain())} />
         <Account
           $ready={ready}
           dollarPrice={dollarPrice}
@@ -626,13 +645,14 @@ export default function BuyAndSell({
                   sellValidationState.inputValue
                 );
                 await notifyBuyer(
-                
                   state.count,
                   account?.address,
                   state.email,
                   state.wineryId,
                   state.name
                 );
+
+
               }
             }}
             onError={(e) => console.error(e)}

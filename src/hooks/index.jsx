@@ -1,6 +1,5 @@
 import{ useEffect, useState, useCallback, useMemo } from "react";
 import { client } from "../config/thirdwebClient";
-import { defineChain, base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import {
 	isAddress,
@@ -18,9 +17,19 @@ import { ethers } from "ethers";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import debounce from "lodash.debounce";
 import { getPairAddressFromTokenAddress } from "../utils/whitelistedPools";
+import { base, baseSepolia } from "thirdweb/chains";
+ const getChain = () => {
+  const productionMode = import.meta.env.VITE_DEV_MODE === "production";
+  if (productionMode) {
+	return base;
+  } else {
+	return baseSepolia;
+  }
+};
+
 const library = ethers5Adapter.provider.toEthers({
 	client,
-	chain: base,
+	chain: getChain(),
 });
 
 export function useCrowdsaleContract(
@@ -193,7 +202,7 @@ export function useContracts(
 				console.log("📡 Fetching contracts...");
 				const library = ethers5Adapter.provider.toEthers({
 					client,
-					chain: base,
+					chain: getChain(),
 				});
 
 				// Validar la dirección del par antes de llamar a `getPairContract`
