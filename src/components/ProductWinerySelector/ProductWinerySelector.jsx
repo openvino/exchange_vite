@@ -59,8 +59,8 @@ const ProductWinerySelector = ({ winery }) => {
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown
 									year={2025}
-									month={5}
-									day={6}
+									month={6}
+									day={15}
 									hours={12}
 									minutes={0}
 									seconds={0}
@@ -73,7 +73,7 @@ const ProductWinerySelector = ({ winery }) => {
 								<Countdown
 									year={2025}
 									month={5}
-									day={6}
+									day={9}
 									hours={12}
 									minutes={0}
 									seconds={0}
