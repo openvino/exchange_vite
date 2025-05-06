@@ -24,6 +24,8 @@ const App = () => {
 				<Routes>
 					<Route path="/" element={<WinerySelector />} />
 					<Route path="/:wineryId" element={<Selector />} />
+					<Route path="/openvinodao" element={<WinerySelector />} />
+
 					<Route
 						path="/:wineryId/bridge"
 						element={<Bridge setKey={setKey} key={key} />}

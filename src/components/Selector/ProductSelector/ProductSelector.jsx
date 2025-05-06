@@ -17,11 +17,12 @@ const ProductSelector = ({ product }) => {
 	);
 	return (
 		<div
-			className="col-6 col-sm-6 col-md-4 col-lg-3"
-			onClick={handleProductClick}
+			className={`${styles["product-selector-container"]} col-6 col-sm-6 col-md-4 col-lg-3`}
+			
 		>
 			<div className={`${styles["product-selector"]} product-selector`}>
 				<img
+				onClick={handleProductClick}
 					className={styles["product-selector-img"]}
 					alt={product.id}
 					src={imageUrl}
