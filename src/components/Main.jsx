@@ -540,6 +540,16 @@ export default function Main(key, setKey) {
 				/>
 			</div>
 		);
+
+	// ONE BOTTLE PRICE
+
+	const { inputValue, outputValue, maximumInputValue, error } =
+		validateBuy("1");
+
+	const oneBottlePrice = inputValue;
+
+	console.log(oneBottlePrice);
+
 	return (
 		<>
 			<Header wineryId={state.wineryId}>
@@ -592,18 +602,16 @@ export default function Main(key, setKey) {
 										</CurrentPrice>
 									)}
 									{!isCrowdsale && (
-										// !loadingPrice &&
 										<CurrentPrice style={{ minHeight: "30px" }}>
-											{state?.validationState && state?.validationState > 0 ? (
+											{oneBottlePrice &&
+											state?.validationState &&
+											state?.validationState > 0 ? (
 												<>
-													{
-														
-														(priceRef.current = `$${amountFormatter(
-															dollarize(state?.validationState),
-															18,
-															2
-														)} USDC`)
-													}
+													{`$${amountFormatter(
+														dollarize(oneBottlePrice),
+														18,
+														2
+													)} USDC`}
 												</>
 											) : (
 												<BeatLoader

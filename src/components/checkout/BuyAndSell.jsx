@@ -61,7 +61,6 @@ export function Account({ $ready, $balanceWINES, setShowConnect }) {
 					<WineCount>
 						{$balanceWINES && `${amountFormatter($balanceWINES, 18, 0)}`}{" "}
 						{state.tokenName}
-						
 					</WineCount>
 				) : (
 					<WineCount>{account?.address.slice(0, 6)}...</WineCount>
@@ -291,7 +290,7 @@ export default function BuyAndSell({
 						$
 						{
 							// ready &&
-							amountFormatter(dollarize(state.validationState), 18, 2) 
+							amountFormatter(dollarize(state.validationState), 18, 2)
 						}
 					</p>
 				</>
@@ -308,7 +307,7 @@ export default function BuyAndSell({
 						{
 							// ready &&
 							// amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)
-							amountFormatter(dollarize(state.validationState), 18, 2)   
+							amountFormatter(dollarize(state.validationState), 18, 2)
 						}
 					</p>
 				</>
@@ -421,8 +420,7 @@ export default function BuyAndSell({
 
 	return (
 		<Wrapper>
-			
-			<Header >
+			<Header>
 				<ConnectButton client={client} chain={defineChain(base)} />
 				<Account
 					$ready={ready}
@@ -456,7 +454,11 @@ export default function BuyAndSell({
 					</InfoFrame>
 
 					{(!pending || !currentTransactionHash) && (
-						<IncrementToken max={amountFormatter(reserveWINESToken, 18, 0)}  initialValue={selling ? 1 : 1} step={1} />
+						<IncrementToken
+							max={buying ? amountFormatter(reserveWINESToken, 18, 0) : null}
+							initialValue={selling ? 1 : 1}
+							step={1}
+						/>
 					)}
 				</TopFrame>
 
