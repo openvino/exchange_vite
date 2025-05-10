@@ -47,7 +47,6 @@ import ERC20ABI from "../../contracts/erc20.json";
 
 import { ethers } from "ethers";
 import { notifyBuyer } from "../../utils/checkout-utils";
-import { useExchangeContract, useRouterContract } from "../../hooks";
 
 export function Account({ $ready, $balanceWINES, setShowConnect }) {
 	const account = useActiveAccount();
@@ -278,10 +277,6 @@ export default function BuyAndSell({
 
 	function renderFormData() {
 		let conditionalRender;
-		// console.log(buying, buyValidationState.inputValue);
-		// console.log(
-		// 	amountFormatter(dollarize(buyValidationState.inputValue), 18, 2)
-		// );
 
 		if (buying && buyValidationState.inputValue) {
 			conditionalRender = (
@@ -298,7 +293,7 @@ export default function BuyAndSell({
 		} else if (
 			selling &&
 			// sellValidationState.outputValue
-			state.validationState
+			sellValidationState.outputValue
 		) {
 			conditionalRender = (
 				<>
@@ -306,8 +301,7 @@ export default function BuyAndSell({
 						$
 						{
 							// ready &&
-							// amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)
-							amountFormatter(dollarize(state.validationState), 18, 2)
+							amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)
 						}
 					</p>
 				</>
@@ -366,7 +360,6 @@ export default function BuyAndSell({
 		return t("wallet.not-available");
 	}
 
-	const routerContract = useRouterContract();
 	const contract = getContract({
 		client: client,
 		chain: base,
