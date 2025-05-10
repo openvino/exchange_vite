@@ -555,7 +555,7 @@ export default function Main(key, setKey) {
 			<Header wineryId={state.wineryId}>
 				<Container>
 					<CardWrapper>
-						{state.tokenName !== "PDC19" &&
+						{
 						state.tokenName !== "BCN24" &&
 						state.tokenName !== "VARSI22" &&
 						state.tokenName !== "TTTM25" ? (
@@ -585,7 +585,7 @@ export default function Main(key, setKey) {
 									}}
 								></InfoIcon>
 							</Title>
-							{state?.tokenName !== "PDC19" &&
+							{
 							state?.tokenName !== "BCN24" &&
 							state?.tokenName !== "VARSI22" &&
 							state?.tokenName !== "TTTM25" ? (
