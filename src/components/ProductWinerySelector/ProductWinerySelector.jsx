@@ -34,12 +34,6 @@ const ProductWinerySelector = ({ winery }) => {
 							alt={winery.name}
 							loading="lazy"
 						/>
-
-						{winery.name === "Tequendama" && (
-							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
-								<Countdown />
-							</div>
-						)}
 						
 						{winery.name === "Serrera" && (
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>

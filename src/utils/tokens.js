@@ -65,4 +65,11 @@ export const tokensInfo = {
 		redeemDate: "6 de mayo de 2027",
 		wineryUrl: "https://costaflores.com/es/",
 	},
+
+	MTB25: {
+		fullDescription:
+			"Mike Tango Bravo {{year}}  - un corte de Malbec / Petit Verdot / Cabernet Sauvignon) de  <0>Costaflores Organic Vineyard</0>",
+		redeemDate: "6 de mayo de 2028",
+		wineryUrl: "https://costaflores.com/es/",
+	},
 };
