@@ -661,7 +661,7 @@ export default function Main(key, setKey) {
 								</>
 							)}
 
-							{state?.tokenName !== "PDC19" &&
+							{
 								state?.tokenName !== "BCN24" &&
 								state?.tokenName !== "VARSI22" &&
 								state?.tokenName !== "TTTM25" && (
