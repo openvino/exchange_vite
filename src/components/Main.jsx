@@ -559,7 +559,7 @@ export default function Main(key, setKey) {
 						state.tokenName !== "PDC19" &&
 						state.tokenName !== "BCN24" &&
 						state.tokenName !== "VARSI22" &&
-						state.tokenName !== "TTTM25" ? (
+						state.tokenName !== "TT25" ? (
 							<div>
 								<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
 								<Redeem onClick={handleRedeemClick}>
@@ -588,8 +588,7 @@ export default function Main(key, setKey) {
 							</Title>
 							{
 							state?.tokenName !== "BCN24" &&
-							state?.tokenName !== "VARSI22" &&
-							state?.tokenName !== "TTTM25" ? (
+							state?.tokenName !== "VARSI22" ? (
 								<>
 									{isCrowdsale && !loadingPrice && (
 										<CurrentPrice>
@@ -640,17 +639,7 @@ export default function Main(key, setKey) {
 									</TokenIconContainer>
 									<Countdown year={2025} month={5} day={6} />
 								</>
-							) : state.tokenName === "TTTM25" ? (
-								<>
-									<TokenIconContainer>
-										<TokenIconText>
-											{state?.tokenYear?.substring(2, 4)}
-										</TokenIconText>
-										<TokenIcon src={state.tokenIcon}></TokenIcon>
-									</TokenIconContainer>
-									<Countdown year={2025} month={5} day={6} />
-								</>
-							) : (
+							)  : (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -665,7 +654,7 @@ export default function Main(key, setKey) {
 							{
 								state?.tokenName !== "BCN24" &&
 								state?.tokenName !== "VARSI22" &&
-								state?.tokenName !== "TTTM25" && (
+								 (
 									<>
 										<TokenIconContainer>
 											<TokenIconText>
