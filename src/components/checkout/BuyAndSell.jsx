@@ -19,6 +19,7 @@ import {
 	TRADE_TYPES,
 	getNetworkId,
 } from "../../utils";
+import { formatUnits } from "ethers/lib/utils";
 import {
 	ButtonFrame,
 	CheckoutControls,
@@ -337,28 +338,33 @@ export default function BuyAndSell({
 		}
 	}
 
-	function renderSupplyData() {
-		if (buying) {
-			return (
-				reserveWINESToken &&
-				`${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`
-			);
-		} else if (selling) {
-			return (
-				reserveWINESToken &&
-				`${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`
-			);
-		} else if (crowdsaling && tokenSupply && tokenCap) {
-			if (tokenCap - tokenSupply < 0) {
-				return tokenSupply && tokenCap && `0/${tokenCap}`;
-			} else {
-				return (
-					tokenSupply && tokenCap && `${tokenCap - tokenSupply}/${tokenCap}`
-				);
-			}
-		}
-		return t("wallet.not-available");
-	}
+	
+
+	 function renderSupplyData() {
+    if (buying) {
+      return (
+        reserveWINESToken &&
+        `${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`
+      );
+    } else if (selling) {
+      return (
+        reserveWINESToken &&
+        `${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`
+      );
+    } else if (crowdsaling && tokenSupply && tokenCap) {
+      if (tokenCap - tokenSupply < 0) {
+        return tokenSupply && tokenCap && `0/${tokenCap}`;
+      } else {
+        return (
+          tokenSupply &&
+          tokenCap &&
+          data &&
+          `${Math.floor(formatUnits(data, 18))}/${tokenCap}`
+        );
+      }
+    }
+    return t("wallet.not-available");
+  }
 
 	const contract = getContract({
 		client: client,
@@ -380,6 +386,12 @@ export default function BuyAndSell({
 		address: state.tokenAddress,
 		abi: ERC20ABI,
 	});
+
+	  const { data, isLoading } = useReadContract({
+    contract: crowdsaleContract,
+    method: "function balanceOf(address account) view returns (uint256)",
+    params: [state.crowdsaleAddress],
+  });
 
 	//base sepolia
 	let wethAddress = import.meta.env.VITE_WETH_ADDRESS;

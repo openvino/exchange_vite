@@ -289,7 +289,7 @@ export default function Main(key, setKey) {
 	}, [crowdsaleContract, USDExchangeRateETH]);
 
 	const ready = !!(
-		(isCrowdsale && tokenCap > tokenSupply + 6) ||
+		(isCrowdsale && tokenSupply + 6) ||
 		(!isCrowdsale &&
 			(account?.address === null || allowanceWINES) &&
 			(selectedTokenSymbol === "ETH" ||
