@@ -615,7 +615,7 @@ export default function BuyAndSell({
                   state.name
                 );
 
-                await sendEmailMessage(state.email);
+                // await sendEmailMessage(state.email);
               }
             }}
           >
