@@ -465,7 +465,7 @@ export default function BuyAndSell({
 
           {(!pending || !currentTransactionHash) && (
 						<IncrementToken
-							max={buying ? amountFormatter(reserveWINESToken, 18, 0) : null}
+							max={buying ? amountFormatter(reserveWINESToken, 18, 0) : crowdsaling && data? Math.floor(formatUnits(data, 18)) : null}
 							initialValue={selling ? 1 : 1}
 							step={1}
 						/>
