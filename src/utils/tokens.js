@@ -15,7 +15,7 @@ export const tokensInfo = {
 		fullDescription:
 			"Palma de Cera de bodega Tequendama 2019 - un blend de Merlot 70% / Malbec 30% de <0>Tequendama Wines</0>.",
 		redeemDate: "1 de mayo de 2028",
-		wineryUrl: "https://www.instagram.com/tequendamawines/?hl=es",
+		wineryUrl: "https://tequendama.com/",
 	},
 	BCN24: {
 		fullDescription:

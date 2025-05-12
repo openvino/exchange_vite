@@ -4,11 +4,11 @@ import styled from "styled-components";
 import Button from "../shared/Button";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { client } from "../../config/thirdwebClient";
-import { baseSepolia } from "thirdweb/chains";
 import ERC20ABI from '../../contracts/erc20.json';
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { getContract } from "../../utils";
 import { ethers } from "ethers";
+import { getChain } from "../Main";
 export default function Bridge() {
   const [walletAddress, setWalletAddress] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ export default function Bridge() {
 
   const library = ethers5Adapter.provider.toEthers({
     client,
-    chain: baseSepolia,
+    chain: getChain(),
   });
 
   const fetchBalances = async () => {
@@ -66,7 +66,7 @@ export default function Bridge() {
     try {
       const signer = await ethers5Adapter.signer.toEthers({
         client: client,
-        chain: baseSepolia,
+        chain: getChain(),
         account: account,
       });
 
@@ -93,7 +93,7 @@ export default function Bridge() {
           <MarketData>
             <Title>Migra tus tokens de mainnet a Base</Title>
             <SubTitle>Completa el formulario</SubTitle>
-            <ConnectButton client={client} chain={baseSepolia} />
+            <ConnectButton client={client} chain={getChain()} />
             <form>
               {error && <Error>{error}</Error>}
               <FormInput value={walletAddress} placeholder="Dirección de wallet" type="text" onChange={(e) => setWalletAddress(e.target.value)} />

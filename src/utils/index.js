@@ -1,8 +1,6 @@
 import { BigNumber, ethers } from "ethers";
-
 import ERC20_ABI from "../contracts/erc20.json";
 import EXCHANGE_ABI from "../contracts/exchange.json";
-import FACTORY_ABI from "../contracts/factory.json";
 import CROWDSALE_ABI from "../contracts/crowdsale.json";
 import ROUTER_ABI from "../contracts/router.json";
 import PAIR_ABI from "../contracts/pair.json";
@@ -288,28 +286,7 @@ export function calculateEtherTokenOutputFromInput(
 	return numerator.div(denominator);
 }
 
-// this mocks the getOutputPrice function, and calculates the required input
-// export function calculateEtherTokenInputFromOutput(
-// 	outputAmount,
-// 	inputReserve,
-// 	outputReserve
-// ) {
-// 	const numerator = inputReserve?.mul(outputAmount).mul(BigNumber.from(1000));
-// 	const denominator = outputReserve?.sub(outputAmount).mul(BigNumber.from(997));
-// 	console.log(
-// 		"numerator",
-// 		numerator,
-// 		"denominator",
-// 		denominator,
-// 		outputAmount,
-// 		"inputReserve",
-// 		inputReserve,
-// 		"outputReserve",
-// 		outputReserve
-// 	);
 
-// 	return numerator?.div(denominator).add(ethers.constants.One);
-// }
 export function calculateEtherTokenInputFromOutput(
 	outputAmount,
 	inputReserve,

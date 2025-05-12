@@ -19,7 +19,6 @@ const Heatmap = ({ filterType, selectedDay, selectedMonth, }) => {
       const response = await getSensorsData(state.tokenWineryId, state.tokenYear, selectedMonth + 1, selectedDay);
       setZoneData(response.soilHumidity[activeTab]);
       setTemperatureData(response.temperature);
-      console.log(response.soilHumidity);
 
     }
 

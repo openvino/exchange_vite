@@ -6,7 +6,6 @@ import Button from '../shared/Button'
 import { useTranslation } from 'react-i18next';
 import { ethers } from 'ethers'
 import { client } from "../../config/thirdwebClient";
-import { defineChain, base } from "thirdweb/chains";
 import { useActiveAccount } from "thirdweb/react";
 import {
   amountFormatter,
@@ -60,10 +59,7 @@ const addressMapping = [
  */
 export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippingCost, setHasConfirmedAddress, setUserForm, numberBurned: actualNumberBurned }) {
   const { t } = useTranslation();
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: base,
-  });
+
 
   const account = useActiveAccount();
   const [autoAddress, setAutoAddress] = useState([])
@@ -291,24 +287,10 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         text={t('redeem.next')}
         type={'submit'}
         onClick={async (event) => {
-          const signer = await ethers5Adapter.signer.toEthers({
-            client,
-            chain: base,
-            account
-          });
-
-          
 
           const timestampToSign = Math.round(Date.now() / 1000)
           const formDataMessage = nameOrder.map(o => `${t(`${o}`)}: ${formState[o]}`).join('\n')
           const autoMessage = `${t('redeem.address')}: ${account?.address}\n${t('redeem.timestamp')}: ${timestampToSign}\n${t('redeem.numberBurned')}: ${actualNumberBurned}`
-
-
-          // signer.signMessage(`${formDataMessage}\n${autoMessage}`).then(returnedSignature => {
-          //   formState.signature = returnedSignature
-          //   setUserForm(formState)
-          //   setHasConfirmedAddress(true)
-          // })
 
           await signMessage({
             message: autoMessage,

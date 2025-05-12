@@ -15,14 +15,14 @@ const ProductSelector = ({ product }) => {
 		product.id?.toLowerCase(),
 		wineryId?.toLocaleLowerCase()
 	);
-	console.log(bottleUrl, imageUrl, tokenUrl);
 	return (
 		<div
-			className="col-6 col-sm-6 col-md-4 col-lg-3"
-			onClick={handleProductClick}
+			className={`${styles["product-selector-container"]} col-6 col-sm-6 col-md-4 col-lg-3`}
+			
 		>
 			<div className={`${styles["product-selector"]} product-selector`}>
 				<img
+				onClick={handleProductClick}
 					className={styles["product-selector-img"]}
 					alt={product.id}
 					src={imageUrl}
