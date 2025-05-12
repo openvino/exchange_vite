@@ -310,7 +310,7 @@ export default function BuyAndSell({
     } else if (selling && state.validationState) {
       conditionalRender = (
         <>
-          <p>${amountFormatter(dollarize(state.validationState), 18, 2)}</p>
+          <p>${amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)}</p>
         </>
       );
     } else if (crowdsaling && crowdsaleValidationState.inputValue) {
@@ -464,12 +464,12 @@ export default function BuyAndSell({
           </InfoFrame>
 
           {(!pending || !currentTransactionHash) && (
-            <IncrementToken
-              max={amountFormatter(reserveWINESToken, 18, 0)}
-              initialValue={selling ? 1 : 1}
-              step={1}
-            />
-          )}
+						<IncrementToken
+							max={buying ? amountFormatter(reserveWINESToken, 18, 0) : null}
+							initialValue={selling ? 1 : 1}
+							step={1}
+						/>
+					)}
         </TopFrame>
 
         {pending && currentTransactionHash ? (

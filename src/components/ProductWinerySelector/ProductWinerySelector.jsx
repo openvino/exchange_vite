@@ -68,18 +68,7 @@ const ProductWinerySelector = ({ winery }) => {
 							</div>
 						)}
 
-						{winery.name === "Trilla" && (
-							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
-								<Countdown
-									year={2025}
-									month={5}
-									day={9}
-									hours={12}
-									minutes={0}
-									seconds={0}
-								/>
-							</div>
-						)}
+					
 					</div>
 					<h5 className={styles["card-title"]} style={{ color: "#141414" }}>
 						{winery.name=="Trilla"? "Territorios Trilla" : winery.name}

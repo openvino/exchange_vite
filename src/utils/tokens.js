@@ -1,5 +1,5 @@
 export const tokensInfo = {
-	TTTM25: {
+	TT25: {
 		fullDescription:
 			"Malbec único de la región de Alto Verde. Nace en nuestros viñedos, conducido en espaldero y cultivado de manera orgánica, elaborado en pequeñas partidas por el enólogo Marcelo Trilla. Estará en tanques de acero inoxidable para su limpieza natural y posteriormente, pasará por barricas de roble francés por 18 meses, para que sus aromas terciarios cobren vida siempre en equilibrio con la fruta aportada por nuestras uvas. <0>Territorios Trilla</0>",
 		redeemDate: "20 de mayo de 2028",

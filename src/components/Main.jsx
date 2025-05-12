@@ -545,6 +545,15 @@ export default function Main(key, setKey) {
         />
       </div>
     );
+
+
+    // ONE BOTTLE PRICE
+
+	const { inputValue, outputValue, maximumInputValue, error } =
+		validateBuy("1");
+
+	const oneBottlePrice = inputValue;
+
   return (
     <>
       <Header wineryId={state.wineryId}>
@@ -553,7 +562,9 @@ export default function Main(key, setKey) {
             {state.tokenName !== "PDC19" &&
             state.tokenName !== "BCN24" &&
             state.tokenName !== "VARSI22" &&
-            state.tokenName !== "TTTM25" ? (
+            state.tokenName !== "MTB25" &&
+
+            state.tokenName !== "TT25" ? (
               <div>
                 <Farm onClick={openFarm}> {t("labels.farm")} </Farm>
                 <Redeem onClick={handleRedeemClick}>
@@ -598,16 +609,16 @@ export default function Main(key, setKey) {
                   {!isCrowdsale && (
                     // !loadingPrice &&
                     <CurrentPrice style={{ minHeight: "30px" }}>
-                      {state?.validationState && state?.validationState > 0 ? (
-                        <>
-                          {
-                            (priceRef.current = `$${amountFormatter(
-                              dollarize(state?.validationState),
-                              18,
-                              2
-                            )} USDC`)
-                          }
-                        </>
+                     {oneBottlePrice &&
+											state?.validationState &&
+											state?.validationState > 0 ? (
+												<>
+													{`$${amountFormatter(
+														dollarize(oneBottlePrice),
+														18,
+														2
+													)} USDC`}
+												</>
                       ) : (
                         <BeatLoader
                           color="#d68513"
