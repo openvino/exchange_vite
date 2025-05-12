@@ -555,8 +555,7 @@ export default function Main(key, setKey) {
 			<Header wineryId={state.wineryId}>
 				<Container>
 					<CardWrapper>
-						{
-						state.tokenName !== "PDC19" &&
+						{state.tokenName !== "PDC19" &&
 						state.tokenName !== "BCN24" &&
 						state.tokenName !== "VARSI22" &&
 						state.tokenName !== "TT25" ? (
@@ -586,8 +585,7 @@ export default function Main(key, setKey) {
 									}}
 								></InfoIcon>
 							</Title>
-							{
-							state?.tokenName !== "BCN24" &&
+							{state?.tokenName !== "BCN24" &&
 							state?.tokenName !== "VARSI22" ? (
 								<>
 									{isCrowdsale && !loadingPrice && (
@@ -637,9 +635,9 @@ export default function Main(key, setKey) {
 										</TokenIconText>
 										<TokenIcon src={state.tokenIcon}></TokenIcon>
 									</TokenIconContainer>
-									<Countdown year={2025} month={5} day={6} />
+									<Countdown year={2025} month={6} day={15} />
 								</>
-							)  : (
+							) : (
 								<>
 									<TokenIconContainer>
 										<TokenIconText>
@@ -651,10 +649,8 @@ export default function Main(key, setKey) {
 								</>
 							)}
 
-							{
-								state?.tokenName !== "BCN24" &&
-								state?.tokenName !== "VARSI22" &&
-								 (
+							{state?.tokenName !== "BCN24" &&
+								state?.tokenName !== "VARSI22" && (
 									<>
 										<TokenIconContainer>
 											<TokenIconText>

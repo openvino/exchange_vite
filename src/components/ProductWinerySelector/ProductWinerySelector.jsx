@@ -9,7 +9,19 @@ const ProductWinerySelector = ({ winery }) => {
 	const { t } = useTranslation();
 
 	const handleWineryClick = (wineryId) => {
-		navigate(`/${wineryId}`);
+		console.log(wineryId);
+
+		if (wineryId === "tequendama") {
+			navigate(`/${wineryId}/PDC19`);
+		} else if (wineryId === "serrera") {
+			navigate(`/${wineryId}/BCN24`);
+		} else if (wineryId === "ricardosantos") {
+			navigate(`/${wineryId}/VARSI22`);
+		} else if (wineryId === "trilla") {
+			navigate(`/${wineryId}/TT25`);
+		} else {
+			navigate(`/${wineryId}`);
+		}
 	};
 
 	return (
@@ -34,7 +46,7 @@ const ProductWinerySelector = ({ winery }) => {
 							alt={winery.name}
 							loading="lazy"
 						/>
-						
+
 						{winery.name === "Serrera" && (
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown
@@ -52,19 +64,17 @@ const ProductWinerySelector = ({ winery }) => {
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown
 									year={2025}
-									month={5}
-									day={6}
-									hours={12}
-									minutes={0}
-									seconds={0}
+									month={6}
+									day={15}
+									// hours={12}
+									// minutes={0}
+									// seconds={0}
 								/>
 							</div>
 						)}
-
-						
 					</div>
 					<h5 className={styles["card-title"]} style={{ color: "#141414" }}>
-						{winery.name=="Trilla"? "Territorios Trilla" : winery.name}
+						{winery.name == "Trilla" ? "Territorios Trilla" : winery.name}
 					</h5>
 				</div>
 			</div>

@@ -21,6 +21,7 @@ const WinerySelector = () => {
 
 		//coming soon wineries
 		const comingSoonWineries = getComingSoonWineriesList();
+		console.log(comingSoonWineries);
 
 		setComingSoonWineies(comingSoonWineries);
 		return;
