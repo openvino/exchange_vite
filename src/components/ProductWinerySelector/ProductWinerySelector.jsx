@@ -9,16 +9,26 @@ const ProductWinerySelector = ({ winery }) => {
 	const { t } = useTranslation();
 
 	const handleWineryClick = (wineryId) => {
-
-		if(wineryId === 'trilla'){
+		if (wineryId === "trilla") {
 			navigate(`/trilla/TT25`);
-			return
+			return;
 		}
-		
-		if(wineryId === 'tequendama' ) {
+
+		if (wineryId === "tequendama") {
 			navigate(`/tequendama/PDC19`);
-			return
+			return;
 		}
+
+		if (wineryId === "serrera") {
+			navigate(`/serrera/BCN24`);
+			return;
+		}
+
+		if (wineryId === "ricardosantos") {
+			navigate(`/ricardosantos/varsi22`);
+			return;
+		}
+
 		navigate(`/${wineryId}`);
 	};
 
@@ -45,8 +55,6 @@ const ProductWinerySelector = ({ winery }) => {
 							loading="lazy"
 						/>
 
-						
-						
 						{winery.name === "Serrera" && (
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown
@@ -72,11 +80,9 @@ const ProductWinerySelector = ({ winery }) => {
 								/>
 							</div>
 						)}
-
-					
 					</div>
 					<h5 className={styles["card-title"]} style={{ color: "#141414" }}>
-						{winery.name=="Trilla"? "Territorios Trilla" : winery.name}
+						{winery.name == "Trilla" ? "Territorios Trilla" : winery.name}
 					</h5>
 				</div>
 			</div>
