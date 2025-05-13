@@ -9,6 +9,8 @@ const ProductWinerySelector = ({ winery }) => {
 	const { t } = useTranslation();
 
 	const handleWineryClick = (wineryId) => {
+		console.log(wineryId);
+
 		if (wineryId === "trilla") {
 			navigate(`/trilla/TT25`);
 			return;
@@ -25,7 +27,7 @@ const ProductWinerySelector = ({ winery }) => {
 		}
 
 		if (wineryId === "ricardosantos") {
-			navigate(`/ricardosantos/varsi22`);
+			navigate(`/ricardosantos/VARSI22`);
 			return;
 		}
 
@@ -74,9 +76,9 @@ const ProductWinerySelector = ({ winery }) => {
 									year={2025}
 									month={6}
 									day={15}
-									hours={12}
-									minutes={0}
-									seconds={0}
+									// hours={12}
+									// minutes={0}
+									// seconds={0}
 								/>
 							</div>
 						)}
