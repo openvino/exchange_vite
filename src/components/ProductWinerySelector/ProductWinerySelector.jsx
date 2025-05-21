@@ -54,7 +54,6 @@ const ProductWinerySelector = ({ winery }) => {
 									: "/images/placeholder_comingsoon.jpg"
 							}
 							alt={winery.name}
-							loading="lazy"
 						/>
 
 						{winery.name === "Serrera" && (
