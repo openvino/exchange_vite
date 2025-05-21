@@ -42,7 +42,7 @@ import contractABI from "../../contracts/router.json";
 import crowdsaleABI from "../../contracts/crowdsale.json";
 import ERC20ABI from "../../contracts/erc20.json";
 import { ethers } from "ethers";
-import { notifyBuyer } from "../../utils/checkout-utils";
+import { saveOrder } from "../../utils/checkout-utils";
 import { formatUnits } from "ethers/lib/utils";
 import { getMailTemplateOrder } from "../../utils/emailTemplate";
 import { getChain } from "../Main";
@@ -188,9 +188,7 @@ export default function BuyAndSell({
   }
   console.log(state);
   const sendEmailMessage = async (email) => {
-
     try {
-      
       let body = {
         email: email,
         secret_key: import.meta.VITE_SECRET_KEY,
@@ -310,7 +308,10 @@ export default function BuyAndSell({
     } else if (selling && state.validationState) {
       conditionalRender = (
         <>
-          <p>${amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)}</p>
+          <p>
+            $
+            {amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)}
+          </p>
         </>
       );
     } else if (crowdsaling && crowdsaleValidationState.inputValue) {
@@ -464,12 +465,18 @@ export default function BuyAndSell({
           </InfoFrame>
 
           {(!pending || !currentTransactionHash) && (
-						<IncrementToken
-							max={buying ? amountFormatter(reserveWINESToken, 18, 0) : crowdsaling && data? Math.floor(formatUnits(data, 18)) : null}
-							initialValue={selling ? 1 : 1}
-							step={1}
-						/>
-					)}
+            <IncrementToken
+              max={
+                buying
+                  ? amountFormatter(reserveWINESToken, 18, 0)
+                  : crowdsaling && data
+                  ? Math.floor(formatUnits(data, 18))
+                  : null
+              }
+              initialValue={selling ? 1 : 1}
+              step={1}
+            />
+          )}
         </TopFrame>
 
         {pending && currentTransactionHash ? (
@@ -564,12 +571,13 @@ export default function BuyAndSell({
                   buyValidationState.outputValue
                 );
 
-                await notifyBuyer(
+                await saveOrder(
                   state.count,
                   account?.address,
                   state.email,
                   state.wineryId,
-                  state.name
+                  state.name,
+                  state.tokenName
                 );
               }
               await sendEmailMessage(state.email);
@@ -606,13 +614,6 @@ export default function BuyAndSell({
                   response.transactionHash,
                   state.tradeType,
                   sellValidationState.inputValue
-                );
-                await notifyBuyer(
-                  state.count,
-                  account?.address,
-                  state.email,
-                  state.wineryId,
-                  state.name
                 );
 
                 // await sendEmailMessage(state.email);
@@ -651,12 +652,13 @@ export default function BuyAndSell({
                   state.tradeType,
                   sellValidationState.inputValue
                 );
-                await notifyBuyer(
+                await saveOrder(
                   state.count,
                   account?.address,
                   state.email,
                   state.wineryId,
-                  state.name
+                  state.name,
+                  state.tokenName
                 );
 
                 await sendEmailMessage(state.email);

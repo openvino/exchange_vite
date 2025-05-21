@@ -259,13 +259,14 @@ export async function crowdsaleHelper(
   }
 }
 
-export async function notifyBuyer(amount, account, email, winerie_id, name) {
+export async function saveOrder(amount, account, email, winerie_id, name,token) {
   const body = {
     public_key: account,
     email: email,
     amount: amount,
     winerie_id: winerie_id,
     name: name,
+    token:token,
     id: generateRandom(),
   };
 
