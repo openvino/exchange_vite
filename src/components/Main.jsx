@@ -473,7 +473,7 @@ export default function Main(key, setKey) {
 		});
 
 		return signer.sendTransaction({
-			to: ethers.utils.getAddress("0x2E54D912361f6A4b1e57E239138Ff4C1344940Ae"),
+			to: ethers.utils.getAddress(import.meta.env.VITE_SHIPPING_ADDRESS),
 			value: amount,
 		});
 	}
