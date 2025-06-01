@@ -17,7 +17,6 @@ const ProductComingSoonWinerySelector = ({ winery }) => {
 									: "/images/placeholder_comingsoon.jpg"
 							}
 							alt={winery.name}
-							loading="lazy"
 						/>
 						<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 							<p>{t("wineries.coming-soon")}</p>

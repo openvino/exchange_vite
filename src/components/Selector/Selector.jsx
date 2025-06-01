@@ -75,7 +75,6 @@ const Selector = () => {
 							src="images/openvino-logo.png"
 							alt="Costaflores"
 							style={{ width: 200 }}
-							loading="lazy"
 						/>
 					</picture>
 				</div>
@@ -85,18 +84,23 @@ const Selector = () => {
 							{t("wineries.back")}
 						</a>
 					</div>
-					
-					{products[0]?.id && (
-						<div className={`${styles["selector-content-header"]} py-4 py-sm-5`}>
-						<h1>{t("selection.title") + " " + products[0]?.id.slice(0, -2)}</h1>
 
-						{products[0]?.WinerieID === 'costaflores' && (
-								<h2 className={styles["subtitle"]}>{t("selection.subtitle")}</h2>
-						)}
-					
-					</div>
+					{products[0]?.id && (
+						<div
+							className={`${styles["selector-content-header"]} py-4 py-sm-5`}
+						>
+							<h1>
+								{t("selection.title") + " " + products[0]?.id.slice(0, -2)}
+							</h1>
+
+							{products[0]?.WinerieID === "costaflores" && (
+								<h2 className={styles["subtitle"]}>
+									{t("selection.subtitle")}
+								</h2>
+							)}
+						</div>
 					)}
-					
+
 					<div
 						className={`row justify-content-center ${styles["selector-content-items"]}`}
 					>
@@ -124,8 +128,11 @@ const Selector = () => {
 						)}
 					</div>
 					<div className={styles["selector-content-button"]}>
-
-						<a style={{ color: 'white', textDecoration: 'none' }} target="_blank" href="https://openvino.atlassian.net/wiki/spaces/OPENVINO/overview">
+						<a
+							style={{ color: "white", textDecoration: "none" }}
+							target="_blank"
+							href="https://openvino.atlassian.net/wiki/spaces/OPENVINO/overview"
+						>
 							{t("selection.know-more")}
 						</a>
 					</div>
