@@ -19,7 +19,7 @@ export const tokensInfo = {
 	},
 	BCN24: {
 		fullDescription:
-			"MINIMAL 0,7, INTERDITO, BACO 2024 - 100 % Baco Noir de <0>Serrera Wines</0>.",
+			"el Baco (Minimales 0.7 by  Serrera) es un vino elaborado con sentido natural, mínima intervención, buscando la expresión del carácter varietal y el respeto por la identidad que el lugar imprime a la uva. <0>Serrera Wines</0>",
 		redeemDate: "1 de junio de 2028",
 		wineryUrl: "https://www.serrerawines.com/",
 	},

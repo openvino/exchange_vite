@@ -18,7 +18,14 @@ const WinerySelector = () => {
   const getWineries = async () => {
     const response = await axiosClient.get("/wineries");
     setWineries(response.data);
-    setFilteredWineries(response.data);
+
+    const reordered = [...response.data].sort((a, b) => {
+      if (a.name.toLowerCase() === "costaflores") return -1;
+      if (b.name.toLowerCase() === "costaflores") return 1;
+      return 0;
+    });
+    setWineries(reordered);
+    setFilteredWineries(reordered);
 
     const comingSoon = getComingSoonWineriesList();
     setComingSoonWineies(comingSoon);
