@@ -19,8 +19,8 @@ export const tokensInfo = {
 	},
 	BCN24: {
 		fullDescription:
-			"el Baco (Minimales 0.7 by  Serrera) es un vino elaborado con sentido natural, mínima intervención, buscando la expresión del carácter varietal y el respeto por la identidad que el lugar imprime a la uva. <0>Serrera Wines</0>",
-		redeemDate: "1 de junio de 2028",
+			"el Baco (Minimales 0.7 by  Serrera) es un vino elaborado con sentido natural, mínima intervención, buscando la expresión del carácter varietal y el respeto por la identidad que el lugar imprime a la uva. Es una super variedad naturalmente resistente a condiciones adversas de clima y suelo, que da un vino armónico con una acidez natural fantástica y aromas relacionados a lo herbal, mentolado y ahumado. Creado en 1898 y prohibido en Francia por tener sangre americana, le llamamos EL INTERDITO. <0>Serrera Wines</0>",
+		redeemDate: "15 de noviembre de 2027",
 		wineryUrl: "https://www.serrerawines.com/",
 	},
 	MTB18: {
