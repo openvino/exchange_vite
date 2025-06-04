@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./WinerySelector.module.css";
 import { axiosClient } from "../../config/axiosClient";
-import ProductWinerySelector from "../productWinerySelector/ProductWinerySelector";
+import ProductWinerySelector from "../ProductWinerySelector/ProductWinerySelector";
 import { getComingSoonWineriesList } from "../../utils/getComingSoonWineries";
 import ProductComingSoonWinerySelector from "../ProductComingSoonWinerySelector/ProductComingSoonWinerySelector";
 import { useTranslation } from "react-i18next";
