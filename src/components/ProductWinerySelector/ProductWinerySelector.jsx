@@ -56,19 +56,6 @@ const ProductWinerySelector = ({ winery }) => {
 							alt={winery.name}
 						/>
 
-						{winery.name === "Serrera" && (
-							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
-								<Countdown
-									year={2025}
-									month={6}
-									day={1}
-									hours={12}
-									minutes={0}
-									seconds={0}
-								/>
-							</div>
-						)}
-
 						{winery.name === "Ricardo Santos" && (
 							<div className={`${styles["card-img-overlay"]} card-img-overlay`}>
 								<Countdown
