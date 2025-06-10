@@ -199,7 +199,7 @@ export function useContracts(
 			if (!isAddress(tokenAddress)) return;
 
 			try {
-				console.log("📡 Fetching contracts...");
+				// console.log("📡 Fetching contracts...");
 				const library = ethers5Adapter.provider.toEthers({
 					client,
 					chain: getChain(),
@@ -315,7 +315,7 @@ export function useAllBalances(
 			}
 
 			try {
-				console.log("📡 Fetching balances from RPC...");
+				// console.log("📡 Fetching balances from RPC...");
 
 				// 🚨 Verificar si los contratos existen antes de usarlos
 				const fetchBalances = async () => {

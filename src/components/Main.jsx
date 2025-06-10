@@ -116,6 +116,12 @@ export default function Main(key, setKey) {
       params: { winerie_id: wineryId },
     });
 
+    const winerie = await axiosClient.get("/wineries");
+
+    const filterWinery = winerie.data.filter(
+      (winerie) => winerie.ID === wineryId
+    );
+
     const filterProduct = productsWineries.data.filter(
       (product) => product.id === productId
     );
@@ -139,6 +145,8 @@ export default function Main(key, setKey) {
       shippingAccount: filterProduct[0].shipping_account,
       validationState: undefined,
       loading: true,
+      wineryEmail: filterWinery[0].email,
+      wineryRedeemEmail: filterWinery[0].email_redeem,
     }));
   };
 
@@ -195,6 +203,7 @@ export default function Main(key, setKey) {
       : reserves.reserve1;
   const reserveWINESToken =
     token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
+
 
   useEffect(() => {
     const fetchPriceAndSetState = async () => {
@@ -589,8 +598,7 @@ export default function Main(key, setKey) {
                   }}
                 ></InfoIcon>
               </Title>
-              {
-              state?.tokenName !== "VARSI22" ? (
+              {state?.tokenName !== "VARSI22" ? (
                 <>
                   {isCrowdsale && !loadingPrice && (
                     <CurrentPrice>
@@ -632,7 +640,7 @@ export default function Main(key, setKey) {
                     </CurrentPrice>
                   )}
                 </>
-              )  : state.tokenName === "VARSI22" ? (
+              ) : state.tokenName === "VARSI22" ? (
                 <>
                   <TokenIconContainer>
                     <TokenIconText>

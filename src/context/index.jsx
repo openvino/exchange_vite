@@ -24,6 +24,8 @@ const initialState = {
   validationState: undefined,
   loading: true,
   bottlePrice : 0,
+  wineryEmail: '',
+  wineryRedeemEmail:'',
 }
 
 

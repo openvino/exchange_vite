@@ -9,7 +9,7 @@ const ProductWinerySelector = ({ winery }) => {
 	const { t } = useTranslation();
 
 	const handleWineryClick = (wineryId) => {
-		console.log(wineryId);
+		
 
 		if (wineryId === "trilla") {
 			navigate(`/trilla/TT25`);

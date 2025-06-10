@@ -295,7 +295,7 @@ export function calculateEtherTokenInputFromOutput(
 	// console.log(inputReserve, outputReserve, outputAmount);
 
 	if (!inputReserve || !outputReserve || !outputAmount) {
-		console.log("One or more inputs are null or undefined.");
+		// console.log("One or more inputs are null or undefined.");
 		return;
 	}
 

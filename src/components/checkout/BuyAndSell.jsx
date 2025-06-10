@@ -44,7 +44,10 @@ import ERC20ABI from "../../contracts/erc20.json";
 import { ethers } from "ethers";
 import { saveOrder } from "../../utils/checkout-utils";
 import { formatUnits } from "ethers/lib/utils";
-import { getMailTemplateOrder } from "../../utils/emailTemplate";
+import {
+  getBuyTemplate,
+  getSaleTemplate,
+} from "../../utils/emailTemplate";
 import { getChain } from "../Main";
 import axios from "axios";
 
@@ -186,19 +189,25 @@ export default function BuyAndSell({
       return errorMessage ? t(errorMessage) : t("wallet.loading");
     }
   }
-  console.log(state);
-  const sendEmailMessage = async (email) => {
+  const sendEmailMessage = async (email, type) => {
     try {
       let body = {
         email: email,
         secret_key: import.meta.VITE_SECRET_KEY,
-        subject: "Successfully bought wine",
-        message: getMailTemplateOrder(
-          state.tokenName,
-          state.count,
-          state.wineryId
-        ),
+        subject: "",
+        message: "",
       };
+
+      switch (type) {
+        case "buy":
+          body.subject = "Wine tokens purchased - Thank you! 🍷";
+          body.message = getBuyTemplate(state.tokenName,state.count, state.wineryId,state.wineryEmail);
+          break;
+        case "sale":
+          body.subject = "Wine tokens sale completed";
+          body.message = getSaleTemplate(state.wineryEmail);
+          break;
+      }
 
       const message = await axios.post(
         `${import.meta.env.VITE_DASHBOARD_URL}/api/routes/emailRoute`,
@@ -343,8 +352,6 @@ export default function BuyAndSell({
       return "0";
     }
   }
-
-  console.log(state);
 
   function renderSupplyData() {
     if (buying) {
@@ -580,7 +587,7 @@ export default function BuyAndSell({
                   state.tokenName
                 );
               }
-              await sendEmailMessage(state.email);
+              await sendEmailMessage(state.email,'buy');
             }}
           >
             {getText(
@@ -616,7 +623,7 @@ export default function BuyAndSell({
                   sellValidationState.inputValue
                 );
 
-                // await sendEmailMessage(state.email);
+                await sendEmailMessage(state.email,'sale');
               }
             }}
           >
@@ -661,7 +668,7 @@ export default function BuyAndSell({
                   state.tokenName
                 );
 
-                await sendEmailMessage(state.email);
+                await sendEmailMessage(state.email,'buy');
               }
             }}
             onError={(e) => console.error(e)}

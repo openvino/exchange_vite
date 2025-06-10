@@ -28,8 +28,8 @@ import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { getContract, prepareContractCall } from "thirdweb";
 import ERC20 from "../../contracts/erc20.json";
 import {
-  getEmailTemplate,
-  getFailRedeemEmailTemplate,
+  getRedeemTemplateSuccess,
+  getRedeemTemplateWithErrors,
 } from "../../utils/emailTemplate";
 import { getChain } from "../Main";
 const config = {
@@ -120,14 +120,17 @@ export default function Redeem({
       message: "",
     };
     if (type === "sucess") {
-      body.subject = "You have successfully redemeed your token for wine!";
-      body.message = getEmailTemplate(email, state.tokenName);
+      body.subject = "Wine tokens redeemed - let’s plan your delivery 🍷";
+      body.message = getRedeemTemplateSuccess(state.wineryRedeemEmail);
     }
 
     if (type === "error") {
-      body.subject =
-        "You’ve successfully redeemed your token! The payment of your shipping is not completed";
-      body.message = getFailRedeemEmailTemplate(email);
+      body.subject = "Wine tokens redeemed - shipping payment pending";
+      body.message = getRedeemTemplateWithErrors(
+        state.tokenName,
+        state.wineryId,
+        state.wineryRedeemEmail
+      );
     }
 
     const message = await axios.post(
