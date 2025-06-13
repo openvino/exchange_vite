@@ -158,7 +158,6 @@ export const CheckoutFrame = styled.div`
 	color: #fff;
 	background-color: #141414;
 	max-width: 450px;
-	visibility: ${(props) => !props.$isVisible && "hidden"};
 
 	position: fixed;
 	top: 0;
@@ -166,8 +165,11 @@ export const CheckoutFrame = styled.div`
 	width: 100%;
 	height: 100vh;
 	overflow-y: scroll;
-
 	z-index: 2;
+
+	/* ANIMACIÓN */
+	transform: ${(props) => (props.$isVisible ? "translateX(0%)" : "translateX(100%)")};
+	transition: transform 0.4s ease-in-out;
 
 	p {
 		margin: 0px;

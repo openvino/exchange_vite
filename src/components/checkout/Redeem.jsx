@@ -62,12 +62,23 @@ export default function Redeem({
   balanceWINES,
   closeCheckout,
 }) {
-  const library = ethers5Adapter.provider.toEthers({
-    client,
-    chain: getChain(),
-  });
-
   const [state] = useAppContext();
+  const [numberBurned, setNumberBurned] = useState();
+  const [hasPickedAmount, setHasPickedAmount] = useState(false);
+  const [hasConfirmedAddress, setHasConfirmedAddress] = useState(false);
+  const [transactionHash, setTransactionHash] = useState("");
+  const [burnTxHash, setBurnTxHash] = useState("");
+  const [lastTransactionHash, setLastTransactionHash] = useState("");
+  const [hasBurnt, setHasBurnt] = useState(false);
+  const [hasPaidShipping, setHasPaidShipping] = useState(false);
+  const [userForm, setUserForm] = useState();
+  const [shippingCost, setShippingCost] = useState();
+  const [steps, setSteps] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [redeem, setRedeem] = useState(0);
+  const [shippingError, setShippingError] = useState(false);
+
+  const { t } = useTranslation();
 
   const tokenContract = getContract({
     client,
@@ -76,26 +87,13 @@ export default function Redeem({
     abi: ERC20,
   });
 
+  const library = ethers5Adapter.provider.toEthers({
+    client,
+    chain: getChain(),
+  });
+
   const account = useActiveAccount();
-
-  const [numberBurned, setNumberBurned] = useState();
-  const [hasPickedAmount, setHasPickedAmount] = useState(false);
-  const [hasConfirmedAddress, setHasConfirmedAddress] = useState(false);
-  const [transactionHash, setTransactionHash] = useState("");
-  const [burnTxHash, setBurnTxHash] = useState("");
-  const [lastTransactionHash, setLastTransactionHash] = useState("");
-
-  const [hasBurnt, setHasBurnt] = useState(false);
-  const [hasPaidShipping, setHasPaidShipping] = useState(false);
-  const [userForm, setUserForm] = useState();
-  const [shippingCost, setShippingCost] = useState();
-  const [steps, setSteps] = useState(0);
-
   const pending = !!transactionHash;
-
-  const [loading, setLoading] = useState(false);
-
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (transactionHash) {
@@ -175,20 +173,21 @@ export default function Redeem({
       setLoading(false);
     }
   };
-  const [redeem, setRedeem] = useState(0);
-  useEffect(() => {
-    const getRedeems = async () => {
-      fetchRedeems(`${state.apiUrl}/redeem`);
-      const redeems = await fetchRedeems(`${state.apiUrl}/redeem`);
-      const filteredRedeems = redeems?.data.filter(
-        (redeem) =>
-          redeem.customer_id === account?.address &&
-          redeem.shipping_paid_status === "false" &&
-          redeem.pickup !== "true"
-      );
-      setRedeem(filteredRedeems);
-    };
 
+  const getRedeems = async () => {
+    fetchRedeems(`${state.apiUrl}/redeem`);
+    const redeems = await fetchRedeems(`${state.apiUrl}/redeem`);
+    const filteredRedeems = redeems?.data.filter(
+      (redeem) =>
+        redeem.customer_id === account?.address &&
+        redeem.shipping_paid_status === "false" &&
+        redeem.pickup !== "true"
+    );
+    setRedeem(filteredRedeems);
+
+    return filteredRedeems;
+  };
+  useEffect(() => {
     getRedeems();
   }, []);
 
@@ -205,7 +204,7 @@ export default function Redeem({
   }
 
   function renderContent() {
-    if (redeem.length >= 1) {
+    if (redeem.length >= 1 && !hasBurnt) {
       return (
         <>
           {" "}
@@ -484,76 +483,112 @@ export default function Redeem({
               )}
             </RedeemSteps>
 
-            <TransactionButton
-              onTransactionConfirmed={async (response) => {
-                let shippingPaid = false;
-                let shippingTxHash = "";
+            {!hasBurnt && !shippingError && (
+              <TransactionButton
+                onTransactionConfirmed={async (response) => {
+                  let shippingPaid = false;
+                  let shippingTxHash = "";
 
-                setTransactionHash(response.transactionHash);
-                setBurnTxHash(response.transactionHash);
+                  setTransactionHash(response.transactionHash);
+                  setBurnTxHash(response.transactionHash);
 
-                if (userForm.pickup === false) {
+                  setHasBurnt(true);
+
+                  if (userForm.pickup === false) {
+                    try {
+                      const transfer = await transferShippingCosts(
+                        USDToEth(USDExchangeRateETH, shippingCost)
+                      );
+
+                      if (transfer.hash) {
+                        console.log(transfer.hash);
+                        shippingPaid = true;
+                        shippingTxHash = transfer.hash;
+                        setTransactionHash(transfer.hash);
+                      }
+                    } catch (error) {
+                      setShippingError(true);
+                      console.error(
+                        "Shipping payment cancelled or failed:",
+                        error
+                      );
+                    }
+                  }
+
+                  let body = {
+                    public_key: account?.address,
+                    name: userForm.name,
+                    email: userForm.email,
+                    amount: numberBurned,
+                    year: state.tokenName,
+                    street: userForm.line1,
+                    number: userForm.line2,
+                    country_id: userForm.country,
+                    province_id: userForm.state,
+                    zip: userForm.zip,
+                    telegram_id: userForm.telegram,
+                    signature: userForm.signature,
+                    burn_tx_hash: response.transactionHash,
+                    winerie_id: state.wineryId,
+                    shipping_paid_status: shippingPaid.toString(),
+                    pickup: userForm.pickup.toString(),
+                    city: userForm.city,
+                  };
+                  await axios.post(`${state.apiUrl}/redeem`, body);
+                  if (shippingPaid) {
+                    console.log("enviando success");
+                    sendEmailMessage(userForm.email, "sucess");
+                  } else {
+                    console.log("enviando error");
+                    sendEmailMessage(userForm.email, "error");
+                  }
+                }}
+                transaction={() =>
+                  prepareContractCall({
+                    contract: tokenContract,
+                    method: "burn",
+                    params: [
+                      ethers.utils.parseUnits(numberBurned.toString(), 18),
+                    ],
+                  })
+                }
+              >
+                {loading
+                  ? t("wallet.waiting-confirmation")
+                  : `${t("redeem.burn")} ${state.tokenName}`}
+              </TransactionButton>
+            )}
+
+            {hasBurnt && shippingError && (
+              <button
+                onClick={async () => {
                   try {
-                    const transfer = await transferShippingCosts(
+                    const redeemFilter = await getRedeems();
+                    const matchRedeem = redeemFilter?.filter(
+                      (item) => item.burn_tx_hash === burnTxHash
+                    );
+
+                    const response = await transferShippingCosts(
                       USDToEth(USDExchangeRateETH, shippingCost)
                     );
 
-                    if (transfer.hash) {
-                      console.log(transfer.hash);
-                      shippingPaid = true;
-                      shippingTxHash = transfer.hash;
-                      setTransactionHash(transfer.hash);
+                    if (response.hash) {
+                      //actualizar el redeem para que pase a true
+                      await updateRedeem(`${state.apiUrl}/redeem/update`, {
+                        ...matchRedeem[0],
+                        shipping_tx_hash: response.hash,
+                      });
+
+                      setHasPaidShipping(true);
                     }
                   } catch (error) {
-                    console.error(
-                      "Shipping payment cancelled or failed:",
-                      error
-                    );
+                    console.log(error);
                   }
-                }
-
-                let body = {
-                  public_key: account?.address,
-                  name: userForm.name,
-                  email: userForm.email,
-                  amount: numberBurned,
-                  year: state.tokenName,
-                  street: userForm.line1,
-                  number: userForm.line2,
-                  country_id: userForm.country,
-                  province_id: userForm.state,
-                  zip: userForm.zip,
-                  telegram_id: userForm.telegram,
-                  signature: userForm.signature,
-                  burn_tx_hash: response.transactionHash,
-                  winerie_id: state.wineryId,
-                  shipping_paid_status: shippingPaid.toString(),
-                  pickup: userForm.pickup.toString(),
-                  city: userForm.city,
-                };
-                await axios.post(`${state.apiUrl}/redeem`, body);
-                if (shippingPaid) {
-                  console.log("enviando success");
-                  sendEmailMessage(userForm.email, "sucess");
-                } else {
-                  console.log("enviando error");
-                  sendEmailMessage(userForm.email, "error");
-                }
-              }}
-              transaction={() =>
-                prepareContractCall({
-                  contract: tokenContract,
-                  method: "burn",
-                  params: [
-                    ethers.utils.parseUnits(numberBurned.toString(), 18),
-                  ],
-                })
-              }
-            >
-              {loading
-                ? t("wallet.waiting-confirmation")
-                : `${t("redeem.burn")} ${state.tokenName}`}
-            </TransactionButton>
+                }}
+              >
+                {t("redeem.try-again")}{" "}
+              </button>
+            )}
 
             <Back disabled={!!pending}>
               {pending ? (

@@ -204,7 +204,6 @@ export default function Main(key, setKey) {
   const reserveWINESToken =
     token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
 
-
   useEffect(() => {
     const fetchPriceAndSetState = async () => {
       try {
