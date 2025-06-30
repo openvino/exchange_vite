@@ -29,7 +29,9 @@ import { getContract, prepareContractCall } from "thirdweb";
 import ERC20 from "../../contracts/erc20.json";
 import {
   getRedeemTemplateSuccess,
+  getRedeemTemplateSuccessSpanish,
   getRedeemTemplateWithErrors,
+  getRedeemTemplateWithErrorsSpanish,
 } from "../../utils/emailTemplate";
 import { getChain } from "../Main";
 const config = {
@@ -78,7 +80,11 @@ export default function Redeem({
   const [redeem, setRedeem] = useState(0);
   const [shippingError, setShippingError] = useState(false);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Idioma actual
+  const language = i18n.language;
+
 
   const tokenContract = getContract({
     client,
@@ -118,17 +124,33 @@ export default function Redeem({
       message: "",
     };
     if (type === "sucess") {
-      body.subject = "Wine tokens redeemed - let’s plan your delivery 🍷";
-      body.message = getRedeemTemplateSuccess(state.wineryRedeemEmail);
+      body.subject =
+        language === "es"
+          ? "Redimiste tus Wine tokens! 🍷"
+          : "Wine tokens redeemed - let’s plan your delivery 🍷";
+      body.message =
+        language === "es"
+          ? getRedeemTemplateSuccessSpanish(state.wineryRedeemEmail)
+          : getRedeemTemplateSuccess(state.wineryRedeemEmail);
     }
 
     if (type === "error") {
-      body.subject = "Wine tokens redeemed - shipping payment pending";
-      body.message = getRedeemTemplateWithErrors(
-        state.tokenName,
-        state.wineryId,
-        state.wineryRedeemEmail
-      );
+      body.subject =
+        language === "es"
+          ? "Redimiste tus Wine tokens! - pago de envío pendiente ⚠️"
+          : "Wine tokens redeemed - shipping payment pending";
+      body.message =
+        language === "es"
+          ? getRedeemTemplateWithErrorsSpanish(
+              state.tokenName,
+              state.wineryId,
+              state.wineryRedeemEmail
+            )
+          : getRedeemTemplateWithErrors(
+              state.tokenName,
+              state.wineryId,
+              state.wineryRedeemEmail
+            );
     }
 
     const message = await axios.post(

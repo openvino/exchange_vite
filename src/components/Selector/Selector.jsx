@@ -79,7 +79,7 @@ const Selector = () => {
 					</picture>
 				</div>
 				<div className={styles["selector-content"]}>
-					<div>
+					<div className={styles["selector-content-back"]}>
 						<a className={styles["btn-back"]} href="/">
 							{t("wineries.back")}
 						</a>

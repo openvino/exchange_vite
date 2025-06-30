@@ -46,7 +46,9 @@ import { saveOrder } from "../../utils/checkout-utils";
 import { formatUnits } from "ethers/lib/utils";
 import {
   getBuyTemplate,
+  getBuyTemplateSpanish,
   getSaleTemplate,
+  getSaleTemplateSpanish,
 } from "../../utils/emailTemplate";
 import { getChain } from "../Main";
 import axios from "axios";
@@ -151,7 +153,7 @@ export default function BuyAndSell({
   // const { account, setConnector } = useWeb3Context();
   const account = useActiveAccount();
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const buying = state.tradeType === TRADE_TYPES.BUY;
   const selling = state.tradeType === TRADE_TYPES.SELL;
@@ -161,6 +163,9 @@ export default function BuyAndSell({
   const [sellValidationState, setSellValidationState] = useState({}); // { inputValue, outputValue, minimumOutputValue }
   const [crowdsaleValidationState, setCrowdsaleValidationState] = useState({}); // { inputValue, outputValue, minimumOutputValue }
   const [validationError, setValidationError] = useState();
+
+  const language = i18n.language;
+
 
   function getText(account, errorMessage, ready, pending, hash) {
     if (account === null) {
@@ -200,12 +205,34 @@ export default function BuyAndSell({
 
       switch (type) {
         case "buy":
-          body.subject = "Wine tokens purchased - Thank you! 🍷";
-          body.message = getBuyTemplate(state.tokenName,state.count, state.wineryId,state.wineryEmail);
+          body.subject =
+            language === "es"
+              ? "Compra de Wine Tokens confirmada - Gracias! 🍷"
+              : "Wine tokens purchased - Thank you! 🍷";
+          body.message =
+            language === "es"
+              ? getBuyTemplateSpanish(
+                  state.tokenName,
+                  state.count,
+                  state.wineryId,
+                  state.wineryEmail
+                )
+              : getBuyTemplate(
+                  state.tokenName,
+                  state.count,
+                  state.wineryId,
+                  state.wineryEmail
+                );
           break;
         case "sale":
-          body.subject = "Wine tokens sale completed";
-          body.message = getSaleTemplate(state.wineryEmail);
+          body.subject =
+            language === "es"
+              ? "Venta de Wine tokens completada ✅"
+              : "Wine tokens sale completed";
+          body.message =
+            language === "es"
+              ? getSaleTemplateSpanish(state.wineryEmail)
+              : getSaleTemplate(state.wineryEmail);
           break;
       }
 
@@ -587,7 +614,7 @@ export default function BuyAndSell({
                   state.tokenName
                 );
               }
-              await sendEmailMessage(state.email,'buy');
+              await sendEmailMessage(state.email, "buy");
             }}
           >
             {getText(
@@ -623,7 +650,7 @@ export default function BuyAndSell({
                   sellValidationState.inputValue
                 );
 
-                await sendEmailMessage(state.email,'sale');
+                await sendEmailMessage(state.email, "sale");
               }
             }}
           >
@@ -668,7 +695,7 @@ export default function BuyAndSell({
                   state.tokenName
                 );
 
-                await sendEmailMessage(state.email,'buy');
+                await sendEmailMessage(state.email, "buy");
               }
             }}
             onError={(e) => console.error(e)}

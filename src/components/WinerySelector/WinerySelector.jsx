@@ -106,13 +106,13 @@ const WinerySelector = () => {
 						>
 							{t("wineries.contact")}
 						</a>
-						<a
+						{/* <a
 							className="nav-item nav-link"
 							target="blank"
 							onClick={() => navigate("/openvinodao")}
 						>
 							DAO
-						</a>
+						</a> */}
 					</div>
 				</div>
 			</nav>

@@ -12,7 +12,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    padding: 8px 16px;
+    padding: 20px 40px;
     height: 70px;
     width: 100%;
     display: flex;
@@ -46,6 +46,10 @@
   .selector-content a:hover {
     text-decoration: none;
     color: var(--primary-text-color);
+  }
+
+  .selector-content-back {
+    text-align: right;
   }
   
   .selector-content-header {
