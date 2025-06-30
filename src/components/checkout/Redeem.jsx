@@ -85,7 +85,6 @@ export default function Redeem({
   // Idioma actual
   const language = i18n.language;
 
-
   const tokenContract = getContract({
     client,
     chain: getChain(),
@@ -622,13 +621,7 @@ export default function Redeem({
                   {t("wallet.view-etherscan")}
                 </EtherscanLink>
               ) : (
-                <span
-                  onClick={() => {
-                    setHasConfirmedAddress(false);
-                  }}
-                >
-                  back
-                </span>
+                <span></span>
               )}
             </Back>
           </TopFrame>
