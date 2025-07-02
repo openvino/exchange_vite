@@ -281,7 +281,7 @@ export default function Redeem({
           />
         </>
       );
-    } else if (state.redeemDate > new Date()) {
+    } else if (new Date(state.redeemDate) > new Date()) {
       return (
         <ConfirmContainer>
           <TopConfirmedFrame hasPickedAmount={hasPickedAmount}>
@@ -315,7 +315,10 @@ export default function Redeem({
             <CheckoutConfirmPrompt>
               {t("wallet.redeem-message", {
                 token: state.tokenName,
-                date: state.redeemDate,
+                date: new Intl.DateTimeFormat("es-AR", {
+                  dateStyle: "full",
+                  timeStyle: "short",
+                }).format(new Date(state.redeemDate)),
               })}
             </CheckoutConfirmPrompt>
           </ConfirmContent>

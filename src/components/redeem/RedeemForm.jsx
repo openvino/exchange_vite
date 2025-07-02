@@ -1,52 +1,59 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
-import styled from 'styled-components'
-import Select from 'react-select'
-import { useAppContext } from '../../context'
-import Button from '../shared/Button'
-import { useTranslation } from 'react-i18next';
-import { ethers } from 'ethers'
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import styled from "styled-components";
+import Select from "react-select";
+import { useAppContext } from "../../context";
+import Button from "../shared/Button";
+import { useTranslation } from "react-i18next";
+import { ethers } from "ethers";
 import { client } from "../../config/thirdwebClient";
 import { useActiveAccount } from "thirdweb/react";
-import {
-  amountFormatter,
-  USDToEth
-} from '../../utils'
-import axios from 'axios';
-import { fetchCountries } from '../../utils/fetchCountries'
-import { ethers5Adapter } from 'thirdweb/adapters/ethers5'
-import { BigNumber } from 'ethers'
-import { signMessage } from 'thirdweb/utils'
-const bot = 'beep-boop'
-const name = 'name'
-const line1 = 'line1'
-const line2 = 'line2'
-const city = 'city'
-const state = 'state'
-const zip = 'zip'
-const country = 'country'
-const email = 'email'
-const address = 'address'
-const timestamp = 'timestamp'
-const numberBurned = 'number-burned'
-const signature = 'signature'
-const telegram = 'telegram'
-const pickup = 'pickup';
+import { amountFormatter, USDToEth } from "../../utils";
+import axios from "axios";
+import { fetchCountries } from "../../utils/fetchCountries";
+import { ethers5Adapter } from "thirdweb/adapters/ethers5";
+import { BigNumber } from "ethers";
+import { signMessage } from "thirdweb/utils";
+const bot = "beep-boop";
+const name = "name";
+const line1 = "line1";
+const line2 = "line2";
+const city = "city";
+const state = "state";
+const zip = "zip";
+const country = "country";
+const email = "email";
+const address = "address";
+const timestamp = "timestamp";
+const numberBurned = "number-burned";
+const signature = "signature";
+const telegram = "telegram";
+const pickup = "pickup";
 
-const nameOrder = [name, line1, line2, city, state, zip, country, email, telegram]
+const nameOrder = [
+  name,
+  line1,
+  line2,
+  city,
+  state,
+  zip,
+  country,
+  email,
+  telegram,
+];
 
 const defaultState = {
-  [bot]: '',
-  [name]: '',
-  [line1]: '',
-  [line2]: '',
-  [city]: '',
-  [zip]: '',
-  [state]: '',
-  [country]: '',
-  [email]: '',
-  [telegram]: '',
+  [bot]: "",
+  [name]: "",
+  [line1]: "",
+  [line2]: "",
+  [city]: "",
+  [zip]: "",
+  [state]: "",
+  [country]: "",
+  [email]: "",
+  [telegram]: "",
   [pickup]: false,
-}
+};
 
 /* // mapping from field to google maps return value
 const addressMapping = [
@@ -57,73 +64,95 @@ const addressMapping = [
   { [country]: 'country' }
 ]
  */
-export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippingCost, setHasConfirmedAddress, setUserForm, numberBurned: actualNumberBurned }) {
+export default function RedeemForm({
+  USDExchangeRateETH,
+  shippingCost,
+  setShippingCost,
+  setHasConfirmedAddress,
+  setUserForm,
+  numberBurned: actualNumberBurned,
+}) {
   const { t } = useTranslation();
 
-
   const account = useActiveAccount();
-  const [autoAddress, setAutoAddress] = useState([])
-  const [inputY, setInputY] = useState(0)
-  const suggestEl = useRef()
-  const [appState] = useAppContext()
-  const [formState, setFormState] = useState(defaultState)
-  const [shippingCostError, setShippingCostError] = useState(false)
-  const [countrieSelector, setCountrieSelector] = useState('');
-  const [countries, setCountries] = useState({})
-  const [provinces, setProvinces] = useState({})
+  const [autoAddress, setAutoAddress] = useState([]);
+  const [inputY, setInputY] = useState(0);
+  const suggestEl = useRef();
+  const [appState] = useAppContext();
+  const [formState, setFormState] = useState(defaultState);
+  const [shippingCostError, setShippingCostError] = useState(false);
+  const [countrieSelector, setCountrieSelector] = useState("");
+  const [countries, setCountries] = useState({});
+  const [provinces, setProvinces] = useState({});
 
   useEffect(() => {
     async function getCountries() {
       try {
-        let response = await fetchCountries()
-        setCountries(response.data.countries)
-        setProvinces(response.data.provinces)
+        let response = await fetchCountries();
+        setCountries(response.data.countries);
+        setProvinces(response.data.provinces);
       } catch (error) {
         console.log(error);
       }
     }
     getCountries();
-  }, [])
+  }, []);
 
   function handleChange(event) {
-    const { name, value, type, checked } = event.target
-    setFormState(state => ({ ...state, [name]: type === 'checkbox' ? checked : value }))
+    const { name, value, type, checked } = event.target;
+    setFormState((state) => ({
+      ...state,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   }
-
-
 
   async function getShippingCosts(country, state, amount) {
     try {
-      let res = await axios.get(`${import.meta.env.VITE_DASHBOARD_URL}/api/routes/shippingCostsRoute?token=${appState.tokenName}&province_id=${state}&amount=${amount}`)
+      let res = await axios.get(
+        `${
+          import.meta.env.VITE_DASHBOARD_URL
+        }/api/routes/shippingCostsRoute?token=${
+          appState.tokenName
+        }&province_id=${state}&amount=${amount}`
+      );
       if (res.data) {
-        let dollarCost = BigNumber.from(res.data.cost * 100)
-        setShippingCostError(false)
-        setShippingCost(dollarCost)
+        let dollarCost = BigNumber.from(res.data.cost * 100);
+        setShippingCostError(false);
+        setShippingCost(dollarCost);
       }
     } catch (e) {
-      setShippingCostError(true)
+      setShippingCostError(true);
     }
   }
 
   useEffect(() => {
-    handleChange({ target: { name: [address], value: account } })
-  }, [account, autoAddress, setUserForm])
+    handleChange({ target: { name: [address], value: account } });
+  }, [account, autoAddress, setUserForm]);
 
   useLayoutEffect(() => {
     if (suggestEl.current) {
-      setInputY(suggestEl.current.getBoundingClientRect().bottom)
+      setInputY(suggestEl.current.getBoundingClientRect().bottom);
     }
-  }, [suggestEl])
+  }, [suggestEl]);
 
   useEffect(() => {
     // Reset province when country changes
     if (countrieSelector) {
-      const firstProvince = Object.keys(provinces).find(key => provinces[key].province_id.startsWith(countrieSelector + '-'));
+      const firstProvince = Object.keys(provinces).find((key) =>
+        provinces[key].province_id.startsWith(countrieSelector + "-")
+      );
       if (firstProvince) {
-        setFormState(state => ({ ...state, state: provinces[firstProvince].province_id }));
-        getShippingCosts(countrieSelector, provinces[firstProvince].province_id, actualNumberBurned);
+        setFormState((state) => ({
+          ...state,
+          state: provinces[firstProvince].province_id,
+        }));
+        getShippingCosts(
+          countrieSelector,
+          provinces[firstProvince].province_id,
+          actualNumberBurned
+        );
       } else {
-        setFormState(state => ({ ...state, state: '' }));
+        setFormState((state) => ({ ...state, state: "" }));
       }
     }
   }, [countrieSelector, provinces]);
@@ -135,60 +164,68 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
     formState[state] &&
     formState[zip] &&
     formState[country] &&
-    formState[email]
+    formState[email];
 
   const selectStyles = {
-    container: provided => ({
+    container: (provided) => ({
       ...provided,
-      width: '100%',
-      margin: '6px 0',
+      width: "100%",
+      margin: "6px 0",
     }),
-    control: provided => ({
+    control: (provided) => ({
       ...provided,
-      'background-color': 'rgba(255, 255, 255, 0.05)',
-      border: 'none',
-      'font-size': '16px',
-      'box-shadow': 'inset 0 0 0 1px rgba(213, 132, 27, 0.5)'
+      "background-color": "rgba(255, 255, 255, 0.05)",
+      border: "none",
+      "font-size": "16px",
+      "box-shadow": "inset 0 0 0 1px rgba(213, 132, 27, 0.5)",
     }),
-    singleValue: provided => ({
+    singleValue: (provided) => ({
       ...provided,
-      color: 'white',
-      'font-size': '16px'
+      color: "white",
+      "font-size": "16px",
     }),
-    menu: provided => ({
+    menu: (provided) => ({
       ...provided,
-      color: '#141414'
+      color: "#141414",
     }),
   };
 
-  const countryOptions = Object.keys(countries).map(key => {
+  const countryOptions = Object.keys(countries).map((key) => {
     const name = countries[key].place_description;
     return {
       value: countries[key].country_id,
-      label: name
-    }
-  })
+      label: name,
+    };
+  });
 
   const stateOptions = Object.keys(provinces)
-    .filter(key => provinces[key].province_id.startsWith(countrieSelector + '-'))
-    .map(key => {
+    .filter((key) =>
+      provinces[key].province_id.startsWith(countrieSelector + "-")
+    )
+    .map((key) => {
       const name = provinces[key].place_description;
       return {
         value: provinces[key].province_id,
-        label: name
+        label: name,
       };
     });
 
   return (
     <FormFrame autocomplete="off">
-      <input hidden type="text" name="beep-boop" value={formState[bot]} onChange={handleChange} />
+      <input
+        hidden
+        type="text"
+        name="beep-boop"
+        value={formState[bot]}
+        onChange={handleChange}
+      />
       <input
         required
         type="text"
         name={name}
         value={formState[name]}
         onChange={handleChange}
-        placeholder={t('redeem.name')}
+        placeholder={t("redeem.name")}
         autoComplete="name"
       />
       <Compressed>
@@ -198,7 +235,7 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
           name={line1}
           value={formState[line1]}
           onChange={handleChange}
-          placeholder={t('redeem.line1')}
+          placeholder={t("redeem.line1")}
           autoComplete="off"
         />
         <input
@@ -206,7 +243,7 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
           name={line2}
           value={formState[line2]}
           onChange={handleChange}
-          placeholder={t('redeem.line2')}
+          placeholder={t("redeem.line2")}
           autoComplete="off"
         />
       </Compressed>
@@ -216,7 +253,7 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         name={city}
         value={formState[city]}
         onChange={handleChange}
-        placeholder={t('redeem.city')}
+        placeholder={t("redeem.city")}
         autoComplete="address-level2"
       />
       <input
@@ -225,28 +262,32 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         name={zip}
         value={formState[zip]}
         onChange={handleChange}
-        placeholder={t('redeem.zip')}
+        placeholder={t("redeem.zip")}
         autoComplete="postal-code"
       />
       <Select
-        placeholder={t('redeem.country')}
+        placeholder={t("redeem.country")}
         styles={selectStyles}
         options={countryOptions}
         components={{ IndicatorSeparator: () => null }}
-        onChange={event => {
-          setFormState(state => ({ ...state, country: event.value, state: '' }))
-          setCountrieSelector(event.value)
+        onChange={(event) => {
+          setFormState((state) => ({
+            ...state,
+            country: event.value,
+            state: "",
+          }));
+          setCountrieSelector(event.value);
         }}
       />
       <Select
-        placeholder={t('redeem.state')}
+        placeholder={t("redeem.state")}
         styles={selectStyles}
         options={stateOptions}
         components={{ IndicatorSeparator: () => null }}
-        value={stateOptions.find(option => option.value === formState[state])}
-        onChange={event => {
-          setFormState(state => ({ ...state, state: event.value }))
-          getShippingCosts(formState[country], event.value, actualNumberBurned)
+        value={stateOptions.find((option) => option.value === formState[state])}
+        onChange={(event) => {
+          setFormState((state) => ({ ...state, state: event.value }));
+          getShippingCosts(formState[country], event.value, actualNumberBurned);
         }}
       />
       <input
@@ -255,7 +296,7 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         name={email}
         value={formState[email]}
         onChange={handleChange}
-        placeholder={t('redeem.email')}
+        placeholder={t("redeem.email")}
         autoComplete="email"
       />
       <input
@@ -263,49 +304,84 @@ export default function RedeemForm({ USDExchangeRateETH, shippingCost, setShippi
         name={telegram}
         value={formState[telegram]}
         onChange={handleChange}
-        placeholder={t('redeem.telegram')}
+        placeholder={t("redeem.telegram")}
         autoComplete="off"
       />
-      <input
-        type="checkbox"
-        name={pickup}
-        checked={formState[pickup]}
-        onChange={handleChange}
-        autoComplete="off"
-      />
-      <span style={{ textAlign: 'center', width: "100%" }}>{t("redeem.pickup")}</span>
-      {(!shippingCostError && shippingCost && formState[pickup] === false) ? (
-        <div style={{ fontWeight: 'normal', fontSize: '14px', padding: '16px 0', textAlign: "center" }}>
-          {t('redeem.shipping-cost')}: ${amountFormatter(shippingCost, 2, 2)} USD ({amountFormatter(USDToEth(USDExchangeRateETH, shippingCost), 18, 5)} ETH)
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          marginTop: "10px",
+        }}
+      >
+        <span>{t("redeem.pickup")}</span>
+
+        <input
+          style={{ width: "20px" }}
+          type="checkbox"
+          name={pickup}
+          checked={formState[pickup]}
+          onChange={handleChange}
+          autoComplete="off"
+        />
+      </div>
+
+      {!shippingCostError && shippingCost && formState[pickup] === false ? (
+        <div
+          style={{
+            fontWeight: "normal",
+            fontSize: "14px",
+            padding: "16px 0",
+            textAlign: "center",
+          }}
+        >
+          {t("redeem.shipping-cost")}: ${amountFormatter(shippingCost, 2, 2)}{" "}
+          USD (
+          {amountFormatter(USDToEth(USDExchangeRateETH, shippingCost), 18, 5)}{" "}
+          ETH)
         </div>
-      ) : shippingCostError ? <div style={{ fontWeight: 'normal', fontSize: '14px', padding: '16px 0' }}>
-        {t('redeem.shipping-cost-not-found')}
-      </div> : <></>}
+      ) : shippingCostError ? (
+        <div
+          style={{ fontWeight: "normal", fontSize: "14px", padding: "16px 0" }}
+        >
+          {t("redeem.shipping-cost-not-found")}
+        </div>
+      ) : (
+        <></>
+      )}
       <ButtonFrame
         className="button"
         disabled={!canSign || shippingCostError}
-        text={t('redeem.next')}
-        type={'submit'}
+        text={t("redeem.next")}
+        type={"submit"}
         onClick={async (event) => {
-
-          const timestampToSign = Math.round(Date.now() / 1000)
-          const formDataMessage = nameOrder.map(o => `${t(`${o}`)}: ${formState[o]}`).join('\n')
-          const autoMessage = `${t('redeem.address')}: ${account?.address}\n${t('redeem.timestamp')}: ${timestampToSign}\n${t('redeem.numberBurned')}: ${actualNumberBurned}`
+          const timestampToSign = Math.round(Date.now() / 1000);
+          const formDataMessage = nameOrder
+            .map((o) => `${t(`${o}`)}: ${formState[o]}`)
+            .join("\n");
+          const autoMessage = `${t("redeem.address")}: ${account?.address}\n${t(
+            "redeem.timestamp"
+          )}: ${timestampToSign}\n${t(
+            "redeem.numberBurned"
+          )}: ${actualNumberBurned}`;
 
           await signMessage({
             message: autoMessage,
             account,
-          })
+          });
 
-          setUserForm(formState)
-          setHasConfirmedAddress(true)
+          setUserForm(formState);
+          setHasConfirmedAddress(true);
 
-          event.preventDefault()
+          event.preventDefault();
         }}
       />
       <br />
     </FormFrame>
-  )
+  );
 }
 
 const FormFrame = styled.form`
@@ -346,13 +422,13 @@ const FormFrame = styled.form`
   input::-webkit-input-placeholder {
     color: #8a8a8a;
   }
-`
+`;
 
 const Compressed = styled.span`
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-`
+`;
 
 const ButtonFrame = styled(Button)`
   height: 48px;
@@ -361,4 +437,4 @@ const ButtonFrame = styled(Button)`
   width: calc(100% - 32px);
   border-color: #d5841b;
   background: #d5841b;
-`
+`;

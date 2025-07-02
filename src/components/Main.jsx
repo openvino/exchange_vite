@@ -147,6 +147,7 @@ export default function Main(key, setKey) {
       loading: true,
       wineryEmail: filterWinery[0].email,
       wineryRedeemEmail: filterWinery[0].email_redeem,
+      redeemDate: filterProduct[0].redeem_date,
     }));
   };
 
@@ -566,20 +567,11 @@ export default function Main(key, setKey) {
       <Header wineryId={state.wineryId}>
         <Container>
           <CardWrapper>
-            {state.tokenName !== "PDC19" &&
-            state.tokenName !== "BCN24" &&
-            state.tokenName !== "VARSI22" &&
-            state.tokenName !== "MTB25" &&
-            state.tokenName !== "TT25" ? (
-              <div>
-                <Farm onClick={openFarm}> {t("labels.farm")} </Farm>
-                <Redeem onClick={handleRedeemClick}>
-                  {t("labels.redeem")}
-                </Redeem>
-              </div>
-            ) : (
-              <></>
-            )}
+            <div>
+              <Farm onClick={openFarm}> {t("labels.farm")} </Farm>
+              <Redeem onClick={handleRedeemClick}>{t("labels.redeem")}</Redeem>
+            </div>
+
             <ImageContainer>
               <Image src={state.image} />
             </ImageContainer>

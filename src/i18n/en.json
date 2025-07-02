@@ -292,7 +292,7 @@
 		"state": "State",
 		"step1": "Step 1/2:",
 		"step2": "Step 2/2:",
-		"telegram": "Telegram ID",
+		"telegram": "Telegram ID / Phone number",
 		"timestamp": "Time",
 		"token": "Token",
 		"transfer-shipping-costs": "Transfer shipping costs",
