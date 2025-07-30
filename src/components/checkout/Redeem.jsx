@@ -21,7 +21,7 @@ import { Close } from "@styled-icons/material/Close";
 import Confetti from "react-dom-confetti";
 import CheckImage from "../shared/CheckImage";
 import RedeemForm from "../redeem/RedeemForm";
-import { Circle, CheckCircle, Award } from "@styled-icons/boxicons-regular";
+import { Circle, CheckCircle } from "@styled-icons/boxicons-regular";
 import { fetchRedeems, updateRedeem } from "../../utils/fetchRedeems";
 import { BigNumber, ethers } from "ethers";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
@@ -105,11 +105,8 @@ export default function Redeem({
       library.waitForTransaction(transactionHash).then(() => {
         setLastTransactionHash(transactionHash);
         setTransactionHash("");
-
         if (!hasBurnt) {
           setHasBurnt(true);
-        } else if (!hasPaidShipping) {
-          setHasPaidShipping(true);
         }
       });
     }
@@ -165,7 +162,7 @@ export default function Redeem({
       let res = await axios.get(
         `${
           import.meta.env.VITE_DASHBOARD_URL
-        }/api/routes/shippingCostsRoute?token=${state.tokenName}&province_id=${
+        }/api/routes/shippingCostsRoute?token=${"mtb18"}&province_id=${
           redeemToUpdate.province_id
         }&amount=${redeemToUpdate.amount}`
       );
@@ -515,7 +512,6 @@ export default function Redeem({
 
                   setTransactionHash(response.transactionHash);
                   setBurnTxHash(response.transactionHash);
-
                   setHasBurnt(true);
 
                   if (userForm.pickup === false) {
@@ -567,6 +563,7 @@ export default function Redeem({
                     sendEmailMessage(userForm.email, "error");
                   }
                 }}
+                onError={() => console.log("error")}
                 transaction={() =>
                   prepareContractCall({
                     contract: tokenContract,
@@ -584,7 +581,7 @@ export default function Redeem({
             )}
 
             {hasBurnt && shippingError && (
-              <button
+              <ButtonFrame
                 onClick={async () => {
                   try {
                     const redeemFilter = await getRedeems();
@@ -604,14 +601,15 @@ export default function Redeem({
                       });
 
                       setHasPaidShipping(true);
+                      sendEmailMessage(userForm.email, "sucess");
                     }
                   } catch (error) {
                     console.log(error);
                   }
                 }}
-              >
-                {t("redeem.try-again")}{" "}
-              </button>
+                text={t("redeem.try-again")}
+
+              />
             )}
 
             <Back disabled={!!pending}>

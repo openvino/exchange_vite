@@ -136,7 +136,9 @@
 		"wind-speed": "Vitesse du vent"
 	},
 	"redeem": {
+		"try_again" : "Essayez de nouveau",
 		"address": "Ethereum Address",
+		"pay_now" : "Payer maintenant",
 		"amount": "Quantité",
 		"burn": "Burn",
 		"city": "City",

@@ -140,7 +140,9 @@
 		"wind-speed": "Velocidad del viento"
 	},
 	"redeem": {
+		"try_again": "Intentar de nuevo",
 		"address": "Direcciónn Ethereum",
+		"pay_now" : "Pagar ahora",
 		"amount": "Cantidad",
 		"burn": "Quemar",
 		"city": "Ciudad",

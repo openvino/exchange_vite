@@ -4,13 +4,10 @@ import Select from "react-select";
 import { useAppContext } from "../../context";
 import Button from "../shared/Button";
 import { useTranslation } from "react-i18next";
-import { ethers } from "ethers";
-import { client } from "../../config/thirdwebClient";
 import { useActiveAccount } from "thirdweb/react";
 import { amountFormatter, USDToEth } from "../../utils";
 import axios from "axios";
 import { fetchCountries } from "../../utils/fetchCountries";
-import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { BigNumber } from "ethers";
 import { signMessage } from "thirdweb/utils";
 const bot = "beep-boop";
@@ -23,9 +20,6 @@ const zip = "zip";
 const country = "country";
 const email = "email";
 const address = "address";
-const timestamp = "timestamp";
-const numberBurned = "number-burned";
-const signature = "signature";
 const telegram = "telegram";
 const pickup = "pickup";
 
@@ -55,15 +49,7 @@ const defaultState = {
   [pickup]: false,
 };
 
-/* // mapping from field to google maps return value
-const addressMapping = [
-  { [line1]: 'street_address' },
-  { [city]: 'sublocality' },
-  { [state]: 'administrative_area_level_1' },
-  { [zip]: 'postal_code' },
-  { [country]: 'country' }
-]
- */
+
 export default function RedeemForm({
   USDExchangeRateETH,
   shippingCost,
@@ -112,7 +98,7 @@ export default function RedeemForm({
         `${
           import.meta.env.VITE_DASHBOARD_URL
         }/api/routes/shippingCostsRoute?token=${
-          appState.tokenName
+          'mtb18'
         }&province_id=${state}&amount=${amount}`
       );
       if (res.data) {

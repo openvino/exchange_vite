@@ -139,7 +139,9 @@
 		"wind-speed": "Wind Speed"
 	},
 	"redeem": {
+		"try_again": "Try Again",
 		"address": "Ethereum Address",
+		"pay_now" : "Pay Now",
 		"amount": "Amount",
 		"burn": "Burn",
 		"city": "City",
