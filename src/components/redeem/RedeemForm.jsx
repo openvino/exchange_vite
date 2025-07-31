@@ -98,7 +98,7 @@ export default function RedeemForm({
         `${
           import.meta.env.VITE_DASHBOARD_URL
         }/api/routes/shippingCostsRoute?token=${
-          'mtb18'
+          appState.tokenName
         }&province_id=${state}&amount=${amount}`
       );
       if (res.data) {

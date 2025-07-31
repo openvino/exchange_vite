@@ -162,7 +162,7 @@ export default function Redeem({
       let res = await axios.get(
         `${
           import.meta.env.VITE_DASHBOARD_URL
-        }/api/routes/shippingCostsRoute?token=${"mtb18"}&province_id=${
+        }/api/routes/shippingCostsRoute?token=${state.tokenName}&province_id=${
           redeemToUpdate.province_id
         }&amount=${redeemToUpdate.amount}`
       );
