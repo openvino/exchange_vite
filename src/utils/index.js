@@ -92,8 +92,6 @@ export function getProviderOrSigner(library, account) {
 
 // account is optional
 export function getContract(address, ABI, library, account) {
-	// console.log(address, ABI, library, account);
-
 	if (!isAddress(address) || address === ethers.constants.AddressZero) {
 		throw Error(`Invalid 'address' parameter '${address}'.`);
 	}
@@ -103,14 +101,11 @@ export function getContract(address, ABI, library, account) {
 		ABI,
 		getProviderOrSigner(library, account)
 	);
-	// console.log(contractObject);
 
 	return contractObject;
 }
 
 export function getTokenContract(tokenAddress, library, account) {
-	// console.log(tokenAddress, library, account);
-
 	return getContract(tokenAddress, ERC20_ABI, library, account);
 }
 
@@ -136,8 +131,6 @@ export function getRouterContract(library, account) {
 }
 
 export function getExchangeContract(exchangeAddress, library, account) {
-	// console.log(exchangeAddress, library, account);
-
 	return getContract(exchangeAddress, EXCHANGE_ABI, library, account);
 }
 
@@ -286,16 +279,12 @@ export function calculateEtherTokenOutputFromInput(
 	return numerator.div(denominator);
 }
 
-
 export function calculateEtherTokenInputFromOutput(
 	outputAmount,
 	inputReserve,
 	outputReserve
 ) {
-	// console.log(inputReserve, outputReserve, outputAmount);
-
 	if (!inputReserve || !outputReserve || !outputAmount) {
-		// console.log("One or more inputs are null or undefined.");
 		return;
 	}
 

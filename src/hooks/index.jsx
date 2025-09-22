@@ -1,4 +1,4 @@
-import{ useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { client } from "../config/thirdwebClient";
 import { useActiveAccount } from "thirdweb/react";
 import {
@@ -18,13 +18,13 @@ import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import debounce from "lodash.debounce";
 import { getPairAddressFromTokenAddress } from "../utils/whitelistedPools";
 import { base, baseSepolia } from "thirdweb/chains";
- const getChain = () => {
-  const productionMode = import.meta.env.VITE_DEV_MODE === "production";
-  if (productionMode) {
-	return base;
-  } else {
-	return baseSepolia;
-  }
+const getChain = () => {
+	const productionMode = import.meta.env.VITE_DEV_MODE === "production";
+	if (productionMode) {
+		return base;
+	} else {
+		return baseSepolia;
+	}
 };
 
 const library = ethers5Adapter.provider.toEthers({
@@ -199,7 +199,6 @@ export function useContracts(
 			if (!isAddress(tokenAddress)) return;
 
 			try {
-				// console.log("📡 Fetching contracts...");
 				const library = ethers5Adapter.provider.toEthers({
 					client,
 					chain: getChain(),
@@ -254,7 +253,7 @@ export function useContracts(
 					crowdsaleContract: crowdsale ?? prevContracts.crowdsaleContract,
 				}));
 			} catch (error) {
-				console.error("❌ Error obteniendo contratos:", error);
+				console.error("Error obteniendo contratos:", error);
 			}
 		}, 1000),
 		[tokenAddress, crowdsaleAddress, withSignerIfPossible, account?.address]
@@ -533,8 +532,6 @@ export function useTokenCap(contract) {
 
 	return tokenCap && Math.round(Number(ethers.utils.formatEther(tokenCap)));
 }
-
-
 
 export function useTokenName(contract) {
 	const [tokenName, setTokenName] = useState(null);

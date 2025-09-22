@@ -141,7 +141,7 @@
 	"redeem": {
 		"try_again": "Try Again",
 		"address": "Ethereum Address",
-		"pay_now" : "Pay Now",
+		"pay_now": "Pay Now",
 		"amount": "Amount",
 		"burn": "Burn",
 		"city": "City",
@@ -555,5 +555,6 @@
 		"search": "Search for your winery here",
 		"title": "Wineries",
 		"visit-winery": "Visit winery"
-	}
+	},
+	"TEMP_NOT_AVAILABLE": "Temporarily not available"
 }

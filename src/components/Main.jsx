@@ -10,40 +10,40 @@ import { client } from "../config/thirdwebClient";
 import { base, baseSepolia } from "thirdweb/chains";
 import styles from "./Header/Header.module.css";
 import {
-  TOKEN_SYMBOLS,
-  TRADE_TYPES,
-  getExchangeRate,
-  calculateGasMargin,
-  amountFormatter,
+	TOKEN_SYMBOLS,
+	TRADE_TYPES,
+	getExchangeRate,
+	calculateGasMargin,
+	amountFormatter,
 } from "../utils";
 import {
-  validateBuyHelper,
-  validateCrowdsaleHelper,
-  validateSellHelper,
+	validateBuyHelper,
+	validateCrowdsaleHelper,
+	validateSellHelper,
 } from "../utils/checkout-utils";
 import {
-  useAddressAllowance,
-  useRouterAllowance,
-  useTokenSupply,
-  useTokenCap,
-  useReserves,
+	useAddressAllowance,
+	useRouterAllowance,
+	useTokenSupply,
+	useTokenCap,
+	useReserves,
 } from "../hooks";
 import Farming from "./farming/Farming";
 import { fetchPrice } from "../utils/fetchPrice";
 import {
-  CardWrapper,
-  Container,
-  CurrentPrice,
-  Farm,
-  Image,
-  ImageContainer,
-  InfoIcon,
-  MarketData,
-  Redeem,
-  Title,
-  TokenIcon,
-  TokenIconContainer,
-  TokenIconText,
+	CardWrapper,
+	Container,
+	CurrentPrice,
+	Farm,
+	Image,
+	ImageContainer,
+	InfoIcon,
+	MarketData,
+	Redeem,
+	Title,
+	TokenIcon,
+	TokenIconContainer,
+	TokenIconText,
 } from "../styles";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { useParams } from "react-router-dom";
@@ -56,666 +56,678 @@ import { useContracts } from "../hooks";
 import Countdown from "./countdown/Countdown";
 import { getTokenImageUrl } from "../utils/getStaticImages";
 import { useRef } from "react";
+import { getPairAddressFromTokenAddress } from "../utils/whitelistedPools";
 
 export const getChain = () => {
-  const productionMode = import.meta.env.VITE_DEV_MODE === "production";
-  if (productionMode) {
-    return base;
-  } else {
-    return baseSepolia;
-  }
+	const productionMode = import.meta.env.VITE_DEV_MODE === "production";
+	if (productionMode) {
+		return base;
+	} else {
+		return baseSepolia;
+	}
 };
 
 export default function Main(key, setKey) {
-  const library = useMemo(() => {
-    return ethers5Adapter.provider.toEthers({
-      client,
-      chain: getChain(),
-    });
-  }, [client]);
-  // selected token
-  const [selectedTokenSymbol, setSelectedTokenSymbol] = useState(
-    TOKEN_SYMBOLS.ETH
-  );
-  const [USDExchangeRateETH, setUSDExchangeRateETH] = useState();
-  const [USDExchangeRateSelectedToken, setUSDExchangeRateSelectedToken] =
-    useState();
+	const library = useMemo(() => {
+		return ethers5Adapter.provider.toEthers({
+			client,
+			chain: getChain(),
+		});
+	}, [client]);
+	// selected token
+	const [selectedTokenSymbol, setSelectedTokenSymbol] = useState(
+		TOKEN_SYMBOLS.ETH
+	);
+	const [USDExchangeRateETH, setUSDExchangeRateETH] = useState();
+	const [USDExchangeRateSelectedToken, setUSDExchangeRateSelectedToken] =
+		useState();
 
-  const [loadingPrice, setLoadingPrice] = useState(false);
-  const priceRef = useRef(null);
-  const account = useActiveAccount();
-  const { wineryId, productId } = useParams();
-  const [state, setState] = useAppContext();
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const {
-    tokenContractWINES,
-    exchangeContractSelectedToken,
-    routerContract,
-    pairMTBwETH,
-    crowdsaleContract,
-  } = useContracts(state?.tokenAddress, state?.crowdsaleAddress);
+	const [loadingPrice, setLoadingPrice] = useState(false);
+	const priceRef = useRef(null);
+	const account = useActiveAccount();
+	const { wineryId, productId } = useParams();
+	const [state, setState] = useAppContext();
+	const [refreshTrigger, setRefreshTrigger] = useState(0);
+	// estado para controlar el loader temporal
+	const [showLoadingTimed, setShowLoadingTimed] = useState(false);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    setState((state) => ({ ...state, visible: false }));
-  }, []);
+	const {
+		tokenContractWINES,
+		exchangeContractSelectedToken,
+		routerContract,
+		pairMTBwETH,
+		crowdsaleContract,
+	} = useContracts(state?.tokenAddress, state?.crowdsaleAddress);
+	useEffect(() => {
+		if (state?.pairNotInitialized) {
+			setShowLoadingTimed(true);
+			const timer = setTimeout(() => {
+				setShowLoadingTimed(false);
+			}, 5000);
 
-  useEffect(() => {
-    // Si el precio es válido, ocultar el loader
-    if (priceRef.current && priceRef.current !== "~<0") {
-      setLoadingPrice(false);
-    }
+			return () => clearTimeout(timer);
+		}
+	}, [state?.pairNotInitialized]);
+	useEffect(() => {
+		window.scrollTo(0, 0);
+		setState((state) => ({ ...state, visible: false }));
+	}, []);
 
-    // Si el precio es "~<0", forzar un re-render
-    if (priceRef.current === "~<0") {
-      setKey((prevKey) => prevKey + 1);
-    }
-  }, [state.validationState, dollarize(state?.validationState)]);
-  const getProductList = async () => {
-    const productsWineries = await axiosClient.get("/token", {
-      params: { winerie_id: wineryId },
-    });
+	useEffect(() => {
+		// Si el precio es válido, ocultar el loader
+		if (priceRef.current && priceRef.current !== "~<0") {
+			setLoadingPrice(false);
+		}
 
-    const winerie = await axiosClient.get("/wineries");
+		// Si el precio es "~<0", forzar un re-render
+		if (priceRef.current === "~<0") {
+			setKey((prevKey) => prevKey + 1);
+		}
+	}, [state.validationState, dollarize(state?.validationState)]);
+	const getProductList = async () => {
+		const productsWineries = await axiosClient.get("/token", {
+			params: { winerie_id: wineryId },
+		});
 
-    const filterWinery = winerie.data.filter(
-      (winerie) => winerie.ID === wineryId
-    );
+		const winerie = await axiosClient.get("/wineries");
 
-    const filterProduct = productsWineries.data.filter(
-      (product) => product.id === productId
-    );
+		const filterWinery = winerie.data.filter(
+			(winerie) => winerie.ID === wineryId
+		);
 
-    const { bottleUrl, imageUrl, tokenUrl } = getTokenImageUrl(
-      filterProduct[0].id.toLowerCase(),
-      filterProduct[0].WinerieID.toLowerCase()
-    );
+		const filterProduct = productsWineries.data.filter(
+			(product) => product.id === productId
+		);
 
-    setState((prevState) => ({
-      ...prevState,
-      apiUrl: import.meta.env.VITE_APIURL,
-      crowdsaleAddress: filterProduct[0].crow_sale_address,
-      wineryId: filterProduct[0].WinerieID,
-      tokenAddress: filterProduct[0].token_address,
-      image: bottleUrl,
-      tokenYear: filterProduct[0].year.toString(),
-      tokenName: filterProduct[0].id,
-      tokenIcon: tokenUrl,
-      title: "Token",
-      shippingAccount: filterProduct[0].shipping_account,
-      validationState: undefined,
-      loading: true,
-      wineryEmail: filterWinery[0].email,
-      wineryRedeemEmail: filterWinery[0].email_redeem,
-      redeemDate: filterProduct[0].redeem_date,
-    }));
-  };
+		const { bottleUrl, imageUrl, tokenUrl } = getTokenImageUrl(
+			filterProduct[0].id.toLowerCase(),
+			filterProduct[0].WinerieID.toLowerCase()
+		);
 
-  useEffect(() => {
-    setUSDExchangeRateETH(undefined);
-    setUSDExchangeRateSelectedToken(undefined);
-    setDollarPrice(undefined);
-    getProductList();
-  }, [productId, wineryId]);
+		const pairAddr = getPairAddressFromTokenAddress(
+			filterProduct[0].token_address
+		);
 
-  const [showFarming, setShowFarming] = useState(false);
+		console.log("PAIR: ", pairAddr);
 
-  // get balances
-  const {
-    balanceETH,
-    balanceWINES,
-    balanceSelectedToken,
-    reserveDAIETH,
-    reserveDAIToken,
-    reserveSelectedTokenETH,
-    reserveSelectedTokenToken,
-  } = useAllBalances(
-    account?.address,
-    state?.tokenAddress,
-    selectedTokenSymbol,
-    refreshTrigger
-  );
+		setState((prevState) => ({
+			...prevState,
+			apiUrl: import.meta.env.VITE_APIURL,
+			crowdsaleAddress: filterProduct[0].crow_sale_address,
+			wineryId: filterProduct[0].WinerieID,
+			tokenAddress: filterProduct[0].token_address,
+			image: bottleUrl,
+			tokenYear: filterProduct[0].year.toString(),
+			tokenName: filterProduct[0].id,
+			tokenIcon: tokenUrl,
+			title: "Token",
+			shippingAccount: filterProduct[0].shipping_account,
+			validationState: undefined,
+			loading: true,
+			wineryEmail: filterWinery[0].email,
+			wineryRedeemEmail: filterWinery[0].email_redeem,
+			redeemDate: filterProduct[0].redeem_date,
+			pairNotInitialized: pairAddr ? false : true,
+		}));
+	};
 
-  // tokenSupply
-  const tokenSupply = useTokenSupply(tokenContractWINES);
+	useEffect(() => {
+		setUSDExchangeRateETH(undefined);
+		setUSDExchangeRateSelectedToken(undefined);
+		setDollarPrice(undefined);
+		getProductList();
+	}, [productId, wineryId]);
 
-  // token cap
-  const tokenCap = useTokenCap(tokenContractWINES);
+	const [showFarming, setShowFarming] = useState(false);
 
-  // get allowances
-  const allowanceWINES = useAddressAllowance(
-    account?.address,
-    state?.tokenAddress,
-    routerContract && routerContract.address,
-    refreshTrigger
-  );
+	// get balances
+	const {
+		balanceETH,
+		balanceWINES,
+		balanceSelectedToken,
+		reserveDAIETH,
+		reserveDAIToken,
+		reserveSelectedTokenETH,
+		reserveSelectedTokenToken,
+	} = useAllBalances(
+		account?.address,
+		state?.tokenAddress,
+		selectedTokenSymbol,
+		refreshTrigger
+	);
 
-  const allowanceSelectedToken = useRouterAllowance(
-    account?.address,
-    state?.tokenAddress,
-    refreshTrigger
-  );
+	// tokenSupply
+	const tokenSupply = useTokenSupply(tokenContractWINES);
 
-  const { reserves, token0, token1 } = useReserves(pairMTBwETH);
+	// token cap
+	const tokenCap = useTokenCap(tokenContractWINES);
 
-  const reserveWINESETH =
-    token0 === import.meta.env.VITE_WETH_ADDRESS
-      ? reserves.reserve0
-      : reserves.reserve1;
-  const reserveWINESToken =
-    token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
+	// get allowances
+	const allowanceWINES = useAddressAllowance(
+		account?.address,
+		state?.tokenAddress,
+		routerContract && routerContract.address,
+		refreshTrigger
+	);
 
-  useEffect(() => {
-    const fetchPriceAndSetState = async () => {
-      try {
-        const usdPrice = await fetchPrice();
-        const formatedUsdPrice = usdPrice.split(".")[0];
-        const exchangeRateDAI = getExchangeRate(
-          BigNumber.from(1),
-          BigNumber.from(Number(formatedUsdPrice))
-        );
+	const allowanceSelectedToken = useRouterAllowance(
+		account?.address,
+		state?.tokenAddress,
+		refreshTrigger
+	);
 
-        if (selectedTokenSymbol === TOKEN_SYMBOLS.ETH) {
-          setUSDExchangeRateETH(exchangeRateDAI);
-        } else {
-          const exchangeRateSelectedToken = getExchangeRate(
-            reserveSelectedTokenETH,
-            reserveSelectedTokenToken
-          );
-          if (exchangeRateDAI && exchangeRateSelectedToken) {
-            setUSDExchangeRateSelectedToken(
-              exchangeRateDAI
-                .mul(BigNumber.from(10).pow(BigNumber.from(18)))
-                .div(exchangeRateSelectedToken)
-            );
-          }
-        }
-      } catch (error) {
-        console.log(error);
-        setUSDExchangeRateETH();
-        setUSDExchangeRateSelectedToken();
-      }
-    };
+	const { reserves, token0, token1 } = useReserves(pairMTBwETH);
 
-    fetchPriceAndSetState();
-  }, [
-    reserveDAIETH,
-    reserveDAIToken,
-    reserveSelectedTokenETH,
-    reserveSelectedTokenToken,
-    selectedTokenSymbol,
-  ]);
+	const reserveWINESETH =
+		token0 === import.meta.env.VITE_WETH_ADDRESS
+			? reserves.reserve0
+			: reserves.reserve1;
+	const reserveWINESToken =
+		token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
 
-  let [isCrowdsale, setCrowdsale] = useState();
+	useEffect(() => {
+		const fetchPriceAndSetState = async () => {
+			try {
+				const usdPrice = await fetchPrice();
+				const formatedUsdPrice = usdPrice.split(".")[0];
+				const exchangeRateDAI = getExchangeRate(
+					BigNumber.from(1),
+					BigNumber.from(Number(formatedUsdPrice))
+				);
 
-  useEffect(() => {
-    const checkCrowdsaleStatus = async () => {
-      try {
-        if (!crowdsaleContract || state.crowdsaleAddress === "") {
-          setCrowdsale(false);
-          return;
-        }
+				if (selectedTokenSymbol === TOKEN_SYMBOLS.ETH) {
+					setUSDExchangeRateETH(exchangeRateDAI);
+				} else {
+					const exchangeRateSelectedToken = getExchangeRate(
+						reserveSelectedTokenETH,
+						reserveSelectedTokenToken
+					);
+					if (exchangeRateDAI && exchangeRateSelectedToken) {
+						setUSDExchangeRateSelectedToken(
+							exchangeRateDAI
+								.mul(BigNumber.from(10).pow(BigNumber.from(18)))
+								.div(exchangeRateSelectedToken)
+						);
+					}
+				}
+			} catch (error) {
+				console.log(error);
+				setUSDExchangeRateETH();
+				setUSDExchangeRateSelectedToken();
+			}
+		};
 
-        const open = await crowdsaleContract.isOpen();
-        setCrowdsale(open);
-      } catch (error) {
-        console.error("Error al consultar isOpen:", error);
-        setCrowdsale(false);
-      }
-    };
+		fetchPriceAndSetState();
+	}, [
+		reserveDAIETH,
+		reserveDAIToken,
+		reserveSelectedTokenETH,
+		reserveSelectedTokenToken,
+		selectedTokenSymbol,
+	]);
 
-    checkCrowdsaleStatus();
-  }, [crowdsaleContract, state.crowdsaleAddress]);
+	let [isCrowdsale, setCrowdsale] = useState();
 
-  const [crowdsaleExchangeRateETH, setCrowdsaleExchangeRateETH] = useState(0);
-  const [crowdsaleExchangeRateUSD, setCrowdsaleExchangeRateUSD] = useState(0);
+	useEffect(() => {
+		const checkCrowdsaleStatus = async () => {
+			try {
+				if (!crowdsaleContract || state.crowdsaleAddress === "") {
+					setCrowdsale(false);
+					return;
+				}
 
-  //Crowdsale price
-  useEffect(() => {
-    if (!crowdsaleContract || !USDExchangeRateETH) return;
+				const open = await crowdsaleContract.isOpen();
+				setCrowdsale(open);
+			} catch (error) {
+				console.error("Error al consultar isOpen:", error);
+				setCrowdsale(false);
+			}
+		};
 
-    try {
-      crowdsaleContract
-        .getRate()
-        .then((rate) => {
-          const exchangeRateETH = rate.mul(
-            BigNumber.from(10).pow(BigNumber.from(18))
-          );
-          setCrowdsaleExchangeRateETH(exchangeRateETH);
+		checkCrowdsaleStatus();
+	}, [crowdsaleContract, state.crowdsaleAddress]);
 
-          const exchangeRateUSD = USDExchangeRateETH.mul(
-            BigNumber.from(10).pow(BigNumber.from(18))
-          ).div(exchangeRateETH);
-          setCrowdsaleExchangeRateUSD(exchangeRateUSD);
-        })
+	const [crowdsaleExchangeRateETH, setCrowdsaleExchangeRateETH] = useState(0);
+	const [crowdsaleExchangeRateUSD, setCrowdsaleExchangeRateUSD] = useState(0);
 
-        .catch((error) => {
-          console.error("Error al obtener el rate:", error);
-          setCrowdsaleExchangeRateETH();
-          setCrowdsaleExchangeRateUSD();
-        });
-    } catch (error) {
-      console.error("Error inesperado:", error);
-      setCrowdsaleExchangeRateETH();
-      setCrowdsaleExchangeRateUSD();
-    }
-  }, [crowdsaleContract, USDExchangeRateETH]);
+	//Crowdsale price
+	useEffect(() => {
+		if (!crowdsaleContract || !USDExchangeRateETH) return;
 
-  const ready = !!(
-    (isCrowdsale && tokenSupply > 6) ||
-    (!isCrowdsale &&
-      (account?.address === null || allowanceWINES) &&
-      (selectedTokenSymbol === "ETH" ||
-        account?.address === null ||
-        allowanceSelectedToken) &&
-      (account?.address === null || balanceETH) &&
-      (account?.address === null || balanceWINES) &&
-      (account?.address === null || balanceSelectedToken) &&
-      reserveWINESETH &&
-      reserveWINESToken &&
-      (selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
-      (selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
-      selectedTokenSymbol &&
-      (USDExchangeRateETH || USDExchangeRateSelectedToken))
-  );
+		try {
+			crowdsaleContract
+				.getRate()
+				.then((rate) => {
+					const exchangeRateETH = rate.mul(
+						BigNumber.from(10).pow(BigNumber.from(18))
+					);
+					setCrowdsaleExchangeRateETH(exchangeRateETH);
 
-  function _dollarize(amount, exchangeRate) {
-    if (exchangeRate) {
-      return amount
-        ?.mul(exchangeRate)
-        .div(BigNumber.from(10).pow(BigNumber.from(18)));
-    }
+					const exchangeRateUSD = USDExchangeRateETH.mul(
+						BigNumber.from(10).pow(BigNumber.from(18))
+					).div(exchangeRateETH);
+					setCrowdsaleExchangeRateUSD(exchangeRateUSD);
+				})
 
-    return BigNumber.from(0);
-  }
+				.catch((error) => {
+					console.error("Error al obtener el rate:", error);
+					setCrowdsaleExchangeRateETH();
+					setCrowdsaleExchangeRateUSD();
+				});
+		} catch (error) {
+			console.error("Error inesperado:", error);
+			setCrowdsaleExchangeRateETH();
+			setCrowdsaleExchangeRateUSD();
+		}
+	}, [crowdsaleContract, USDExchangeRateETH]);
 
-  function dollarize(amount) {
-    return _dollarize(
-      amount,
-      selectedTokenSymbol === TOKEN_SYMBOLS.ETH
-        ? USDExchangeRateETH
-        : USDExchangeRateSelectedToken
-    );
-  }
+	const ready = !!(
+		(isCrowdsale && tokenSupply > 6) ||
+		(!isCrowdsale &&
+			(account?.address === null || allowanceWINES) &&
+			(selectedTokenSymbol === "ETH" ||
+				account?.address === null ||
+				allowanceSelectedToken) &&
+			(account?.address === null || balanceETH) &&
+			(account?.address === null || balanceWINES) &&
+			(account?.address === null || balanceSelectedToken) &&
+			reserveWINESETH &&
+			reserveWINESToken &&
+			(selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
+			(selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
+			selectedTokenSymbol &&
+			(USDExchangeRateETH || USDExchangeRateSelectedToken))
+	);
 
-  const [dollarPrice, setDollarPrice] = useState();
+	function _dollarize(amount, exchangeRate) {
+		if (exchangeRate) {
+			return amount
+				?.mul(exchangeRate)
+				.div(BigNumber.from(10).pow(BigNumber.from(18)));
+		}
 
-  //Pool price
-  useEffect(() => {
-    if (USDExchangeRateETH && reserveWINESETH && reserveWINESToken) {
-      try {
-        setLoadingPrice(true);
-        const WINESExchangeRateETH = getExchangeRate(
-          reserveWINESToken,
-          reserveWINESETH
-        );
-        setDollarPrice(
-          WINESExchangeRateETH.mul(USDExchangeRateETH).div(
-            BigNumber.from(10).pow(BigNumber.from(18))
-          )
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }, [USDExchangeRateETH, reserveWINESETH, reserveWINESToken]);
+		return BigNumber.from(0);
+	}
 
-  useEffect(() => {
-    if (typeof state.validationState !== "undefined") setLoadingPrice(false);
-  }, [state.validationState]);
-  async function unlock(buyingWINES = true) {
-    const contract = buyingWINES
-      ? tokenContractSelectedToken
-      : tokenContractWINES;
-    const spenderAddress = buyingWINES
-      ? exchangeContractSelectedToken.address
-      : routerContract.address;
+	function dollarize(amount) {
+		return _dollarize(
+			amount,
+			selectedTokenSymbol === TOKEN_SYMBOLS.ETH
+				? USDExchangeRateETH
+				: USDExchangeRateSelectedToken
+		);
+	}
 
-    console.log(
-      "Unlocking...",
-      tokenContractSelectedToken,
-      tokenContractWINES,
-      contract
-    );
-    const estimatedGasLimit = await contract.estimateGas.approve(
-      spenderAddress,
-      ethers.constants.MaxUint256
-    );
+	const [dollarPrice, setDollarPrice] = useState();
 
-    const estimatedGasPrice = await library
-      .getGasPrice()
-      .then((gasPrice) =>
-        gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
-      );
+	//Pool price
+	useEffect(() => {
+		if (USDExchangeRateETH && reserveWINESETH && reserveWINESToken) {
+			try {
+				setLoadingPrice(true);
+				const WINESExchangeRateETH = getExchangeRate(
+					reserveWINESToken,
+					reserveWINESETH
+				);
+				setDollarPrice(
+					WINESExchangeRateETH.mul(USDExchangeRateETH).div(
+						BigNumber.from(10).pow(BigNumber.from(18))
+					)
+				);
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	}, [USDExchangeRateETH, reserveWINESETH, reserveWINESToken]);
 
-    return contract.approve(spenderAddress, ethers.constants.MaxUint256, {
-      gasLimit: calculateGasMargin(estimatedGasLimit),
-      gasPrice: estimatedGasPrice,
-    });
-  }
+	useEffect(() => {
+		if (typeof state.validationState !== "undefined") setLoadingPrice(false);
+	}, [state.validationState]);
+	async function unlock(buyingWINES = true) {
+		const contract = buyingWINES
+			? tokenContractSelectedToken
+			: tokenContractWINES;
+		const spenderAddress = buyingWINES
+			? exchangeContractSelectedToken.address
+			: routerContract.address;
 
-  // buy functionality
-  const validateBuy = useCallback(
-    (numberOfWINES) => {
-      return validateBuyHelper(
-        numberOfWINES,
-        allowanceSelectedToken,
-        balanceETH,
-        balanceSelectedToken,
-        reserveWINESETH,
-        reserveWINESToken,
-        reserveSelectedTokenETH,
-        reserveSelectedTokenToken,
-        selectedTokenSymbol
-      );
-    },
-    [
-      allowanceSelectedToken,
-      balanceETH,
-      balanceSelectedToken,
-      reserveWINESETH,
-      reserveWINESToken,
-      reserveSelectedTokenETH,
-      reserveSelectedTokenToken,
-      selectedTokenSymbol,
-      refreshTrigger,
-    ]
-  );
+		console.log(
+			"Unlocking...",
+			tokenContractSelectedToken,
+			tokenContractWINES,
+			contract
+		);
+		const estimatedGasLimit = await contract.estimateGas.approve(
+			spenderAddress,
+			ethers.constants.MaxUint256
+		);
 
-  // crowdsale functionality
-  const validateCrowdsale = useCallback(
-    (numberOfWINES) => {
-      return validateCrowdsaleHelper(
-        numberOfWINES,
-        allowanceSelectedToken,
-        balanceETH,
-        balanceSelectedToken,
-        crowdsaleExchangeRateETH,
-        selectedTokenSymbol,
-        USDExchangeRateETH
-      );
-    },
-    [
-      allowanceSelectedToken,
-      balanceETH,
-      balanceSelectedToken,
-      crowdsaleExchangeRateETH,
-      selectedTokenSymbol,
-      USDExchangeRateETH,
-    ]
-  );
+		const estimatedGasPrice = await library
+			.getGasPrice()
+			.then((gasPrice) =>
+				gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
+			);
 
-  // sell functionality
-  const validateSell = useCallback(
-    (numberOfWINES) => {
-      return validateSellHelper(
-        numberOfWINES,
-        allowanceWINES,
-        balanceETH,
-        balanceWINES,
-        reserveWINESETH,
-        reserveWINESToken,
-        reserveSelectedTokenETH,
-        reserveSelectedTokenToken,
-        selectedTokenSymbol
-      );
-    },
-    [
-      allowanceWINES,
-      balanceETH,
-      balanceWINES,
-      reserveWINESETH,
-      reserveWINESToken,
-      reserveSelectedTokenETH,
-      reserveSelectedTokenToken,
-      selectedTokenSymbol,
-      refreshTrigger,
-      state.count,
-    ]
-  );
+		return contract.approve(spenderAddress, ethers.constants.MaxUint256, {
+			gasLimit: calculateGasMargin(estimatedGasLimit),
+			gasPrice: estimatedGasPrice,
+		});
+	}
 
-  async function transferShippingCosts(amount) {
-    let signer = await ethers5Adapter.signer.toEthers({
-      chain: getChain(),
-      client,
-      account,
-    });
+	// buy functionality
+	const validateBuy = useCallback(
+		(numberOfWINES) => {
+			return validateBuyHelper(
+				numberOfWINES,
+				allowanceSelectedToken,
+				balanceETH,
+				balanceSelectedToken,
+				reserveWINESETH,
+				reserveWINESToken,
+				reserveSelectedTokenETH,
+				reserveSelectedTokenToken,
+				selectedTokenSymbol
+			);
+		},
+		[
+			allowanceSelectedToken,
+			balanceETH,
+			balanceSelectedToken,
+			reserveWINESETH,
+			reserveWINESToken,
+			reserveSelectedTokenETH,
+			reserveSelectedTokenToken,
+			selectedTokenSymbol,
+			refreshTrigger,
+		]
+	);
 
-    return signer.sendTransaction({
-      to: ethers.utils.getAddress(import.meta.env.VITE_SHIPPING_ADDRESS),
-      value: amount,
-    });
-  }
+	// crowdsale functionality
+	const validateCrowdsale = useCallback(
+		(numberOfWINES) => {
+			return validateCrowdsaleHelper(
+				numberOfWINES,
+				allowanceSelectedToken,
+				balanceETH,
+				balanceSelectedToken,
+				crowdsaleExchangeRateETH,
+				selectedTokenSymbol,
+				USDExchangeRateETH
+			);
+		},
+		[
+			allowanceSelectedToken,
+			balanceETH,
+			balanceSelectedToken,
+			crowdsaleExchangeRateETH,
+			selectedTokenSymbol,
+			USDExchangeRateETH,
+		]
+	);
 
-  async function burn(amount) {
-    const parsedAmount = ethers.utils.parseUnits(amount, 18);
+	// sell functionality
+	const validateSell = useCallback(
+		(numberOfWINES) => {
+			return validateSellHelper(
+				numberOfWINES,
+				allowanceWINES,
+				balanceETH,
+				balanceWINES,
+				reserveWINESETH,
+				reserveWINESToken,
+				reserveSelectedTokenETH,
+				reserveSelectedTokenToken,
+				selectedTokenSymbol
+			);
+		},
+		[
+			allowanceWINES,
+			balanceETH,
+			balanceWINES,
+			reserveWINESETH,
+			reserveWINESToken,
+			reserveSelectedTokenETH,
+			reserveSelectedTokenToken,
+			selectedTokenSymbol,
+			refreshTrigger,
+			state.count,
+		]
+	);
 
-    const estimatedGasPrice = await library
-      .getGasPrice()
-      .then((gasPrice) =>
-        gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
-      );
+	async function transferShippingCosts(amount) {
+		let signer = await ethers5Adapter.signer.toEthers({
+			chain: getChain(),
+			client,
+			account,
+		});
 
-    const estimatedGasLimit = await tokenContractWINES.estimate.burn(
-      parsedAmount
-    );
+		return signer.sendTransaction({
+			to: ethers.utils.getAddress(import.meta.env.VITE_SHIPPING_ADDRESS),
+			value: amount,
+		});
+	}
 
-    return tokenContractWINES.burn(parsedAmount, {
-      gasLimit: calculateGasMargin(estimatedGasLimit),
-      gasPrice: estimatedGasPrice,
-    });
-  }
+	async function burn(amount) {
+		const parsedAmount = ethers.utils.parseUnits(amount, 18);
 
-  function openFarm() {
-    setShowFarming(true);
-  }
+		const estimatedGasPrice = await library
+			.getGasPrice()
+			.then((gasPrice) =>
+				gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
+			);
 
-  function handleRedeemClick() {
-    setState((state) => ({
-      ...state,
-      visible: !state.visible,
-      tradeType: TRADE_TYPES.REDEEM,
-    }));
-  }
+		const estimatedGasLimit = await tokenContractWINES.estimate.burn(
+			parsedAmount
+		);
 
-  // --------------------------------------------------------------
-  const [currentTransaction, _setCurrentTransaction] = useState({});
-  const setCurrentTransaction = useCallback((hash, type, amount) => {
-    _setCurrentTransaction({ hash, type, amount });
-  }, []);
-  const clearCurrentTransaction = useCallback(() => {
-    _setCurrentTransaction({});
-  }, []);
+		return tokenContractWINES.burn(parsedAmount, {
+			gasLimit: calculateGasMargin(estimatedGasLimit),
+			gasPrice: estimatedGasPrice,
+		});
+	}
 
-  const [showConnect, setShowConnect] = useState(false);
-  const [showWorks, setShowWorks] = useState(false);
+	function openFarm() {
+		setShowFarming(true);
+	}
 
-  const { t } = useTranslation();
-  if (!state.tokenName)
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <BeatLoader
-          color="#d68513"
-          loading={true}
-          cssOverride={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-          size={40}
-          aria-label="Loading Spinner"
-          data-testid="loader"
-        />
-      </div>
-    );
+	function handleRedeemClick() {
+		setState((state) => ({
+			...state,
+			visible: !state.visible,
+			tradeType: TRADE_TYPES.REDEEM,
+		}));
+	}
 
-  // ONE BOTTLE PRICE
+	// --------------------------------------------------------------
+	const [currentTransaction, _setCurrentTransaction] = useState({});
+	const setCurrentTransaction = useCallback((hash, type, amount) => {
+		_setCurrentTransaction({ hash, type, amount });
+	}, []);
+	const clearCurrentTransaction = useCallback(() => {
+		_setCurrentTransaction({});
+	}, []);
 
-  const { inputValue, outputValue, maximumInputValue, error } =
-    validateBuy("1");
+	const [showConnect, setShowConnect] = useState(false);
+	const [showWorks, setShowWorks] = useState(false);
 
-  const oneBottlePrice = inputValue;
+	const { t } = useTranslation();
+	if (!state.tokenName)
+		return (
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+				}}
+			>
+				<BeatLoader
+					color="#d68513"
+					loading={true}
+					cssOverride={{
+						display: "flex",
+						flexDirection: "row",
+					}}
+					size={40}
+					aria-label="Loading Spinner"
+					data-testid="loader"
+				/>
+			</div>
+		);
 
-  return (
-    <>
-      <Header wineryId={state.wineryId}>
-        <Container>
-          <CardWrapper>
-            <div>
-              <Farm onClick={openFarm}> {t("labels.farm")} </Farm>
-              <Redeem onClick={handleRedeemClick}>{t("labels.redeem")}</Redeem>
-            </div>
+	// ONE BOTTLE PRICE
 
-            <ImageContainer>
-              <Image src={state.image} />
-            </ImageContainer>
-            <MarketData>
-              <Title>
-                {state.title} ({state.tokenName}){" "}
-                <InfoIcon
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setState((state) => ({
-                      ...state,
-                      visible: !state.visible,
-                    }));
-                    setShowWorks(true);
-                  }}
-                ></InfoIcon>
-              </Title>
-              {state?.tokenName !== "VARSI22" ? (
-                <>
-                  {isCrowdsale && !loadingPrice && (
-                    <CurrentPrice>
-                      {crowdsaleExchangeRateUSD
-                        ? `$${amountFormatter(
-                            crowdsaleExchangeRateUSD,
-                            18,
-                            2
-                          )} USDC`
-                        : "$0.00"}
-                    </CurrentPrice>
-                  )}
-                  {!isCrowdsale && (
-                    // !loadingPrice &&
-                    <CurrentPrice style={{ minHeight: "30px" }}>
-                      {oneBottlePrice &&
-                      state?.validationState &&
-                      state?.validationState > 0 ? (
-                        <>
-                          {`$${amountFormatter(
-                            dollarize(oneBottlePrice),
-                            18,
-                            2
-                          )} USDC`}
-                        </>
-                      ) : (
-                        <BeatLoader
-                          color="#d68513"
-                          loading={true}
-                          cssOverride={{
-                            display: "flex",
-                            flexDirection: "row",
-                          }}
-                          size={25}
-                          aria-label="Loading Spinner"
-                          data-testid="loader"
-                        />
-                      )}
-                    </CurrentPrice>
-                  )}
-                </>
-              ) : state.tokenName === "VARSI22" ? (
-                <>
-                  <TokenIconContainer>
-                    <TokenIconText>
-                      {state?.tokenYear?.substring(2, 4)}
-                    </TokenIconText>
-                    <TokenIcon src={state.tokenIcon}></TokenIcon>
-                  </TokenIconContainer>
-                  <Countdown year={2025} month={6} day={15} />
-                </>
-              ) : (
-                <>
-                  <TokenIconContainer>
-                    <TokenIconText>
-                      {state?.tokenYear?.substring(2, 4)}
-                    </TokenIconText>
-                    <TokenIcon src={state.tokenIcon}></TokenIcon>
-                  </TokenIconContainer>
-                  <Countdown year={2025} month={6} day={1} hours={12} />
-                </>
-              )}
+	const { inputValue, outputValue, maximumInputValue, error } =
+		validateBuy("1");
 
-              {state?.tokenName !== "VARSI22" && (
-                <>
-                  <TokenIconContainer>
-                    <TokenIconText>
-                      {state?.tokenYear?.substring(2, 4)}
-                    </TokenIconText>
-                    <TokenIcon src={state.tokenIcon}></TokenIcon>
-                  </TokenIconContainer>
-                  <TradeButtons
-                    balanceWINES={balanceWINES}
-                    isCrowdsale={isCrowdsale}
-                  ></TradeButtons>
-                </>
-              )}
-            </MarketData>
-          </CardWrapper>
+	const oneBottlePrice = inputValue;
 
-          <Checkout
-            USDExchangeRateETH={USDExchangeRateETH}
-            crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
-            transferShippingCosts={transferShippingCosts}
-            tokenSupply={tokenSupply}
-            tokenCap={tokenCap}
-            selectedTokenSymbol={selectedTokenSymbol}
-            setSelectedTokenSymbol={setSelectedTokenSymbol}
-            ready={ready}
-            unlock={unlock}
-            validateBuy={validateBuy}
-            validateSell={validateSell}
-            validateCrowdsale={validateCrowdsale}
-            burn={burn}
-            balanceWINES={balanceWINES}
-            dollarPrice={dollarPrice}
-            reserveWINESToken={reserveWINESToken}
-            dollarize={dollarize}
-            showConnect={showConnect}
-            setShowConnect={setShowConnect}
-            currentTransactionHash={currentTransaction.hash}
-            currentTransactionType={currentTransaction.type}
-            currentTransactionAmount={currentTransaction.amount}
-            setCurrentTransaction={setCurrentTransaction}
-            clearCurrentTransaction={clearCurrentTransaction}
-            showWorks={showWorks}
-            setShowWorks={setShowWorks}
-            setRefreshTrigger={setRefreshTrigger}
-            loadingPrice={loadingPrice}
-            tokenName={state.tokenName}
-          />
-          {showFarming && (
-            <Farming
-              setShowFarming={setShowFarming}
-              tokenAddress={state.tokenAddress}
-            ></Farming>
-          )}
-        </Container>
-      </Header>
+	return (
+		<>
+			<Header wineryId={state.wineryId}>
+				<Container>
+					<CardWrapper>
+						<div>
+							<Farm onClick={openFarm}> {t("labels.farm")} </Farm>
+							<Redeem onClick={handleRedeemClick}>{t("labels.redeem")}</Redeem>
+						</div>
 
-      {state.wineryId === "costaflores" && (
-        <div className={styles["product-content"]}>
-          <Tabs />
-          <Sensors />
-        </div>
-      )}
-    </>
-  );
+						<ImageContainer>
+							<Image src={state.image} />
+						</ImageContainer>
+						<MarketData>
+							<Title>
+								{state.title} ({state.tokenName}){" "}
+								<InfoIcon
+									onClick={(e) => {
+										e.preventDefault();
+										setState((state) => ({
+											...state,
+											visible: !state.visible,
+										}));
+										setShowWorks(true);
+									}}
+								></InfoIcon>
+							</Title>
+
+							<>
+								{isCrowdsale && !loadingPrice && (
+									<CurrentPrice>
+										{crowdsaleExchangeRateUSD
+											? `$${amountFormatter(
+													crowdsaleExchangeRateUSD,
+													18,
+													2
+											  )} USDC`
+											: "$0.00"}
+									</CurrentPrice>
+								)}
+								{!isCrowdsale && !state?.pairNotInitialized && (
+									<CurrentPrice style={{ minHeight: "30px" }}>
+										{oneBottlePrice &&
+										state?.validationState &&
+										state?.validationState > 0 ? (
+											<>
+												{`$${amountFormatter(
+													dollarize(oneBottlePrice),
+													18,
+													2
+												)} USDC`}
+											</>
+										) : (
+											<BeatLoader
+												color="#d68513"
+												loading={true}
+												cssOverride={{
+													display: "flex",
+													flexDirection: "row",
+												}}
+												size={25}
+												aria-label="Loading Spinner"
+												data-testid="loader"
+											/>
+										)}
+									</CurrentPrice>
+								)}
+								{!isCrowdsale &&
+									state?.pairNotInitialized &&
+									(showLoadingTimed ? (
+										<BeatLoader
+											color="#d68513"
+											loading={true}
+											cssOverride={{ display: "flex", flexDirection: "row" }}
+											size={25}
+											aria-label="Loading Spinner"
+											data-testid="loader"
+										/>
+									) : (
+										<CurrentPrice style={{ minHeight: "30px" }}>
+											{t("TEMP_NOT_AVAILABLE")}
+										</CurrentPrice>
+									))}
+							</>
+
+							<>
+								<TokenIconContainer>
+									<TokenIconText>
+										{state?.tokenYear?.substring(2, 4)}
+									</TokenIconText>
+									<TokenIcon src={state.tokenIcon}></TokenIcon>
+								</TokenIconContainer>
+								<TradeButtons
+									balanceWINES={balanceWINES}
+									isCrowdsale={isCrowdsale}
+								></TradeButtons>
+							</>
+						</MarketData>
+					</CardWrapper>
+
+					<Checkout
+						USDExchangeRateETH={USDExchangeRateETH}
+						crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
+						transferShippingCosts={transferShippingCosts}
+						tokenSupply={tokenSupply}
+						tokenCap={tokenCap}
+						selectedTokenSymbol={selectedTokenSymbol}
+						setSelectedTokenSymbol={setSelectedTokenSymbol}
+						ready={ready}
+						unlock={unlock}
+						validateBuy={validateBuy}
+						validateSell={validateSell}
+						validateCrowdsale={validateCrowdsale}
+						burn={burn}
+						balanceWINES={balanceWINES}
+						dollarPrice={dollarPrice}
+						reserveWINESToken={reserveWINESToken}
+						dollarize={dollarize}
+						showConnect={showConnect}
+						setShowConnect={setShowConnect}
+						currentTransactionHash={currentTransaction.hash}
+						currentTransactionType={currentTransaction.type}
+						currentTransactionAmount={currentTransaction.amount}
+						setCurrentTransaction={setCurrentTransaction}
+						clearCurrentTransaction={clearCurrentTransaction}
+						showWorks={showWorks}
+						setShowWorks={setShowWorks}
+						setRefreshTrigger={setRefreshTrigger}
+						loadingPrice={loadingPrice}
+						tokenName={state.tokenName}
+					/>
+					{showFarming && (
+						<Farming
+							setShowFarming={setShowFarming}
+							tokenAddress={state.tokenAddress}
+						></Farming>
+					)}
+				</Container>
+			</Header>
+
+			{state.wineryId === "costaflores" && (
+				<div className={styles["product-content"]}>
+					<Tabs />
+					<Sensors />
+				</div>
+			)}
+		</>
+	);
 }

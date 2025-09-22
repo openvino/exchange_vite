@@ -142,7 +142,7 @@
 	"redeem": {
 		"try_again": "Intentar de nuevo",
 		"address": "Direcciónn Ethereum",
-		"pay_now" : "Pagar ahora",
+		"pay_now": "Pagar ahora",
 		"amount": "Cantidad",
 		"burn": "Quemar",
 		"city": "Ciudad",
@@ -556,5 +556,6 @@
 		"search": "Busca aquí tu bodega",
 		"title": "Bodegas",
 		"visit-winery": "Visita la bodega"
-	}
+	},
+	"TEMP_NOT_AVAILABLE": "Temporalmente no disponible"
 }
