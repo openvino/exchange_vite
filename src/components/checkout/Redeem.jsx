@@ -114,17 +114,18 @@ export default function Redeem({
 
   const sendEmailMessage = async (email, type) => {
     let body = {
-      email: email,
-      secret_key: import.meta.VITE_SECRET_KEY,
+      to: email,
       subject: "",
-      message: "",
+      secret_key: import.meta.VITE_SECRET_KEY,
+      html: "",
+      text: "",
     };
     if (type === "sucess") {
       body.subject =
         language === "es"
           ? "Redimiste tus Wine tokens! 🍷"
           : "Wine tokens redeemed - let’s plan your delivery 🍷";
-      body.message =
+      body.html =
         language === "es"
           ? getRedeemTemplateSuccessSpanish(state.wineryRedeemEmail)
           : getRedeemTemplateSuccess(state.wineryRedeemEmail);
@@ -135,7 +136,7 @@ export default function Redeem({
         language === "es"
           ? "Redimiste tus Wine tokens! - pago de envío pendiente ⚠️"
           : "Wine tokens redeemed - shipping payment pending";
-      body.message =
+      body.html =
         language === "es"
           ? getRedeemTemplateWithErrorsSpanish(
               state.tokenName,
@@ -150,9 +151,10 @@ export default function Redeem({
     }
 
     const message = await axios.post(
-      `${import.meta.env.VITE_DASHBOARD_URL}/api/routes/emailRoute`,
+      `${import.meta.env.VITE_API_URL}/email/send`,
       body
     );
+
     return message;
   };
 
@@ -608,7 +610,6 @@ export default function Redeem({
                   }
                 }}
                 text={t("redeem.try-again")}
-
               />
             )}
 

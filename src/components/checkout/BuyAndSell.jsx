@@ -166,7 +166,6 @@ export default function BuyAndSell({
 
   const language = i18n.language;
 
-
   function getText(account, errorMessage, ready, pending, hash) {
     if (account === null) {
       return t("wallet.connect");
@@ -194,13 +193,15 @@ export default function BuyAndSell({
       return errorMessage ? t(errorMessage) : t("wallet.loading");
     }
   }
-  const sendEmailMessage = async (email, type) => {
+
+  const sendEmailMessageApi = async (email, type) => {
     try {
       let body = {
-        email: email,
-        secret_key: import.meta.VITE_SECRET_KEY,
+        to: email,
         subject: "",
-        message: "",
+        secret_key: import.meta.VITE_SECRET_KEY,
+        html: "",
+        text: "",
       };
 
       switch (type) {
@@ -209,7 +210,7 @@ export default function BuyAndSell({
             language === "es"
               ? "Compra de Wine Tokens confirmada - Gracias! 🍷"
               : "Wine tokens purchased - Thank you! 🍷";
-          body.message =
+          body.html =
             language === "es"
               ? getBuyTemplateSpanish(
                   state.tokenName,
@@ -229,22 +230,22 @@ export default function BuyAndSell({
             language === "es"
               ? "Venta de Wine tokens completada ✅"
               : "Wine tokens sale completed";
-          body.message =
+          body.html =
             language === "es"
               ? getSaleTemplateSpanish(state.wineryEmail)
               : getSaleTemplate(state.wineryEmail);
           break;
       }
 
-      const message = await axios.post(
-        `${import.meta.env.VITE_DASHBOARD_URL}/api/routes/emailRoute`,
+        const message = await axios.post(
+        `${import.meta.env.VITE_API_URL}/email/send`,
         body
       );
-      return message;
     } catch (error) {
       console.log(error);
     }
   };
+
 
   function link(hash) {
     return `https://basescascan.org/tx/${hash}`;
@@ -614,7 +615,7 @@ export default function BuyAndSell({
                   state.tokenName
                 );
               }
-              await sendEmailMessage(state.email, "buy");
+              await sendEmailMessageApi(state.email, "buy");
             }}
           >
             {getText(
@@ -650,7 +651,7 @@ export default function BuyAndSell({
                   sellValidationState.inputValue
                 );
 
-                await sendEmailMessage(state.email, "sale");
+                await sendEmailMessageApi(state.email, "sale");
               }
             }}
           >
@@ -695,7 +696,7 @@ export default function BuyAndSell({
                   state.tokenName
                 );
 
-                await sendEmailMessage(state.email, "buy");
+                await sendEmailMessageApi(state.email, "buy");
               }
             }}
             onError={(e) => console.error(e)}
