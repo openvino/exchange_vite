@@ -1,4 +1,5 @@
 import axios from "axios";
+import { APIURL } from "../../config";
 
 export function getSensorsData(wineryId, year, month, day) {
     
@@ -13,7 +14,7 @@ export function getSensorsData(wineryId, year, month, day) {
     if (day) params.push(`day=${day}`);
     const queryString = params.length > 0 ? `?${params.join("&")}` : "";
     // Solicitud a la API
-    return axios.get(`${import.meta.env.VITE_APIURL}/sensor_data${queryString}`)
+    return axios.get(`${APIURL}/sensor_data${queryString}`)
         .then((response) => {
             const data = response.data;
             const baseDate = new Date(year, month || 0, day || 1);

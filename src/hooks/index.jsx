@@ -16,10 +16,11 @@ import {
 import { ethers } from "ethers";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import debounce from "lodash.debounce";
-import { getPairAddressFromTokenAddress } from "../utils/whitelistedPools";
 import { base, baseSepolia } from "thirdweb/chains";
+import { getPairAddressFromTokenAddress } from "../entities";
+import { DEV_MODE, FACTORY_ADDRESS } from "../config";
 const getChain = () => {
-	const productionMode = import.meta.env.VITE_DEV_MODE === "production";
+	const productionMode = DEV_MODE === "production";
 	if (productionMode) {
 		return base;
 	} else {
@@ -98,7 +99,7 @@ export function useRouterContract(withSignerIfPossible = true) {
 
 export function useExchangeContract(tokenAddress, withSignerIfPossible = true) {
 	const account = useActiveAccount();
-	const exchangeAddress = import.meta.env.VITE_FACTORY_ADDRESS;
+	const exchangeAddress = FACTORY_ADDRESS;
 
 	const debouncedFetch = useCallback(
 		debounce(() => {

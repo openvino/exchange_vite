@@ -34,6 +34,7 @@ import {
   getRedeemTemplateWithErrorsSpanish,
 } from "../../utils/emailTemplate";
 import { getChain } from "../Main";
+import { APIURL, DASHBOARD_URL } from "../../config";
 const config = {
   angle: 90,
   spread: 76,
@@ -151,7 +152,7 @@ export default function Redeem({
     }
 
     const message = await axios.post(
-      `${import.meta.env.VITE_API_URL}/email/send`,
+      `${APIURL}/email/send`,
       body
     );
 
@@ -163,8 +164,8 @@ export default function Redeem({
     try {
       let res = await axios.get(
         `${
-          import.meta.env.VITE_DASHBOARD_URL
-        }/api/routes/shippingCostsRoute?token=${state.tokenName}&province_id=${
+         DASHBOARD_URL
+        }/api/routes/shippingCostsRoute?token=${'mtb18'}&province_id=${
           redeemToUpdate.province_id
         }&amount=${redeemToUpdate.amount}`
       );

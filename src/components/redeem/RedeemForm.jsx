@@ -10,6 +10,7 @@ import axios from "axios";
 import { fetchCountries } from "../../utils/fetchCountries";
 import { BigNumber } from "ethers";
 import { signMessage } from "thirdweb/utils";
+import { DASHBOARD_URL } from "../../config";
 const bot = "beep-boop";
 const name = "name";
 const line1 = "line1";
@@ -96,9 +97,9 @@ export default function RedeemForm({
     try {
       let res = await axios.get(
         `${
-          import.meta.env.VITE_DASHBOARD_URL
+         DASHBOARD_URL
         }/api/routes/shippingCostsRoute?token=${
-          appState.tokenName
+          'mtb18'
         }&province_id=${state}&amount=${amount}`
       );
       if (res.data) {

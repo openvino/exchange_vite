@@ -13,6 +13,7 @@ import {
   getNetworkId,
   generateRandom,
 } from "../utils";
+import { APIURL } from "../config";
 
 // denominated in seconds
 const DEADLINE_FROM_NOW = 60 * 15;
@@ -272,7 +273,7 @@ export async function saveOrder(amount, account, email, winerie_id, name,token) 
     id: generateRandom(),
   };
 
-  const url = import.meta.env.VITE_APIURL;
+  const url = APIURL;
 
   return await axios.post(`${url}/sales`, body);
 }

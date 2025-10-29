@@ -52,6 +52,7 @@ import {
 } from "../../utils/emailTemplate";
 import { getChain } from "../Main";
 import axios from "axios";
+import { APIURL, ROUTER_ADDRESS, WETH_ADDRESS } from "../../config";
 
 export function Account({ $ready, $balanceWINES, setShowConnect }) {
   const account = useActiveAccount();
@@ -199,9 +200,7 @@ export default function BuyAndSell({
       let body = {
         to: email,
         subject: "",
-        secret_key: import.meta.VITE_SECRET_KEY,
         html: "",
-        text: "",
       };
 
       switch (type) {
@@ -237,15 +236,12 @@ export default function BuyAndSell({
           break;
       }
 
-        const message = await axios.post(
-        `${import.meta.env.VITE_API_URL}/email/send`,
-        body
-      );
+      await axios.post(`${APIURL}/email/send`, body, {
+      });
     } catch (error) {
       console.log(error);
     }
   };
-
 
   function link(hash) {
     return `https://basescascan.org/tx/${hash}`;
@@ -410,7 +406,7 @@ export default function BuyAndSell({
   const contract = getContract({
     client: client,
     chain: getChain(),
-    address: import.meta.env.VITE_ROUTER_ADDRESS,
+    address: ROUTER_ADDRESS,
     abi: contractABI,
   });
 
@@ -435,7 +431,7 @@ export default function BuyAndSell({
   });
 
   //baseSepolia sepolia
-  let wethAddress = import.meta.env.VITE_WETH_ADDRESS;
+  let wethAddress = WETH_ADDRESS;
 
   if (!account?.address) {
     return (
@@ -563,7 +559,7 @@ export default function BuyAndSell({
                 method: "approve",
                 params: [
                   // routerContract.address,
-                  import.meta.env.VITE_ROUTER_ADDRESS,
+                  ROUTER_ADDRESS,
                   BigInt(ethers.constants.MaxUint256),
                 ],
               })

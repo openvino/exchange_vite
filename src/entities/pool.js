@@ -1,5 +1,7 @@
+import { WETH_ADDRESS as WETH } from "../config";
+
 // TODO fetch whitelisted pools from db
-const WETH_ADDRESS = process.env.NEXT_PUBLIC_WETH_ADDRESS;
+const WETH_ADDRESS = WETH;
 export const whitelistedPools = [
 	// BASE SEPOLIA
 
@@ -41,30 +43,10 @@ export const whitelistedPools = [
 
 	//TTS BASE SEPOLIA 
 	{
-		address: "0xD1a44b30c43D4B0EcEa44b44704392F4F744AAe5",
-		pair: ["0xBF5e461B887F6a7037b3FE1D7C8fF0ad46209f68", WETH_ADDRESS],
+		address: "0x4b1BF598d304E754803Ca94c46C0c36493a36400",
+		pair: ["0x071D5a0F460211BcfEa4fA6354f22A272dc7547D", WETH_ADDRESS],
 	}
-
-	// {
-	//   // OP
-	//   address: "0x5F518BD5abBE87D7ace08c5976003bd763089F98",
-
-	//   pair: [
-	//     "0x1159862C5D48f8f970942FCf86e664680438d13A",
-	//     "0x4200000000000000000000000000000000000006",
-	//   ],
-	// },
-
-	// OP SEPOLIA
-	// {
-	// 	//
-	// 	address: "0x21C281897F533fDc9A26BC201002e1c60c5D2033",
-
-	// 	pair: [
-	// 		"0xA68cf859Ef68ba6ab808550B48427FC885954dd8",
-	// 		"0x74A4A85C611679B73F402B36c0F84A7D2CcdFDa3",
-	// 	],
-	// },
+	
 ];
 
 export const getPairAddress = (pair) => {
