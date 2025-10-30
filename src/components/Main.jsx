@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Checkout from "./checkout/Checkout";
 import BeatLoader from "react-spinners/BeatLoader";
 import { useAppContext } from "../context";
@@ -18,7 +12,6 @@ import styles from "./Header/Header.module.css";
 import {
   TOKEN_SYMBOLS,
   TRADE_TYPES,
-  getExchangeRate,
   calculateGasMargin,
   amountFormatter,
 } from "../utils";
@@ -35,7 +28,6 @@ import {
   useReserves,
 } from "../hooks";
 import Farming from "./farming/Farming";
-import { fetchPrice } from "../utils/fetchPrice";
 import {
   CardWrapper,
   Container,
@@ -60,7 +52,8 @@ import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
 import useProductDetails from "../hooks/useProductDetails";
 import { APIURL, DEV_MODE, SHIPPING_ADDRESS, WETH_ADDRESS } from "../config";
-import { getTokenImageUrl } from "../utils/getStaticImages";
+import useUsdPricing from "../hooks/useUsdPricing";
+import useCrowdsaleInfo from "../hooks/useCrowdsaleInfo";
 
 export const getChain = () => {
   const productionMode = DEV_MODE === "production";
@@ -71,7 +64,7 @@ export const getChain = () => {
   }
 };
 
-export default function Main(key, setKey) {
+export default function Main() {
   const library = useMemo(() => {
     return ethers5Adapter.provider.toEthers({
       client,
@@ -82,12 +75,7 @@ export default function Main(key, setKey) {
   const [selectedTokenSymbol, setSelectedTokenSymbol] = useState(
     TOKEN_SYMBOLS.ETH
   );
-  const [USDExchangeRateETH, setUSDExchangeRateETH] = useState();
-  const [USDExchangeRateSelectedToken, setUSDExchangeRateSelectedToken] =
-    useState();
 
-  const [loadingPrice, setLoadingPrice] = useState(false);
-  const priceRef = useRef(null);
   const account = useActiveAccount();
   const { wineryId, productId } = useParams();
   const [state, setState] = useAppContext();
@@ -109,86 +97,14 @@ export default function Main(key, setKey) {
     error: productError,
   } = useProductDetails({ wineryId, productId });
 
-  const { bottleUrl, imageUrl, tokenUrl } = getTokenImageUrl(
-    product?.id.toLowerCase(),
-    product?.WinerieID.toLowerCase()
-  );
+  const { reserves, token0, token1 } = useReserves(pairMTBwETH);
 
-  useEffect(() => {
-	if(product?.id) {
-		setState((state) => ({
-      ...state,
-      apiUrl: APIURL,
-      crowdsaleAddress: product.crow_sale_address,
-      wineryId: product.WinerieID,
-      tokenAddress: product.token_address,
-      image: bottleUrl ? bottleUrl : "" ,
-      tokenYear: product.year.toString(),
-      tokenName: product.id,
-      tokenIcon: tokenUrl ? tokenUrl : "",
-      title: "Token",
-      shippingAccount: product.shipping_account,
-      validationState: undefined,
-      loading: true,
-      wineryEmail: winery.email,
-      wineryRedeemEmail: winery.email_redeem,
-      redeemDate: product.redeem_date,
-      pairNotInitialized: pairAddress ? false : true,
-    }));
-	}
-  }, [product]);
-
-  useEffect(() => {
-    if (state?.pairNotInitialized) {
-      setShowLoadingTimed(true);
-      const timer = setTimeout(() => {
-        setShowLoadingTimed(false);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [state?.pairNotInitialized]);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    setState((state) => ({ ...state, visible: false }));
-  }, []);
-
-  useEffect(() => {
-    // Si el precio es válido, ocultar el loader
-    if (priceRef.current && priceRef.current !== "~<0") {
-      setLoadingPrice(false);
-    }
-
-    // Si el precio es "~<0", forzar un re-render
-    if (priceRef.current === "~<0") {
-      setKey((prevKey) => prevKey + 1);
-    }
-  }, [state.validationState, dollarize(state?.validationState)]);
-
-  useEffect(() => {
-    setUSDExchangeRateETH(undefined);
-    setUSDExchangeRateSelectedToken(undefined);
-    setDollarPrice(undefined);
-  }, [productId, wineryId]);
+  const reserveWINESETH =
+    token0 === WETH_ADDRESS ? reserves.reserve0 : reserves.reserve1;
+  const reserveWINESToken =
+    token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
 
   const [showFarming, setShowFarming] = useState(false);
-
-  // get balances
-  const {
-    balanceETH,
-    balanceWINES,
-    balanceSelectedToken,
-    reserveDAIETH,
-    reserveDAIToken,
-    reserveSelectedTokenETH,
-    reserveSelectedTokenToken,
-  } = useAllBalances(
-    account?.address,
-    state?.tokenAddress,
-    selectedTokenSymbol,
-    refreshTrigger
-  );
 
   // tokenSupply
   const tokenSupply = useTokenSupply(tokenContractWINES);
@@ -210,108 +126,82 @@ export default function Main(key, setKey) {
     refreshTrigger
   );
 
-  const { reserves, token0, token1 } = useReserves(pairMTBwETH);
-
-  const reserveWINESETH =
-    token0 === WETH_ADDRESS ? reserves.reserve0 : reserves.reserve1;
-  const reserveWINESToken =
-    token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
-
-  useEffect(() => {
-    const fetchPriceAndSetState = async () => {
-      try {
-        const usdPrice = await fetchPrice();
-        const formatedUsdPrice = usdPrice.split(".")[0];
-        const exchangeRateDAI = getExchangeRate(
-          BigNumber.from(1),
-          BigNumber.from(Number(formatedUsdPrice))
-        );
-
-        if (selectedTokenSymbol === TOKEN_SYMBOLS.ETH) {
-          setUSDExchangeRateETH(exchangeRateDAI);
-        } else {
-          const exchangeRateSelectedToken = getExchangeRate(
-            reserveSelectedTokenETH,
-            reserveSelectedTokenToken
-          );
-          if (exchangeRateDAI && exchangeRateSelectedToken) {
-            setUSDExchangeRateSelectedToken(
-              exchangeRateDAI
-                .mul(BigNumber.from(10).pow(BigNumber.from(18)))
-                .div(exchangeRateSelectedToken)
-            );
-          }
-        }
-      } catch (error) {
-        console.log(error);
-        setUSDExchangeRateETH();
-        setUSDExchangeRateSelectedToken();
-      }
-    };
-
-    fetchPriceAndSetState();
-  }, [
-    reserveDAIETH,
-    reserveDAIToken,
+  // get balances
+  const {
+    balanceETH,
+    balanceWINES,
+    balanceSelectedToken,
     reserveSelectedTokenETH,
     reserveSelectedTokenToken,
+  } = useAllBalances(
+    account?.address,
+    state?.tokenAddress,
     selectedTokenSymbol,
-  ]);
+    refreshTrigger
+  );
 
-  let [isCrowdsale, setCrowdsale] = useState();
+  const {
+    usdExchangeRateETH,
+    usdExchangeRateSelectedToken,
+    poolDollarPrice,
+    loading: loadingPrice,
+  } = useUsdPricing({
+    selectedTokenSymbol,
+    reserveWINESETH,
+    reserveWINESToken,
+    reserveSelectedTokenETH,
+    reserveSelectedTokenToken,
+  });
+
+  const {
+    isCrowdsale,
+    exchangeRateEth: crowdsaleExchangeRateETH,
+    exchangeRateUsd: crowdsaleExchangeRateUSD,
+  } = useCrowdsaleInfo({
+    crowdsaleContract,
+    crowdsaleAddress: state?.crowdsaleAddress,
+    usdExchangeRateETH,
+  });
 
   useEffect(() => {
-    const checkCrowdsaleStatus = async () => {
-      try {
-        if (!crowdsaleContract || state.crowdsaleAddress === "") {
-          setCrowdsale(false);
-          return;
-        }
-
-        const open = await crowdsaleContract.isOpen();
-        setCrowdsale(open);
-      } catch (error) {
-        console.error("Error al consultar isOpen:", error);
-        setCrowdsale(false);
-      }
-    };
-
-    checkCrowdsaleStatus();
-  }, [crowdsaleContract, state.crowdsaleAddress]);
-
-  const [crowdsaleExchangeRateETH, setCrowdsaleExchangeRateETH] = useState(0);
-  const [crowdsaleExchangeRateUSD, setCrowdsaleExchangeRateUSD] = useState(0);
-
-  //Crowdsale price
-  useEffect(() => {
-    if (!crowdsaleContract || !USDExchangeRateETH) return;
-
-    try {
-      crowdsaleContract
-        .getRate()
-        .then((rate) => {
-          const exchangeRateETH = rate.mul(
-            BigNumber.from(10).pow(BigNumber.from(18))
-          );
-          setCrowdsaleExchangeRateETH(exchangeRateETH);
-
-          const exchangeRateUSD = USDExchangeRateETH.mul(
-            BigNumber.from(10).pow(BigNumber.from(18))
-          ).div(exchangeRateETH);
-          setCrowdsaleExchangeRateUSD(exchangeRateUSD);
-        })
-
-        .catch((error) => {
-          console.error("Error al obtener el rate:", error);
-          setCrowdsaleExchangeRateETH();
-          setCrowdsaleExchangeRateUSD();
-        });
-    } catch (error) {
-      console.error("Error inesperado:", error);
-      setCrowdsaleExchangeRateETH();
-      setCrowdsaleExchangeRateUSD();
+    if (product?.id && winery && images) {
+      setState((state) => ({
+        ...state,
+        apiUrl: APIURL,
+        crowdsaleAddress: product.crow_sale_address,
+        wineryId: product.WinerieID || "",
+        tokenAddress: product.token_address,
+        image: images.bottleUrl || "",
+        tokenYear: product.year.toString(),
+        tokenName: product.id,
+        tokenIcon: images.tokenUrl,
+        title: "Token",
+        shippingAccount: product.shipping_account,
+        validationState: undefined,
+        loading: true,
+        wineryEmail: winery.email || "",
+        wineryRedeemEmail: winery.email_redeem,
+        redeemDate: product.redeem_date,
+        pairNotInitialized: pairAddress ? false : true,
+      }));
     }
-  }, [crowdsaleContract, USDExchangeRateETH]);
+  }, [product, winery, images, pairAddress]);
+
+  useEffect(() => {
+    if (state?.pairNotInitialized) {
+      setShowLoadingTimed(true);
+      const timer = setTimeout(() => {
+        setShowLoadingTimed(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [state?.pairNotInitialized]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setState((state) => ({ ...state, visible: false }));
+  }, []);
 
   const ready = !!(
     (isCrowdsale && tokenSupply > 6) ||
@@ -328,7 +218,7 @@ export default function Main(key, setKey) {
       (selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
       (selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
       selectedTokenSymbol &&
-      (USDExchangeRateETH || USDExchangeRateSelectedToken))
+      (usdExchangeRateETH || usdExchangeRateSelectedToken))
   );
 
   function _dollarize(amount, exchangeRate) {
@@ -345,36 +235,11 @@ export default function Main(key, setKey) {
     return _dollarize(
       amount,
       selectedTokenSymbol === TOKEN_SYMBOLS.ETH
-        ? USDExchangeRateETH
-        : USDExchangeRateSelectedToken
+        ? usdExchangeRateETH
+        : usdExchangeRateSelectedToken
     );
   }
 
-  const [dollarPrice, setDollarPrice] = useState();
-
-  //Pool price
-  useEffect(() => {
-    if (USDExchangeRateETH && reserveWINESETH && reserveWINESToken) {
-      try {
-        setLoadingPrice(true);
-        const WINESExchangeRateETH = getExchangeRate(
-          reserveWINESToken,
-          reserveWINESETH
-        );
-        setDollarPrice(
-          WINESExchangeRateETH.mul(USDExchangeRateETH).div(
-            BigNumber.from(10).pow(BigNumber.from(18))
-          )
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }, [USDExchangeRateETH, reserveWINESETH, reserveWINESToken]);
-
-  useEffect(() => {
-    if (typeof state.validationState !== "undefined") setLoadingPrice(false);
-  }, [state.validationState]);
   async function unlock(buyingWINES = true) {
     const contract = buyingWINES
       ? tokenContractSelectedToken
@@ -382,13 +247,6 @@ export default function Main(key, setKey) {
     const spenderAddress = buyingWINES
       ? exchangeContractSelectedToken.address
       : routerContract.address;
-
-    console.log(
-      "Unlocking...",
-      tokenContractSelectedToken,
-      tokenContractWINES,
-      contract
-    );
     const estimatedGasLimit = await contract.estimateGas.approve(
       spenderAddress,
       ethers.constants.MaxUint256
@@ -444,7 +302,7 @@ export default function Main(key, setKey) {
         balanceSelectedToken,
         crowdsaleExchangeRateETH,
         selectedTokenSymbol,
-        USDExchangeRateETH
+        usdExchangeRateETH
       );
     },
     [
@@ -453,7 +311,7 @@ export default function Main(key, setKey) {
       balanceSelectedToken,
       crowdsaleExchangeRateETH,
       selectedTokenSymbol,
-      USDExchangeRateETH,
+      usdExchangeRateETH,
     ]
   );
 
@@ -543,7 +401,7 @@ export default function Main(key, setKey) {
   const [showWorks, setShowWorks] = useState(false);
 
   const { t } = useTranslation();
-  if (!state.tokenName)
+  if (!state.tokenName && loadingPrice)
     return (
       <div
         style={{
@@ -568,11 +426,7 @@ export default function Main(key, setKey) {
     );
 
   // ONE BOTTLE PRICE
-
-  const { inputValue, outputValue, maximumInputValue, error } =
-    validateBuy("1");
-
-  const oneBottlePrice = inputValue;
+  const { inputValue } = validateBuy("1");
 
   return (
     <>
@@ -616,12 +470,12 @@ export default function Main(key, setKey) {
                 )}
                 {!isCrowdsale && !state?.pairNotInitialized && (
                   <CurrentPrice style={{ minHeight: "30px" }}>
-                    {oneBottlePrice &&
+                    {inputValue &&
                     state?.validationState &&
                     state?.validationState > 0 ? (
                       <>
                         {`$${amountFormatter(
-                          dollarize(oneBottlePrice),
+                          dollarize(inputValue),
                           18,
                           2
                         )} USDC`}
@@ -675,7 +529,7 @@ export default function Main(key, setKey) {
           </CardWrapper>
 
           <Checkout
-            USDExchangeRateETH={USDExchangeRateETH}
+            usdExchangeRateETH={usdExchangeRateETH}
             crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
             transferShippingCosts={transferShippingCosts}
             tokenSupply={tokenSupply}
@@ -689,7 +543,7 @@ export default function Main(key, setKey) {
             validateCrowdsale={validateCrowdsale}
             burn={burn}
             balanceWINES={balanceWINES}
-            dollarPrice={dollarPrice}
+            dollarPrice={poolDollarPrice}
             reserveWINESToken={reserveWINESToken}
             dollarize={dollarize}
             showConnect={showConnect}

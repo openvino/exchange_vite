@@ -7,7 +7,6 @@ import Main from "./components/Main";
 import { fetchPrice } from "./utils/fetchPrice";
 import useWeb3Store from "./config/zustandStore";
 const App = () => {
-	const [key, setKey] = useState(0);
 	const setUsdPrice = useWeb3Store((state) => state.setUsdPrice);
 
 	useEffect(() => {
@@ -27,7 +26,7 @@ const App = () => {
 
 					<Route
 						path="/:wineryId/:productId"
-						element={<Main setKey={setKey} key={key} />}
+						element={<Main />}
 					/>
 				</Routes>
 			</Router>
