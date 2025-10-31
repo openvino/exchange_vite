@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { client } from "../../config/thirdwebClient";
-import { useActiveAccount } from "thirdweb/react";
 import Connect from "./Connect";
 import Works from "./Works";
 import BuyAndSell from "./BuyAndSell";
@@ -11,7 +10,7 @@ import { TRADE_TYPES } from "../../utils";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import Confetti from "react-dom-confetti";
 import { CheckoutBackground, CheckoutFrame } from "../../styles";
-import { getChain } from "../Main";
+import { getChain } from "../../utils/getChain";
 
 const config = {
   angle: 90,
@@ -102,7 +101,6 @@ export default function Checkout({
     });
   }, [client]);
 
-  const account = useActiveAccount();
   const [state, setState] = useAppContext();
 
   const redeeming = state.tradeType === TRADE_TYPES.REDEEM;

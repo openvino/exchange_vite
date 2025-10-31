@@ -3,23 +3,12 @@ import Checkout from "./checkout/Checkout";
 import BeatLoader from "react-spinners/BeatLoader";
 import { useAppContext } from "../context";
 import { TradeButtons } from "./shared/TradeButtons";
-import { BigNumber, ethers } from "ethers";
 import { useTranslation } from "react-i18next";
 import { useActiveAccount } from "thirdweb/react";
 import { client } from "../config/thirdwebClient";
 import { base, baseSepolia } from "thirdweb/chains";
 import styles from "./Header/Header.module.css";
-import {
-  TOKEN_SYMBOLS,
-  TRADE_TYPES,
-  calculateGasMargin,
-  amountFormatter,
-} from "../utils";
-import {
-  validateBuyHelper,
-  validateCrowdsaleHelper,
-  validateSellHelper,
-} from "../utils/checkout-utils";
+import { TOKEN_SYMBOLS, TRADE_TYPES, amountFormatter } from "../utils";
 import {
   useAddressAllowance,
   useRouterAllowance,
@@ -51,26 +40,24 @@ import Sensors from "./Sensors/Sensors";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
 import useProductDetails from "../hooks/useProductDetails";
-import { APIURL, DEV_MODE, SHIPPING_ADDRESS, WETH_ADDRESS } from "../config";
+import { APIURL, DEV_MODE, WETH_ADDRESS } from "../config";
 import useUsdPricing from "../hooks/useUsdPricing";
 import useCrowdsaleInfo from "../hooks/useCrowdsaleInfo";
-
-export const getChain = () => {
-  const productionMode = DEV_MODE === "production";
-  if (productionMode) {
-    return base;
-  } else {
-    return baseSepolia;
-  }
-};
+import useTradingReady from "../hooks/useTradingReady";
+import useOneBottlePrice from "../hooks/useOneBottlePrice";
+import useTradeValidators from "../hooks/useTradeValidators";
+import useTradingActions from "../hooks/useTradingActions";
+import { dollarize as dollarizeAmount } from "../features/trading/lib/formatters";
+import { getChain } from "../utils/getChain";
 
 export default function Main() {
+  const chain = useMemo(() => getChain(), []);
   const library = useMemo(() => {
     return ethers5Adapter.provider.toEthers({
       client,
-      chain: getChain(),
+      chain,
     });
-  }, [client]);
+  }, [client, chain]);
   // selected token
   const [selectedTokenSymbol, setSelectedTokenSymbol] = useState(
     TOKEN_SYMBOLS.ETH
@@ -163,6 +150,61 @@ export default function Main() {
     usdExchangeRateETH,
   });
 
+  const ready = useTradingReady({
+    isCrowdsale,
+    tokenSupply,
+    accountAddress: account?.address ?? null,
+    allowanceWINES,
+    allowanceSelectedToken,
+    balanceETH,
+    balanceWINES,
+    balanceSelectedToken,
+    reserveWINESETH,
+    reserveWINESToken,
+    reserveSelectedTokenETH,
+    reserveSelectedTokenToken,
+    selectedTokenSymbol,
+    usdExchangeRateETH,
+    usdExchangeRateSelectedToken,
+  });
+
+  const oneBottleValidation = useOneBottlePrice({
+    allowanceSelectedToken,
+    balanceETH,
+    balanceSelectedToken,
+    reserveWINESETH,
+    reserveWINESToken,
+    reserveSelectedTokenETH,
+    reserveSelectedTokenToken,
+    selectedTokenSymbol,
+  });
+
+  const { unlock, transferShippingCosts, burn } = useTradingActions({
+    account,
+    chain,
+    client,
+    library,
+    routerContract,
+    exchangeContractSelectedToken,
+    tokenContractWINES,
+    selectedTokenSymbol,
+  });
+
+  const { validateBuy, validateSell, validateCrowdsale } = useTradeValidators({
+    allowanceSelectedToken,
+    allowanceWINES,
+    balanceETH,
+    balanceWINES,
+    balanceSelectedToken,
+    reserveWINESETH,
+    reserveWINESToken,
+    reserveSelectedTokenETH,
+    reserveSelectedTokenToken,
+    selectedTokenSymbol,
+    crowdsaleExchangeRateETH,
+    usdExchangeRateETH,
+  });
+
   useEffect(() => {
     if (product?.id && winery && images) {
       setState((state) => ({
@@ -203,178 +245,16 @@ export default function Main() {
     setState((state) => ({ ...state, visible: false }));
   }, []);
 
-  const ready = !!(
-    (isCrowdsale && tokenSupply > 6) ||
-    (!isCrowdsale &&
-      (account?.address === null || allowanceWINES) &&
-      (selectedTokenSymbol === "ETH" ||
-        account?.address === null ||
-        allowanceSelectedToken) &&
-      (account?.address === null || balanceETH) &&
-      (account?.address === null || balanceWINES) &&
-      (account?.address === null || balanceSelectedToken) &&
-      reserveWINESETH &&
-      reserveWINESToken &&
-      (selectedTokenSymbol === "ETH" || reserveSelectedTokenETH) &&
-      (selectedTokenSymbol === "ETH" || reserveSelectedTokenToken) &&
-      selectedTokenSymbol &&
-      (usdExchangeRateETH || usdExchangeRateSelectedToken))
+  const dollarize = useCallback(
+    (amount) =>
+      dollarizeAmount(
+        amount,
+        selectedTokenSymbol === TOKEN_SYMBOLS.ETH
+          ? usdExchangeRateETH
+          : usdExchangeRateSelectedToken
+      ),
+    [selectedTokenSymbol, usdExchangeRateETH, usdExchangeRateSelectedToken]
   );
-
-  function _dollarize(amount, exchangeRate) {
-    if (exchangeRate) {
-      return amount
-        ?.mul(exchangeRate)
-        .div(BigNumber.from(10).pow(BigNumber.from(18)));
-    }
-
-    return BigNumber.from(0);
-  }
-
-  function dollarize(amount) {
-    return _dollarize(
-      amount,
-      selectedTokenSymbol === TOKEN_SYMBOLS.ETH
-        ? usdExchangeRateETH
-        : usdExchangeRateSelectedToken
-    );
-  }
-
-  async function unlock(buyingWINES = true) {
-    const contract = buyingWINES
-      ? tokenContractSelectedToken
-      : tokenContractWINES;
-    const spenderAddress = buyingWINES
-      ? exchangeContractSelectedToken.address
-      : routerContract.address;
-    const estimatedGasLimit = await contract.estimateGas.approve(
-      spenderAddress,
-      ethers.constants.MaxUint256
-    );
-
-    const estimatedGasPrice = await library
-      .getGasPrice()
-      .then((gasPrice) =>
-        gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
-      );
-
-    return contract.approve(spenderAddress, ethers.constants.MaxUint256, {
-      gasLimit: calculateGasMargin(estimatedGasLimit),
-      gasPrice: estimatedGasPrice,
-    });
-  }
-
-  // buy functionality
-  const validateBuy = useCallback(
-    (numberOfWINES) => {
-      return validateBuyHelper(
-        numberOfWINES,
-        allowanceSelectedToken,
-        balanceETH,
-        balanceSelectedToken,
-        reserveWINESETH,
-        reserveWINESToken,
-        reserveSelectedTokenETH,
-        reserveSelectedTokenToken,
-        selectedTokenSymbol
-      );
-    },
-    [
-      allowanceSelectedToken,
-      balanceETH,
-      balanceSelectedToken,
-      reserveWINESETH,
-      reserveWINESToken,
-      reserveSelectedTokenETH,
-      reserveSelectedTokenToken,
-      selectedTokenSymbol,
-      refreshTrigger,
-    ]
-  );
-
-  // crowdsale functionality
-  const validateCrowdsale = useCallback(
-    (numberOfWINES) => {
-      return validateCrowdsaleHelper(
-        numberOfWINES,
-        allowanceSelectedToken,
-        balanceETH,
-        balanceSelectedToken,
-        crowdsaleExchangeRateETH,
-        selectedTokenSymbol,
-        usdExchangeRateETH
-      );
-    },
-    [
-      allowanceSelectedToken,
-      balanceETH,
-      balanceSelectedToken,
-      crowdsaleExchangeRateETH,
-      selectedTokenSymbol,
-      usdExchangeRateETH,
-    ]
-  );
-
-  // sell functionality
-  const validateSell = useCallback(
-    (numberOfWINES) => {
-      return validateSellHelper(
-        numberOfWINES,
-        allowanceWINES,
-        balanceETH,
-        balanceWINES,
-        reserveWINESETH,
-        reserveWINESToken,
-        reserveSelectedTokenETH,
-        reserveSelectedTokenToken,
-        selectedTokenSymbol
-      );
-    },
-    [
-      allowanceWINES,
-      balanceETH,
-      balanceWINES,
-      reserveWINESETH,
-      reserveWINESToken,
-      reserveSelectedTokenETH,
-      reserveSelectedTokenToken,
-      selectedTokenSymbol,
-      refreshTrigger,
-      state.count,
-    ]
-  );
-
-  async function transferShippingCosts(amount) {
-    let signer = await ethers5Adapter.signer.toEthers({
-      chain: getChain(),
-      client,
-      account,
-    });
-
-    return signer.sendTransaction({
-      to: ethers.utils.getAddress(SHIPPING_ADDRESS),
-      value: amount,
-    });
-  }
-
-  async function burn(amount) {
-    const parsedAmount = ethers.utils.parseUnits(amount, 18);
-
-    const estimatedGasPrice = await library
-      .getGasPrice()
-      .then((gasPrice) =>
-        gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
-      );
-
-    const estimatedGasLimit = await tokenContractWINES.estimate.burn(
-      parsedAmount
-    );
-
-    return tokenContractWINES.burn(parsedAmount, {
-      gasLimit: calculateGasMargin(estimatedGasLimit),
-      gasPrice: estimatedGasPrice,
-    });
-  }
 
   function openFarm() {
     setShowFarming(true);
@@ -426,7 +306,7 @@ export default function Main() {
     );
 
   // ONE BOTTLE PRICE
-  const { inputValue } = validateBuy("1");
+  const oneBottlePrice = oneBottleValidation?.inputValue;
 
   return (
     <>
@@ -470,12 +350,12 @@ export default function Main() {
                 )}
                 {!isCrowdsale && !state?.pairNotInitialized && (
                   <CurrentPrice style={{ minHeight: "30px" }}>
-                    {inputValue &&
+                    {oneBottlePrice &&
                     state?.validationState &&
                     state?.validationState > 0 ? (
                       <>
                         {`$${amountFormatter(
-                          dollarize(inputValue),
+                          dollarize(oneBottlePrice),
                           18,
                           2
                         )} USDC`}
@@ -529,7 +409,7 @@ export default function Main() {
           </CardWrapper>
 
           <Checkout
-            usdExchangeRateETH={usdExchangeRateETH}
+            USDExchangeRateETH={usdExchangeRateETH}
             crowdsaleExchangeRateUSD={crowdsaleExchangeRateUSD}
             transferShippingCosts={transferShippingCosts}
             tokenSupply={tokenSupply}

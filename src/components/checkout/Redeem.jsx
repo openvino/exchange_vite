@@ -33,8 +33,8 @@ import {
   getRedeemTemplateWithErrors,
   getRedeemTemplateWithErrorsSpanish,
 } from "../../utils/emailTemplate";
-import { getChain } from "../Main";
 import { APIURL, DASHBOARD_URL } from "../../config";
+import { getChain } from "../../utils/getChain";
 const config = {
   angle: 90,
   spread: 76,
@@ -152,7 +152,7 @@ export default function Redeem({
     }
 
     const message = await axios.post(
-      `${APIURL}/email/send`,
+      `${'https://dondetopa.openvino.org'}/email/send`,
       body
     );
 

@@ -1,22 +1,16 @@
 import { ethers, BigNumber } from "ethers";
 import axios from "axios";
-import { WETH } from "@uniswap/sdk";
 
 import {
   TOKEN_SYMBOLS,
-  TOKEN_ADDRESSES,
   ERROR_CODES,
   calculateSlippageBounds,
   calculateAmount,
   calculateCrowdsaleAmount,
-  calculateGasMargin,
-  getNetworkId,
   generateRandom,
 } from "../utils";
 import { APIURL } from "../config";
-
-// denominated in seconds
-const DEADLINE_FROM_NOW = 60 * 15;
+import { dollarize } from "../features/trading/lib/formatters";
 
 export function validateBuyHelper(
   numberOfWINES,
@@ -29,8 +23,6 @@ export function validateBuyHelper(
   reserveSelectedTokenToken,
   selectedTokenSymbol
 ) {
-  
-  
   // validate passed amount
   let parsedValue;
   try {
@@ -101,58 +93,6 @@ export function validateBuyHelper(
     outputValue: parsedValue,
     error: errorAccumulator,
   };
-}
-
-export async function buyHelper(
-  address,
-  maximumInputValue,
-  outputValue,
-  selectedTokenSymbol,
-  library,
-  routerContract,
-  tokenAddress
-) {
-  try {
-    const deadline = Math.ceil(Date.now() / 1000) + DEADLINE_FROM_NOW;
-    const estimatedGasPrice = await library
-      .getGasPrice()
-      .then((gasPrice) =>
-        gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
-      );
-    let wethAddress;
-    if (getNetworkId() === 11155420) {
-      wethAddress = "0x74A4A85C611679B73F402B36c0F84A7D2CcdFDa3";
-    } else if (getNetworkId() === 10) {
-      wethAddress = "0x4200000000000000000000000000000000000006";
-    } else if (getNetworkId() === 1) {
-      wethAddress = WETH[getNetworkId()].address;
-    }
-
-    const estimatedGasLimit =
-      await routerContract.estimateGas.swapETHForExactTokens(
-        outputValue,
-        [wethAddress, tokenAddress],
-        address,
-        deadline,
-        {
-          value: maximumInputValue,
-        }
-      );
-
-    return routerContract.swapETHForExactTokens(
-      outputValue,
-      [wethAddress, tokenAddress],
-      address,
-      deadline,
-      {
-        value: maximumInputValue,
-        gasLimit: calculateGasMargin(estimatedGasLimit),
-        gasPrice: estimatedGasPrice,
-      }
-    );
-  } catch (error) {
-    console.log(error);
-  }
 }
 
 export function validateCrowdsaleHelper(
@@ -231,45 +171,21 @@ export function validateCrowdsaleHelper(
   };
 }
 
-export async function crowdsaleHelper(
-  maximumInputValue,
-  outputValue,
-  selectedTokenSymbol,
-  library,
+export async function saveOrder(
+  amount,
   account,
-  crowdsaleContract
+  email,
+  winerie_id,
+  name,
+  token
 ) {
-  let estimatedGasPrice = null;
-
-  estimatedGasPrice = await library
-    .getGasPrice()
-    .then((gasPrice) =>
-      gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
-    );
-
-  if (selectedTokenSymbol === TOKEN_SYMBOLS.ETH) {
-    const estimatedGasLimit = await crowdsaleContract.estimate
-      .buyTokens(account, {
-        value: maximumInputValue,
-      })
-      .catch(console.log);
-
-    return crowdsaleContract.buyTokens(account, {
-      value: maximumInputValue,
-      gasLimit: calculateGasMargin(estimatedGasLimit),
-      gasPrice: estimatedGasPrice,
-    });
-  }
-}
-
-export async function saveOrder(amount, account, email, winerie_id, name,token) {
   const body = {
     public_key: account,
     email: email,
     amount: amount,
     winerie_id: winerie_id,
     name: name,
-    token:token,
+    token: token,
     id: generateRandom(),
   };
 
@@ -367,49 +283,4 @@ export function validateSellHelper(
   };
 }
 
-export async function sellHelper(
-  address,
-  inputValue,
-  minimumOutputValue,
-  selectedTokenSymbol,
-  library,
-  routerContract,
-  tokenAddress
-) {
-  let wethAddress;
-
-  if (getNetworkId() === 11155420) {
-    wethAddress = "0x74A4A85C611679B73F402B36c0F84A7D2CcdFDa3";
-  } else if (getNetworkId() === 10) {
-    wethAddress = "0x4200000000000000000000000000000000000006";
-  } else if (getNetworkId() === 1) {
-    wethAddress = WETH[getNetworkId()].address;
-  }
-
-  const deadline = Math.ceil(Date.now() / 1000) + DEADLINE_FROM_NOW;
-
-  const estimatedGasPrice = await library
-    .getGasPrice()
-    .then((gasPrice) =>
-      gasPrice.mul(BigNumber.from(150)).div(BigNumber.from(100))
-    );
-
-  const estimatedGasLimit = await routerContract.estimate.swapExactTokensForETH(
-    inputValue,
-    minimumOutputValue,
-    [tokenAddress, wethAddress],
-    address,
-    deadline
-  );
-  return routerContract.swapExactTokensForETH(
-    inputValue,
-    minimumOutputValue,
-    [tokenAddress, wethAddress],
-    address,
-    deadline,
-    {
-      gasLimit: calculateGasMargin(estimatedGasLimit),
-      gasPrice: estimatedGasPrice,
-    }
-  );
-}
+export { dollarize as _dollarize };

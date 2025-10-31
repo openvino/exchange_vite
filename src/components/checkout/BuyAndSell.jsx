@@ -50,9 +50,9 @@ import {
   getSaleTemplate,
   getSaleTemplateSpanish,
 } from "../../utils/emailTemplate";
-import { getChain } from "../Main";
 import axios from "axios";
 import { APIURL, ROUTER_ADDRESS, WETH_ADDRESS } from "../../config";
+import { getChain } from "../../utils/getChain";
 
 export function Account({ $ready, $balanceWINES, setShowConnect }) {
   const account = useActiveAccount();
@@ -236,7 +236,7 @@ export default function BuyAndSell({
           break;
       }
 
-      await axios.post(`${APIURL}/email/send`, body, {
+      await axios.post(`${'https://dondetopa.openvino.org'}/email/send`, body, {
       });
     } catch (error) {
       console.log(error);
