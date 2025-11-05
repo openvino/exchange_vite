@@ -70,10 +70,10 @@ const Selector = () => {
 					<picture>
 						<source
 							media="(min-width: 576px)"
-							srcSet="images/openvino-logo.png"
+							srcSet="/images/openvino-logo.png"
 						/>
 						<img
-							src="images/openvino-logo.png"
+							src="/images/openvino-logo.png"
 							alt="Costaflores"
 							style={{ width: 200 }}
 						/>

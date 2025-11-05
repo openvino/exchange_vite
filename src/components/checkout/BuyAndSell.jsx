@@ -109,22 +109,22 @@ function getValidationErrorMessage(validationError) {
   } else {
     switch (validationError.code) {
       case ERROR_CODES.INVALID_AMOUNT: {
-        return "invalid-amount";
+        return "wallet.invalid-amount";
       }
       case ERROR_CODES.INVALID_TRADE: {
-        return "invalid-trade";
+        return "wallet.invalid-trade";
       }
       case ERROR_CODES.INSUFFICIENT_ALLOWANCE: {
-        return "no-allowance";
+        return "wallet.no-allowance";
       }
       case ERROR_CODES.INSUFFICIENT_ETH_GAS: {
-        return "no-eth";
+        return "wallet.no-eth";
       }
       case ERROR_CODES.INSUFFICIENT_SELECTED_TOKEN_BALANCE: {
-        return "no-tokens";
+        return "wallet.no-tokens";
       }
       default: {
-        return "unknown-error";
+        return "wallet.unknown-error";
       }
     }
   }

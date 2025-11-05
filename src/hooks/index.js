@@ -346,7 +346,6 @@ export function useAllBalances(
 					reserveSelectedTokenETH = null,
 					reserveSelectedTokenToken = null,
 				] = results;
-				console.log(results.ethBalance, results.winesBalance);
 
 				const newBalances = {
 					balanceETH: ethBalance,
