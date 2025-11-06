@@ -50,7 +50,6 @@ const defaultState = {
   [pickup]: false,
 };
 
-
 export default function RedeemForm({
   USDExchangeRateETH,
   shippingCost,
@@ -96,11 +95,7 @@ export default function RedeemForm({
   async function getShippingCosts(country, state, amount) {
     try {
       let res = await axios.get(
-        `${
-         DASHBOARD_URL
-        }/api/routes/shippingCostsRoute?token=${
-          'mtb18'
-        }&province_id=${state}&amount=${amount}`
+        `${DASHBOARD_URL}/api/routes/shippingCostsRoute?token=${appState.tokenName}&province_id=${state}&amount=${amount}`
       );
       if (res.data) {
         let dollarCost = BigNumber.from(res.data.cost * 100);
