@@ -601,6 +601,7 @@ export default function BuyAndSell({
                   state.tradeType,
                   buyValidationState.outputValue
                 );
+                setRefreshTrigger((prev) => prev + 1);
 
                 await saveOrder(
                   state.count,
@@ -646,6 +647,7 @@ export default function BuyAndSell({
                   state.tradeType,
                   sellValidationState.inputValue
                 );
+                setRefreshTrigger((prev) => prev + 1);
 
                 await sendEmailMessageApi(state.email, "sale");
               }
@@ -683,6 +685,7 @@ export default function BuyAndSell({
                   state.tradeType,
                   sellValidationState.inputValue
                 );
+                setRefreshTrigger((prev) => prev + 1);
                 await saveOrder(
                   state.count,
                   account?.address,

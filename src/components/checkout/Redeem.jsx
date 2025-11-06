@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { client } from "../../config/thirdwebClient";
 import { defineChain } from "thirdweb/chains";
@@ -35,6 +35,7 @@ import {
 } from "../../utils/emailTemplate";
 import { APIURL, DASHBOARD_URL } from "../../config";
 import { getChain } from "../../utils/getChain";
+import { clearBalanceCache } from "../../hooks";
 const config = {
   angle: 90,
   spread: 76,
@@ -64,6 +65,7 @@ export default function Redeem({
   transferShippingCosts,
   balanceWINES,
   closeCheckout,
+  setRefreshTrigger,
 }) {
   const [state] = useAppContext();
   const [numberBurned, setNumberBurned] = useState();
@@ -101,6 +103,13 @@ export default function Redeem({
   const account = useActiveAccount();
   const pending = !!transactionHash;
 
+  const refreshBalances = useCallback(() => {
+    clearBalanceCache();
+    if (typeof setRefreshTrigger === "function") {
+      setRefreshTrigger((prev) => prev + 1);
+    }
+  }, [setRefreshTrigger]);
+
   useEffect(() => {
     if (transactionHash) {
       library.waitForTransaction(transactionHash).then(() => {
@@ -109,9 +118,10 @@ export default function Redeem({
         if (!hasBurnt) {
           setHasBurnt(true);
         }
+        refreshBalances();
       });
     }
-  }, [transactionHash]);
+  }, [transactionHash, hasBurnt, library, refreshBalances]);
 
   const sendEmailMessage = async (email, type) => {
     let body = {
@@ -180,6 +190,7 @@ export default function Redeem({
         USDToEth(USDExchangeRateETH, dollarCost)
       );
       await response.wait();
+      refreshBalances();
       const updatedRedeem = await updateRedeem(
         `${state.apiUrl}/redeem/update`,
         { ...redeemToUpdate, shipping_tx_hash: response.hash }
@@ -516,6 +527,7 @@ export default function Redeem({
                   setTransactionHash(response.transactionHash);
                   setBurnTxHash(response.transactionHash);
                   setHasBurnt(true);
+                  refreshBalances();
 
                   if (userForm.pickup === false) {
                     try {
@@ -604,6 +616,7 @@ export default function Redeem({
                       });
 
                       setHasPaidShipping(true);
+                      refreshBalances();
                       sendEmailMessage(userForm.email, "sucess");
                     }
                   } catch (error) {
