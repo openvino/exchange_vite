@@ -59,7 +59,7 @@
 	"info": {
 		"1": "How it works:",
 		"10": "Get in touch.",
-		"2": "One {{token}} token entitles you to one bottle of delicious organic Argentine wine (Mike Tango Bravo {{year}} - a blend of Malbec / Petit Verdot / Cabernet Sauvignon) from \u003c0\u003eCostaflores Organic Vineyard.\u003c/0\u003e",
+		"2": "One {{token}} token entitles you to one bottle of delicious {{description}}",
 		"3": "Watch \u003c0\u003ehere\u003c/0\u003e to understand how the entire \u003c1\u003eOpenVino\u003c/1\u003e process works.",
 		"4": "You can sell the token back at any time, and beginning on {{date}}, you can redeem your {{token}} token for 1 bottle of wine.",
 		"5": "How it is priced:",
