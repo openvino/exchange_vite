@@ -128,6 +128,7 @@ export default function Redeem({
       to: email,
       subject: "",
       secret_key: import.meta.VITE_SECRET_KEY,
+      wineryEmail: state.wineryRedeemEmail,
       html: "",
       text: "",
     };

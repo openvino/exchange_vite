@@ -200,6 +200,7 @@ export default function BuyAndSell({
       let body = {
         to: email,
         subject: "",
+        wineryEmail: state.wineryEmail,
         html: "",
       };
 
