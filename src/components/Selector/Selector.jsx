@@ -8,6 +8,7 @@ import BeatLoader from "react-spinners/BeatLoader";
 import { useAppContext } from "../../context";
 import useWeb3Store from "../../config/zustandStore";
 import { fetchPrice } from "../../utils/fetchPrice";
+import { APIURL } from "../../config";
 
 const Selector = () => {
 	const [products, setProducts] = useState([]);
@@ -30,7 +31,7 @@ const Selector = () => {
 			image: "",
 			tokenYear: "",
 			tokenIcon: "",
-			apiUrl: import.meta.env.VITE_APIURL,
+			apiUrl: APIURL,
 			title: "",
 			shippingAccount: "",
 			validationState: undefined,
@@ -69,10 +70,10 @@ const Selector = () => {
 					<picture>
 						<source
 							media="(min-width: 576px)"
-							srcSet="images/openvino-logo.png"
+							srcSet="/images/openvino-logo.png"
 						/>
 						<img
-							src="images/openvino-logo.png"
+							src="/images/openvino-logo.png"
 							alt="Costaflores"
 							style={{ width: 200 }}
 						/>

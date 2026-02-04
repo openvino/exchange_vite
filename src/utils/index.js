@@ -6,6 +6,7 @@ import ROUTER_ABI from "../contracts/router.json";
 import PAIR_ABI from "../contracts/pair.json";
 
 import UncheckedJsonRpcSigner from "./signer";
+import { ROUTER_ADDRESS } from "../config";
 
 function getDAIAddress() {
 	switch (localStorage.getItem("uniswap.network")) {
@@ -23,7 +24,7 @@ export function getNetworkId() {
 }
 
 //BASE SEPOLIA
-export const ROUTER_ADDRESS = import.meta.env.VITE_ROUTER_ADDRESS;
+export const router_address = ROUTER_ADDRESS;
 
 // denominated in bips
 const ALLOWED_SLIPPAGE = BigNumber.from(200);
@@ -127,7 +128,7 @@ export function getIsCrowdsaleOpen(crowdsaleAddress, library, account) {
 }
 
 export function getRouterContract(library, account) {
-	return getContract(ROUTER_ADDRESS, ROUTER_ABI, library, account);
+	return getContract(router_address, ROUTER_ABI, library, account);
 }
 
 export function getExchangeContract(exchangeAddress, library, account) {

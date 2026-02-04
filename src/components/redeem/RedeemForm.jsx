@@ -10,6 +10,7 @@ import axios from "axios";
 import { fetchCountries } from "../../utils/fetchCountries";
 import { BigNumber } from "ethers";
 import { signMessage } from "thirdweb/utils";
+import { DASHBOARD_URL } from "../../config";
 const bot = "beep-boop";
 const name = "name";
 const line1 = "line1";
@@ -48,7 +49,6 @@ const defaultState = {
   [telegram]: "",
   [pickup]: false,
 };
-
 
 export default function RedeemForm({
   USDExchangeRateETH,
@@ -95,11 +95,7 @@ export default function RedeemForm({
   async function getShippingCosts(country, state, amount) {
     try {
       let res = await axios.get(
-        `${
-          import.meta.env.VITE_DASHBOARD_URL
-        }/api/routes/shippingCostsRoute?token=${
-          appState.tokenName
-        }&province_id=${state}&amount=${amount}`
+        `${DASHBOARD_URL}/api/routes/shippingCostsRoute?token=${appState.tokenName}&province_id=${state}&amount=${amount}`
       );
       if (res.data) {
         let dollarCost = BigNumber.from(res.data.cost * 100);

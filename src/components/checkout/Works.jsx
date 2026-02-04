@@ -7,8 +7,7 @@ import { Close } from "@styled-icons/material/Close";
 import { Trans, useTranslation } from "react-i18next";
 
 import { useAppContext } from "../../context";
-import { tokensInfo } from "../../utils/tokens";
-
+import { tokensInfo } from "../../entities";
 const WorksFrame = styled.div`
 	width: 100%;
 	min-height: 100vh;

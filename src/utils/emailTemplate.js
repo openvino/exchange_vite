@@ -10595,3 +10595,98 @@ export function getSaleTemplateSpanish(wineryEmail) {
 </html>
 `;
 }
+
+
+export function getWineryEmail(operation, user, email, hash) {
+  const safeOperation = operation || "";
+  const safeUser = user || "";
+  const safeEmail = email || "";
+  const safeHash = hash || "";
+
+  return ` <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notificación de transacción</title>
+</head>
+<body style="margin:0; padding:0; background-color:#eff2f7; font-family:Arial, Helvetica, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#eff2f7; padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#f1ede2; border-radius:6px; overflow:hidden;">
+      <!-- Header -->
+      <tr>
+        <td align="center" style="padding:40px 20px 20px;">
+          <h1 style="margin:0; font-size:26px; color:#840c4a;">
+            ${safeOperation}
+          </h1>
+        </td>
+      </tr>
+
+      <!-- Intro -->
+      <tr>
+        <td align="center" style="padding:0 30px 20px;">
+          <p style="margin:0; font-size:16px; color:#333333; line-height:24px;">
+            El usuario <strong>${safeUser}</strong> ha realizado una transacción.
+          </p>
+        </td>
+      </tr>
+
+      <!-- Divider -->
+      <tr>
+        <td align="center" style="padding:10px 30px;">
+          <hr style="border:none; border-top:1px solid #ddd;">
+        </td>
+      </tr>
+
+      <!-- Transaction Info -->
+      <tr>
+        <td align="center" style="padding:10px 30px 30px;">
+          <p style="margin:0 0 15px; font-size:16px; font-weight:bold; color:#333;">
+            Información de la transacción
+          </p>
+
+          <p style="margin:6px 0; font-size:15px; color:#333;">
+            <strong>Operación:</strong> ${safeOperation}
+          </p>
+
+          <p style="margin:6px 0; font-size:15px; color:#333;">
+            <strong>Email:</strong> ${safeEmail}
+          </p>
+
+          <p style="margin:6px 0; font-size:15px; color:#333;">
+            <strong>BaseScan:</strong><br/>
+            <a href="https://basescan.org/tx/${safeHash}" target="_blank" style="color:#0050d8; text-decoration:none;">
+              https://basescan.org/tx/${safeHash}
+            </a>
+          </p>
+        </td>
+      </tr>
+
+      <!-- Image -->
+      <tr>
+        <td align="center">
+          <img
+            src="https://fkeeqdd.stripocdn.email/content/guids/CABINET_b3ea996371ce299480aa7232bba0b256603bd81ef12b5fc5e182937c717e2be2/images/2.png"
+            alt=""
+            width="600"
+            style="display:block; width:100%; height:auto; border:0;"
+          />
+        </td>
+      </tr>
+
+      <!-- Footer -->
+      <tr>
+        <td align="center" style="padding:20px; font-size:13px; color:#8492a6;">
+          Este es un correo automático, por favor no responder.
+        </td>
+      </tr>
+
+    </table>
+  </td>
+</tr>  </table>
+</body>
+</html>
+`
+}

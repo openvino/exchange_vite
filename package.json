@@ -16,7 +16,6 @@
     "@styled-icons/boxicons-regular": "^10.47.0",
     "@styled-icons/evil": "^10.46.0",
     "@styled-icons/material": "^10.47.0",
-    "@uniswap/sdk": "^3.0.3",
     "axios": "^1.7.7",
     "chart.js": "^4.4.7",
     "dotenv": "^16.4.5",

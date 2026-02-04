@@ -16,10 +16,11 @@ import {
 import { ethers } from "ethers";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import debounce from "lodash.debounce";
-import { getPairAddressFromTokenAddress } from "../utils/whitelistedPools";
 import { base, baseSepolia } from "thirdweb/chains";
+import { getPairAddressFromTokenAddress } from "../entities";
+import { DEV_MODE, FACTORY_ADDRESS } from "../config";
 const getChain = () => {
-	const productionMode = import.meta.env.VITE_DEV_MODE === "production";
+	const productionMode = DEV_MODE === "production";
 	if (productionMode) {
 		return base;
 	} else {
@@ -98,7 +99,7 @@ export function useRouterContract(withSignerIfPossible = true) {
 
 export function useExchangeContract(tokenAddress, withSignerIfPossible = true) {
 	const account = useActiveAccount();
-	const exchangeAddress = import.meta.env.VITE_FACTORY_ADDRESS;
+	const exchangeAddress = FACTORY_ADDRESS;
 
 	const debouncedFetch = useCallback(
 		debounce(() => {
@@ -267,6 +268,9 @@ export function useContracts(
 }
 
 const balanceCache = new Map();
+export const clearBalanceCache = () => {
+	balanceCache.clear();
+};
 const callTimestamps = [];
 
 export function useAllBalances(
@@ -304,65 +308,75 @@ export function useAllBalances(
 	};
 
 	const debouncedFetch = useCallback(
-		debounce(async () => {
-			if (!isAddress(address) || !isAddress(tokenAddress)) return;
+		debounce(
+			async () => {
+				if (!isAddress(address) || !isAddress(tokenAddress)) return;
 
-			const cacheKey = `${address}-${tokenAddress}-${selectedToken}`;
-			if (balanceCache.has(cacheKey)) {
-				setBalances(balanceCache.get(cacheKey));
-				return;
-			}
+				const cacheKey = `${address}-${tokenAddress}-${selectedToken}`;
+				const cachedEntry = balanceCache.get(cacheKey);
+				if (
+					cachedEntry &&
+					cachedEntry.refreshTrigger === refreshTrigger
+				) {
+					setBalances(cachedEntry.balances);
+					return;
+				}
 
-			try {
-				// console.log("📡 Fetching balances from RPC...");
+				try {
+					// console.log("📡 Fetching balances from RPC...");
 
-				// 🚨 Verificar si los contratos existen antes de usarlos
-				const fetchBalances = async () => {
-					const promises = [
-						getEtherBalance(address, library),
-						getTokenBalance(tokenAddress, address, library),
-						selectedToken === "ETH"
-							? getEtherBalance(address, library)
-							: getTokenBalance(
-									TOKEN_ADDRESSES[selectedToken],
-									address,
-									library
-							  ),
-					];
+					// 🚨 Verificar si los contratos existen antes de usarlos
+					const fetchBalances = async () => {
+						const promises = [
+							getEtherBalance(address, library),
+							getTokenBalance(tokenAddress, address, library),
+							selectedToken === "ETH"
+								? getEtherBalance(address, library)
+								: getTokenBalance(
+										TOKEN_ADDRESSES[selectedToken],
+										address,
+										library
+								  ),
+						];
 
-					return await Promise.all(promises);
-				};
+						return await Promise.all(promises);
+					};
 
-				const results = await rateLimiter(fetchBalances);
+					const results = await rateLimiter(fetchBalances);
 
-				// Mapeamos los resultados dependiendo de qué contratos estaban disponibles
-				const [
-					ethBalance,
-					winesBalance,
-					selectedTokenBalance,
-					reserveDAIETH = null,
-					reserveDAIToken = null,
-					reserveSelectedTokenETH = null,
-					reserveSelectedTokenToken = null,
-				] = results;
-				console.log(results.ethBalance, results.winesBalance);
+					// Mapeamos los resultados dependiendo de qué contratos estaban disponibles
+					const [
+						ethBalance,
+						winesBalance,
+						selectedTokenBalance,
+						reserveDAIETH = null,
+						reserveDAIToken = null,
+						reserveSelectedTokenETH = null,
+						reserveSelectedTokenToken = null,
+					] = results;
 
-				const newBalances = {
-					balanceETH: ethBalance,
-					balanceWINES: winesBalance,
-					balanceSelectedToken: selectedTokenBalance,
-					reserveDAIETH,
-					reserveDAIToken,
-					reserveSelectedTokenETH,
-					reserveSelectedTokenToken,
-				};
+					const newBalances = {
+						balanceETH: ethBalance,
+						balanceWINES: winesBalance,
+						balanceSelectedToken: selectedTokenBalance,
+						reserveDAIETH,
+						reserveDAIToken,
+						reserveSelectedTokenETH,
+						reserveSelectedTokenToken,
+					};
 
-				balanceCache.set(cacheKey, newBalances);
-				setBalances(newBalances);
-			} catch (error) {
-				console.error("❌ Error obteniendo balances:", error);
-			}
-		}, 8000),
+					balanceCache.set(cacheKey, {
+						refreshTrigger,
+						balances: newBalances,
+					});
+					setBalances(newBalances);
+				} catch (error) {
+					console.error("❌ Error obteniendo balances:", error);
+				}
+			},
+			8000,
+			{ leading: true, trailing: false }
+		),
 		[address, tokenAddress, selectedToken, refreshTrigger]
 	);
 

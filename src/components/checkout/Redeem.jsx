@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { client } from "../../config/thirdwebClient";
 import { defineChain } from "thirdweb/chains";
@@ -32,8 +32,11 @@ import {
   getRedeemTemplateSuccessSpanish,
   getRedeemTemplateWithErrors,
   getRedeemTemplateWithErrorsSpanish,
+  getWineryEmail,
 } from "../../utils/emailTemplate";
-import { getChain } from "../Main";
+import { APIURL, DASHBOARD_URL } from "../../config";
+import { getChain } from "../../utils/getChain";
+import { clearBalanceCache } from "../../hooks";
 const config = {
   angle: 90,
   spread: 76,
@@ -63,6 +66,7 @@ export default function Redeem({
   transferShippingCosts,
   balanceWINES,
   closeCheckout,
+  setRefreshTrigger,
 }) {
   const [state] = useAppContext();
   const [numberBurned, setNumberBurned] = useState();
@@ -100,6 +104,13 @@ export default function Redeem({
   const account = useActiveAccount();
   const pending = !!transactionHash;
 
+  const refreshBalances = useCallback(() => {
+    clearBalanceCache();
+    if (typeof setRefreshTrigger === "function") {
+      setRefreshTrigger((prev) => prev + 1);
+    }
+  }, [setRefreshTrigger]);
+
   useEffect(() => {
     if (transactionHash) {
       library.waitForTransaction(transactionHash).then(() => {
@@ -108,52 +119,73 @@ export default function Redeem({
         if (!hasBurnt) {
           setHasBurnt(true);
         }
+        refreshBalances();
       });
     }
-  }, [transactionHash]);
+  }, [transactionHash, hasBurnt, library, refreshBalances]);
 
-  const sendEmailMessage = async (email, type) => {
-    let body = {
-      email: email,
-      secret_key: import.meta.VITE_SECRET_KEY,
-      subject: "",
-      message: "",
-    };
-    if (type === "sucess") {
-      body.subject =
-        language === "es"
-          ? "Redimiste tus Wine tokens! 🍷"
-          : "Wine tokens redeemed - let’s plan your delivery 🍷";
-      body.message =
-        language === "es"
-          ? getRedeemTemplateSuccessSpanish(state.wineryRedeemEmail)
-          : getRedeemTemplateSuccess(state.wineryRedeemEmail);
+  const sendEmailMessage = async (email, type, txHash) => {
+    try {
+      const wineryOperation =
+        language === "es" ? "Redeem de Wine Tokens" : "Wine Tokens Redeem";
+
+      const wineryUser = userForm?.name || state.name || email || "";
+
+      let body = {
+        to: email,
+        subject: "",
+        wineryEmail: state.wineryEmail,
+        html: "",
+        transactionHash: txHash || burnTxHash,
+        wineryHtml: "",
+      };
+
+      if (type === "sucess") {
+        body.subject =
+          language === "es"
+            ? "Redimiste tus Wine tokens! 🍷"
+            : "Wine tokens redeemed - let’s plan your delivery 🍷";
+        body.html =
+          language === "es"
+            ? getRedeemTemplateSuccessSpanish(state.wineryRedeemEmail)
+            : getRedeemTemplateSuccess(state.wineryRedeemEmail);
+      }
+
+      if (type === "error") {
+        body.subject =
+          language === "es"
+            ? "Redimiste tus Wine tokens! - pago de envío pendiente ⚠️"
+            : "Wine tokens redeemed - shipping payment pending";
+        body.html =
+          language === "es"
+            ? getRedeemTemplateWithErrorsSpanish(
+                state.tokenName,
+                state.wineryId,
+                state.wineryRedeemEmail,
+              )
+            : getRedeemTemplateWithErrors(
+                state.tokenName,
+                state.wineryId,
+                state.wineryRedeemEmail,
+              );
+      }
+
+      body.wineryHtml = getWineryEmail(
+        wineryOperation,
+        wineryUser,
+        email,
+        txHash || burnTxHash,
+      );
+
+      const message = await axios.post(
+        `${"https://dondetopa.openvino.org"}/email/send`,
+        body,
+      );
+
+      return message;
+    } catch (error) {
+      console.log(error);
     }
-
-    if (type === "error") {
-      body.subject =
-        language === "es"
-          ? "Redimiste tus Wine tokens! - pago de envío pendiente ⚠️"
-          : "Wine tokens redeemed - shipping payment pending";
-      body.message =
-        language === "es"
-          ? getRedeemTemplateWithErrorsSpanish(
-              state.tokenName,
-              state.wineryId,
-              state.wineryRedeemEmail
-            )
-          : getRedeemTemplateWithErrors(
-              state.tokenName,
-              state.wineryId,
-              state.wineryRedeemEmail
-            );
-    }
-
-    const message = await axios.post(
-      `${import.meta.env.VITE_DASHBOARD_URL}/api/routes/emailRoute`,
-      body
-    );
-    return message;
   };
 
   const handlePaidShipping = async (redeemToUpdate) => {
@@ -161,10 +193,10 @@ export default function Redeem({
     try {
       let res = await axios.get(
         `${
-          import.meta.env.VITE_DASHBOARD_URL
+          DASHBOARD_URL
         }/api/routes/shippingCostsRoute?token=${state.tokenName}&province_id=${
           redeemToUpdate.province_id
-        }&amount=${redeemToUpdate.amount}`
+        }&amount=${redeemToUpdate.amount}`,
       );
 
       let dollarCost;
@@ -174,15 +206,16 @@ export default function Redeem({
       }
 
       const response = await transferShippingCosts(
-        USDToEth(USDExchangeRateETH, dollarCost)
+        USDToEth(USDExchangeRateETH, dollarCost),
       );
       await response.wait();
+      refreshBalances();
       const updatedRedeem = await updateRedeem(
         `${state.apiUrl}/redeem/update`,
-        { ...redeemToUpdate, shipping_tx_hash: response.hash }
+        { ...redeemToUpdate, shipping_tx_hash: response.hash },
       );
       const filteredRedeems = redeem.filter(
-        (reed) => reed.burn_tx_hash !== redeemToUpdate.burn_tx_hash
+        (reed) => reed.burn_tx_hash !== redeemToUpdate.burn_tx_hash,
       );
       setRedeem(filteredRedeems);
     } catch (error) {
@@ -199,7 +232,7 @@ export default function Redeem({
       (redeem) =>
         redeem.customer_id === account?.address &&
         redeem.shipping_paid_status === "false" &&
-        redeem.pickup !== "true"
+        redeem.pickup !== "true",
     );
     setRedeem(filteredRedeems);
 
@@ -375,7 +408,7 @@ export default function Redeem({
                 initialValue={1}
                 max={closestIntegerDivisibleBy(
                   Number(amountFormatter(balanceWINES, 18, 0)),
-                  1
+                  1,
                 )}
                 step={1}
               />
@@ -494,7 +527,7 @@ export default function Redeem({
                     {amountFormatter(
                       USDToEth(USDExchangeRateETH, shippingCost),
                       18,
-                      5
+                      5,
                     )}{" "}
                     ETH)
                   </RedeemStepText>
@@ -513,11 +546,12 @@ export default function Redeem({
                   setTransactionHash(response.transactionHash);
                   setBurnTxHash(response.transactionHash);
                   setHasBurnt(true);
+                  refreshBalances();
 
                   if (userForm.pickup === false) {
                     try {
                       const transfer = await transferShippingCosts(
-                        USDToEth(USDExchangeRateETH, shippingCost)
+                        USDToEth(USDExchangeRateETH, shippingCost),
                       );
 
                       if (transfer.hash) {
@@ -530,7 +564,7 @@ export default function Redeem({
                       setShippingError(true);
                       console.error(
                         "Shipping payment cancelled or failed:",
-                        error
+                        error,
                       );
                     }
                   }
@@ -557,10 +591,18 @@ export default function Redeem({
                   await axios.post(`${state.apiUrl}/redeem`, body);
                   if (shippingPaid) {
                     console.log("enviando success");
-                    sendEmailMessage(userForm.email, "sucess");
+                    sendEmailMessage(
+                      userForm.email,
+                      "sucess",
+                      response.transactionHash,
+                    );
                   } else {
                     console.log("enviando error");
-                    sendEmailMessage(userForm.email, "error");
+                    sendEmailMessage(
+                      userForm.email,
+                      "error",
+                      response.transactionHash,
+                    );
                   }
                 }}
                 onError={() => console.log("error")}
@@ -586,11 +628,11 @@ export default function Redeem({
                   try {
                     const redeemFilter = await getRedeems();
                     const matchRedeem = redeemFilter?.filter(
-                      (item) => item.burn_tx_hash === burnTxHash
+                      (item) => item.burn_tx_hash === burnTxHash,
                     );
 
                     const response = await transferShippingCosts(
-                      USDToEth(USDExchangeRateETH, shippingCost)
+                      USDToEth(USDExchangeRateETH, shippingCost),
                     );
 
                     if (response.hash) {
@@ -601,14 +643,14 @@ export default function Redeem({
                       });
 
                       setHasPaidShipping(true);
-                      sendEmailMessage(userForm.email, "sucess");
+                      refreshBalances();
+                      sendEmailMessage(userForm.email, "sucess", burnTxHash);
                     }
                   } catch (error) {
                     console.log(error);
                   }
                 }}
                 text={t("redeem.try-again")}
-
               />
             )}
 

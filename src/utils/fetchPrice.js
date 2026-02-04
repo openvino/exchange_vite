@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_SECRET, DASHBOARD_URL } from "../config";
 
-const apiSecret = import.meta.env.VITE_API_SECRET;
-const apiUrl = import.meta.env.VITE_DASHBOARD_URL;
+const apiSecret = API_SECRET;
+const apiUrl = DASHBOARD_URL;
 
 
 export const fetchPrice = async (from = "ETH", to = "USDC") => {

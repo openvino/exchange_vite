@@ -1,0 +1,9 @@
+export const DEV_MODE = import.meta.env.VITE_DEV_MODE;
+export const APIURL = import.meta.env.VITE_APIURL;
+export const WETH_ADDRESS = import.meta.env.VITE_WETH_ADDRESS;
+export const SHIPPING_ADDRESS = import.meta.env.VITE_SHIPPING_ADDRESS;
+export const ROUTER_ADDRESS = import.meta.env.VITE_ROUTER_ADDRESS;
+export const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL;
+export const TEMPLATE_CLIENT_ID = import.meta.env.VITE_TEMPLATE_CLIENT_ID;
+export const FACTORY_ADDRESS = import.meta.env.VITE_FACTORY_ADDRESS;
+export const API_SECRET = import.meta.env.VITE_API_SECRET;

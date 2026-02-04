@@ -49,9 +49,11 @@ import {
   getBuyTemplateSpanish,
   getSaleTemplate,
   getSaleTemplateSpanish,
+  getWineryEmail,
 } from "../../utils/emailTemplate";
-import { getChain } from "../Main";
 import axios from "axios";
+import { APIURL, ROUTER_ADDRESS, WETH_ADDRESS } from "../../config";
+import { getChain } from "../../utils/getChain";
 
 export function Account({ $ready, $balanceWINES, setShowConnect }) {
   const account = useActiveAccount();
@@ -108,22 +110,22 @@ function getValidationErrorMessage(validationError) {
   } else {
     switch (validationError.code) {
       case ERROR_CODES.INVALID_AMOUNT: {
-        return "invalid-amount";
+        return "wallet.invalid-amount";
       }
       case ERROR_CODES.INVALID_TRADE: {
-        return "invalid-trade";
+        return "wallet.invalid-trade";
       }
       case ERROR_CODES.INSUFFICIENT_ALLOWANCE: {
-        return "no-allowance";
+        return "wallet.no-allowance";
       }
       case ERROR_CODES.INSUFFICIENT_ETH_GAS: {
-        return "no-eth";
+        return "wallet.no-eth";
       }
       case ERROR_CODES.INSUFFICIENT_SELECTED_TOKEN_BALANCE: {
-        return "no-tokens";
+        return "wallet.no-tokens";
       }
       default: {
-        return "unknown-error";
+        return "wallet.unknown-error";
       }
     }
   }
@@ -166,7 +168,6 @@ export default function BuyAndSell({
 
   const language = i18n.language;
 
-
   function getText(account, errorMessage, ready, pending, hash) {
     if (account === null) {
       return t("wallet.connect");
@@ -194,13 +195,21 @@ export default function BuyAndSell({
       return errorMessage ? t(errorMessage) : t("wallet.loading");
     }
   }
-  const sendEmailMessage = async (email, type) => {
+
+  const sendEmailMessageApi = async (email, type, txHash) => {
     try {
+      const wineryOperation =
+        type === "sale" ? "Venta de Wine Tokens" : "Compra de Wine Tokens";
+
+      const wineryUser = state.name || state.email || "";
+
       let body = {
-        email: email,
-        secret_key: import.meta.VITE_SECRET_KEY,
+        to: email,
         subject: "",
-        message: "",
+        wineryEmail: state.wineryEmail,
+        html: "",
+        transactionHash: txHash || currentTransactionHash,
+        wineryHtml: "",
       };
 
       switch (type) {
@@ -209,19 +218,19 @@ export default function BuyAndSell({
             language === "es"
               ? "Compra de Wine Tokens confirmada - Gracias! 🍷"
               : "Wine tokens purchased - Thank you! 🍷";
-          body.message =
+          body.html =
             language === "es"
               ? getBuyTemplateSpanish(
                   state.tokenName,
                   state.count,
                   state.wineryId,
-                  state.wineryEmail
+                  state.wineryEmail,
                 )
               : getBuyTemplate(
                   state.tokenName,
                   state.count,
                   state.wineryId,
-                  state.wineryEmail
+                  state.wineryEmail,
                 );
           break;
         case "sale":
@@ -229,18 +238,25 @@ export default function BuyAndSell({
             language === "es"
               ? "Venta de Wine tokens completada ✅"
               : "Wine tokens sale completed";
-          body.message =
+          body.html =
             language === "es"
               ? getSaleTemplateSpanish(state.wineryEmail)
               : getSaleTemplate(state.wineryEmail);
           break;
       }
 
-      const message = await axios.post(
-        `${import.meta.env.VITE_DASHBOARD_URL}/api/routes/emailRoute`,
-        body
+      body.wineryHtml = getWineryEmail(
+        wineryOperation,
+        wineryUser,
+        state.email,
+        txHash || currentTransactionHash,
       );
-      return message;
+
+      await axios.post(
+        `${"https://dondetopa.openvino.org"}/email/send`,
+        body,
+        {},
+      );
     } catch (error) {
       console.log(error);
     }
@@ -254,7 +270,7 @@ export default function BuyAndSell({
   useEffect(() => {
     try {
       const { error: validationError, ...validationState } = validateBuy(
-        String(state.count)
+        String(state.count),
       );
       setBuyValidationState(validationState);
       setValidationError(validationError || null);
@@ -271,7 +287,7 @@ export default function BuyAndSell({
 
   useEffect(() => {
     const { error: validationError, ...validationState } = validateBuy(
-      String(state.count)
+      String(state.count),
     );
     setState((state) => ({
       ...state,
@@ -288,7 +304,7 @@ export default function BuyAndSell({
     ) {
       try {
         const { error: validationError, ...validationState } = validateSell(
-          String(state.count)
+          String(state.count),
         );
 
         setSellValidationState(validationState);
@@ -357,7 +373,7 @@ export default function BuyAndSell({
           {amountFormatter(
             dollarize(crowdsaleValidationState.inputValue),
             18,
-            2
+            2,
           )}
         </p>
       );
@@ -409,7 +425,7 @@ export default function BuyAndSell({
   const contract = getContract({
     client: client,
     chain: getChain(),
-    address: import.meta.env.VITE_ROUTER_ADDRESS,
+    address: ROUTER_ADDRESS,
     abi: contractABI,
   });
 
@@ -434,7 +450,7 @@ export default function BuyAndSell({
   });
 
   //baseSepolia sepolia
-  let wethAddress = import.meta.env.VITE_WETH_ADDRESS;
+  let wethAddress = WETH_ADDRESS;
 
   if (!account?.address) {
     return (
@@ -485,8 +501,8 @@ export default function BuyAndSell({
                 {buying
                   ? t("wallet.pay")
                   : selling
-                  ? t("wallet.sell")
-                  : t("wallet.crowdsale")}
+                    ? t("wallet.sell")
+                    : t("wallet.crowdsale")}
               </Description>
               <WineTitle>
                 {state.title} <b>{state.tokenName}</b>
@@ -504,8 +520,8 @@ export default function BuyAndSell({
                 buying
                   ? amountFormatter(reserveWINESToken, 18, 0)
                   : crowdsaling && data
-                  ? Math.floor(formatUnits(data, 18))
-                  : null
+                    ? Math.floor(formatUnits(data, 18))
+                    : null
               }
               initialValue={selling ? 1 : 1}
               step={1}
@@ -551,7 +567,7 @@ export default function BuyAndSell({
                 setCurrentTransaction(
                   response.transactionHash,
                   TRADE_TYPES.UNLOCK,
-                  undefined
+                  undefined,
                 );
                 setRefreshTrigger((prev) => prev + 1);
               }
@@ -562,7 +578,7 @@ export default function BuyAndSell({
                 method: "approve",
                 params: [
                   // routerContract.address,
-                  import.meta.env.VITE_ROUTER_ADDRESS,
+                  ROUTER_ADDRESS,
                   BigInt(ethers.constants.MaxUint256),
                 ],
               })
@@ -590,9 +606,9 @@ export default function BuyAndSell({
                 value: BigInt(
                   ethers.utils.parseEther(
                     ethers.utils.formatEther(
-                      buyValidationState?.maximumInputValue?.toString()
-                    )
-                  )
+                      buyValidationState?.maximumInputValue?.toString(),
+                    ),
+                  ),
                 ),
               })
             }
@@ -602,8 +618,9 @@ export default function BuyAndSell({
                 setCurrentTransaction(
                   response.transactionHash,
                   state.tradeType,
-                  buyValidationState.outputValue
+                  buyValidationState.outputValue,
                 );
+                setRefreshTrigger((prev) => prev + 1);
 
                 await saveOrder(
                   state.count,
@@ -611,10 +628,14 @@ export default function BuyAndSell({
                   state.email,
                   state.wineryId,
                   state.name,
-                  state.tokenName
+                  state.tokenName,
                 );
               }
-              await sendEmailMessage(state.email, "buy");
+              await sendEmailMessageApi(
+                state.email,
+                "buy",
+                response.transactionHash,
+              );
             }}
           >
             {getText(
@@ -622,7 +643,7 @@ export default function BuyAndSell({
               errorMessage,
               ready,
               pending,
-              currentTransactionHash
+              currentTransactionHash,
             )}
           </TransactionButton>
         ) : selling ? (
@@ -647,10 +668,15 @@ export default function BuyAndSell({
                 setCurrentTransaction(
                   response.transactionHash,
                   state.tradeType,
-                  sellValidationState.inputValue
+                  sellValidationState.inputValue,
                 );
+                setRefreshTrigger((prev) => prev + 1);
 
-                await sendEmailMessage(state.email, "sale");
+                await sendEmailMessageApi(
+                  state.email,
+                  "sale",
+                  response.transactionHash,
+                );
               }
             }}
           >
@@ -659,7 +685,7 @@ export default function BuyAndSell({
               errorMessage,
               ready,
               pending,
-              currentTransactionHash
+              currentTransactionHash,
             )}
           </TransactionButton>
         ) : (
@@ -673,9 +699,9 @@ export default function BuyAndSell({
                 value: BigInt(
                   ethers.utils.parseEther(
                     ethers.utils.formatEther(
-                      crowdsaleValidationState.maximumInputValue
-                    )
-                  )
+                      crowdsaleValidationState.maximumInputValue,
+                    ),
+                  ),
                 ),
               })
             }
@@ -684,18 +710,23 @@ export default function BuyAndSell({
                 setCurrentTransaction(
                   response.transactionHash,
                   state.tradeType,
-                  sellValidationState.inputValue
+                  sellValidationState.inputValue,
                 );
+                setRefreshTrigger((prev) => prev + 1);
                 await saveOrder(
                   state.count,
                   account?.address,
                   state.email,
                   state.wineryId,
                   state.name,
-                  state.tokenName
+                  state.tokenName,
                 );
 
-                await sendEmailMessage(state.email, "buy");
+                await sendEmailMessageApi(
+                  state.email,
+                  "buy",
+                  response.transactionHash,
+                );
               }
             }}
             onError={(e) => console.error(e)}
@@ -705,7 +736,7 @@ export default function BuyAndSell({
               errorMessage,
               ready,
               pending,
-              currentTransactionHash
+              currentTransactionHash,
             )}
           </TransactionButton>
         )}
