@@ -2,14 +2,14 @@
     background-color: transparent;
     border: none;
   }
-  
-  .card > a {
+
+  .card-winery > a {
     text-decoration: none;
-    color: var(--primary-text-color);
+    color: inherit;
   }
   
   .card-img {
-    object-fit: cover;
+    object-fit: fit;
     height: 200px;
   }
   
@@ -33,14 +33,52 @@
     }
   }
   
-  .card-img-overlay > p {
-    font-size: 1rem !important;
-    font-weight: 400;
-    padding: 6px 10px;
-    z-index: 999;
-    color: white;
-    border: 1.5px solid white;
+.card-img-overlay > p {
+  font-size: 1rem !important;
+  font-weight: 400;
+  padding: 6px 10px;
+  z-index: 999;
+  color: white;
+  border: 1.5px solid white;
+  background: rgba(40, 0, 20, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow:
+    0 0 8px rgba(120, 0, 40, 0.65),
+    0 0 16px rgba(160, 0, 60, 0.45),
+    0 0 28px rgba(210, 60, 100, 0.35);
+  animation: wine-neon-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes wine-neon-pulse {
+  0% {
+    transform: scale(1);
+    border-color: rgba(255, 230, 236, 0.8);
+    color: #ffe8ee;
+    box-shadow:
+      0 0 6px rgba(120, 0, 40, 0.6),
+      0 0 14px rgba(160, 0, 60, 0.4),
+      0 0 22px rgba(210, 60, 100, 0.3);
   }
+  50% {
+    transform: scale(1.03);
+    border-color: rgba(255, 195, 210, 0.95);
+    color: #fff4f7;
+    box-shadow:
+      0 0 10px rgba(180, 30, 70, 0.8),
+      0 0 22px rgba(210, 60, 100, 0.6),
+      0 0 36px rgba(235, 90, 120, 0.45);
+  }
+  100% {
+    transform: scale(1);
+    border-color: rgba(255, 230, 236, 0.8);
+    color: #ffe8ee;
+    box-shadow:
+      0 0 6px rgba(120, 0, 40, 0.6),
+      0 0 14px rgba(160, 0, 60, 0.4),
+      0 0 22px rgba(210, 60, 100, 0.3);
+  }
+}
   
   .card-body {
     padding: 5px;
