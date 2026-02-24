@@ -549,8 +549,10 @@
 		"contact": "Contact",
 		"empty-state": "No wineries added yet",
 		"openvino-wiki": "Wiki",
+		"preselection-2026": "Présélection des domaines 2026",
 		"search": "Search for your winery here",
 		"title": "Wineries",
 		"visit-winery": "Visit winery"
-	}
+	},
+	"interest": "DEMANDE D'INTÉRÊT"
 }

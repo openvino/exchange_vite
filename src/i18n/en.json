@@ -552,9 +552,11 @@
 		"contact": "Contact",
 		"empty-state": "No wineries added yet",
 		"openvino-wiki": "Wiki",
+		"preselection-2026": "Winery Pre-Selection 2026",
 		"search": "Search for your winery here",
 		"title": "Wineries",
 		"visit-winery": "Visit winery"
 	},
+	"interest": "EXPRESSION OF INTEREST",
 	"TEMP_NOT_AVAILABLE": "Temporarily not available"
 }

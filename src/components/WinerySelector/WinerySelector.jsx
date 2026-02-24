@@ -6,30 +6,42 @@ import { getComingSoonWineriesList } from "../../utils/getComingSoonWineries";
 import ProductComingSoonWinerySelector from "../ProductComingSoonWinerySelector/ProductComingSoonWinerySelector";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useNavigation } from "react-router-dom";
+import WineryPreSelection from "../WineryPreSelection/WineryPreSelection";
 const WinerySelector = () => {
 	const [wineries, setWineries] = useState([]);
 	const [comingSoonWineies, setComingSoonWineies] = useState([]);
 
 	const [filteredWineries, setFilteredWineries] = useState([]);
 	const [filteredComingSoon, setFilteredComingSoon] = useState([]);
+	const [filteredOpenVinoPreSelection, setFilteredOpenVinoPreSelection] = useState(
+		[]
+	);
 
 	const { t } = useTranslation();
+	const openVinoPreSelection = {
+		id: "1",
+		name: t("wineries.preselection-2026"),
+		website: "https://forms.gle/KoyA5x4o9wfwJSVLA",
+		image: "/images/preselection.jpeg",
+		primary_color: "",
+	};
+	const getWineries = async () => {
+		const response = await axiosClient.get("/wineries");
+		setWineries(response.data);
 
-  const getWineries = async () => {
-    const response = await axiosClient.get("/wineries");
-    setWineries(response.data);
-
-    const reordered = [...response.data].sort((a, b) => {
-      if (a.name.toLowerCase() === "costaflores") return -1;
-      if (b.name.toLowerCase() === "costaflores") return 1;
-      return 0;
-    });
-    setWineries(reordered);
-    setFilteredWineries(reordered);
+		const reordered = [...response.data].sort((a, b) => {
+			if (a.name.toLowerCase() === "costaflores") return -1;
+			if (b.name.toLowerCase() === "costaflores") return 1;
+			return 0;
+		});
+		setWineries(reordered);
+		setFilteredWineries(reordered);
 
 		const comingSoon = getComingSoonWineriesList();
+
 		setComingSoonWineies(comingSoon);
 		setFilteredComingSoon(comingSoon);
+		setFilteredOpenVinoPreSelection([openVinoPreSelection]);
 	};
 	useEffect(() => {
 		getWineries();
@@ -39,9 +51,9 @@ const WinerySelector = () => {
 		const searchValue = event.target.value.toLowerCase();
 
 		if (!searchValue) {
-			// si está vacío, restablece la lista completa
 			setFilteredWineries(wineries);
 			setFilteredComingSoon(comingSoonWineies);
+			setFilteredOpenVinoPreSelection([openVinoPreSelection]);
 			return;
 		}
 
@@ -53,8 +65,13 @@ const WinerySelector = () => {
 			winery.name.toLowerCase().includes(searchValue)
 		);
 
+		const filteredPreSelection = [openVinoPreSelection].filter((winery) =>
+			winery.name.toLowerCase().includes(searchValue)
+		);
+
 		setFilteredWineries(filtered);
 		setFilteredComingSoon(filteredComing);
+		setFilteredOpenVinoPreSelection(filteredPreSelection);
 	};
 
 	const navigate = useNavigate();
@@ -147,6 +164,17 @@ const WinerySelector = () => {
 							<ProductComingSoonWinerySelector
 								key={
 									winery.id ? `comingSoon-${winery.id}` : `comingSoon-${index}`
+								}
+								winery={winery}
+							/>
+						))}
+
+						{filteredOpenVinoPreSelection.map((winery, index) => (
+							<WineryPreSelection
+								key={
+									winery.id
+										? `preselection-${winery.id}`
+										: `preselection-${index}`
 								}
 								winery={winery}
 							/>

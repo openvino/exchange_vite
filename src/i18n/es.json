@@ -553,9 +553,11 @@
 		"contact": "Contacto",
 		"empty-state": "No hay bodegas añadidas",
 		"openvino-wiki": "Wiki",
+		"preselection-2026": "Pre Selección Bodegas 2026",
 		"search": "Busca aquí tu bodega",
 		"title": "Bodegas",
 		"visit-winery": "Visita la bodega"
 	},
+	"interest": "SOLICITUD DE INTERÉS",
 	"TEMP_NOT_AVAILABLE": "Temporalmente no disponible"
 }
