@@ -9,13 +9,13 @@
   }
   
   .card-img {
-    object-fit: fit;
+    object-fit: cover;
     height: 200px;
   }
   
   @media (max-width: 575px) {
     .card-img {
-      width: 100vw !important;
+      width: 100% !important;
       height: 300px !important;
     }
   }
@@ -28,7 +28,7 @@
   
   @media (max-width: 575px) {
     .card-img-overlay {
-      width: 100vw !important;
+      width: 100% !important;
       height: 300px !important;
     }
   }
