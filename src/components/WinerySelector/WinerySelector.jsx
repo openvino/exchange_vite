@@ -153,16 +153,7 @@ const WinerySelector = () => {
 						</div>
 					</div>
 					<div className={`${styles["card-group"]} card-group`}>
-	{filteredOpenVinoPreSelection.map((winery, index) => (
-							<WineryPreSelection
-								key={
-									winery.id
-										? `preselection-${winery.id}`
-										: `preselection-${index}`
-								}
-								winery={winery}
-							/>
-						))}
+
 
 						{filteredWineries.map((winery, index) => (
 							<ProductWinerySelector
@@ -180,7 +171,16 @@ const WinerySelector = () => {
 							/>
 						))}
 
-					
+						{filteredOpenVinoPreSelection.map((winery, index) => (
+							<WineryPreSelection
+								key={
+									winery.id
+										? `preselection-${winery.id}`
+										: `preselection-${index}`
+								}
+								winery={winery}
+							/>
+						))}
 					</div>
 				</div>
 			</div>
