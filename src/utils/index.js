@@ -292,7 +292,8 @@ export function calculateEtherTokenInputFromOutput(
 	const numerator = inputReserve.mul(outputAmount).mul(BigNumber.from(1000));
 	let denominator;
 
-	if (outputReserve > outputAmount)
+	// BigNumber must be compared with its helpers; native `>` makes the quote behave almost linearly.
+	if (outputReserve.gt(outputAmount))
 		denominator = outputReserve.sub(outputAmount).mul(BigNumber.from(995));
 	else denominator = outputReserve.mul(BigNumber.from(995));
 

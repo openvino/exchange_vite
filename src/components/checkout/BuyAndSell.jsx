@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import BeatLoader from "react-spinners/BeatLoader";
 import { client } from "../../config/thirdwebClient";
 import { defineChain } from "thirdweb/chains";
 import {
@@ -54,6 +55,14 @@ import {
 import axios from "axios";
 import { APIURL, ROUTER_ADDRESS, WETH_ADDRESS } from "../../config";
 import { getChain } from "../../utils/getChain";
+
+function formatPoolUsdAmount(amount) {
+  if (!amount) {
+    return "0.00";
+  }
+
+  return Number(ethers.utils.formatUnits(amount, 18)).toFixed(2);
+}
 
 export function Account({ $ready, $balanceWINES, setShowConnect }) {
   const account = useActiveAccount();
@@ -348,35 +357,47 @@ export default function BuyAndSell({
 
   const errorMessage = getValidationErrorMessage(validationError);
 
+  function renderInlineLoader() {
+    return (
+      <BeatLoader
+        color="#d68513"
+        loading={true}
+        cssOverride={{ display: "flex", flexDirection: "row" }}
+        size={10}
+        aria-label="Loading Spinner"
+        data-testid="inline-loader"
+      />
+    );
+  }
+
   function renderFormData() {
     let conditionalRender;
 
     if (buying && buyValidationState.inputValue) {
+      const buyUsdValue = dollarize(buyValidationState.inputValue);
       conditionalRender = (
         <>
-          <p>${amountFormatter(dollarize(state.validationState), 18, 2)}</p>
+          <p>${formatPoolUsdAmount(buyUsdValue)}</p>
         </>
       );
-    } else if (selling && state.validationState) {
+    } else if (selling && sellValidationState.outputValue) {
+      const sellUsdValue = dollarize(sellValidationState.outputValue);
       conditionalRender = (
         <>
-          <p>
-            $
-            {amountFormatter(dollarize(sellValidationState.outputValue), 18, 2)}
-          </p>
+          <p>${formatPoolUsdAmount(sellUsdValue)}</p>
         </>
       );
     } else if (crowdsaling && crowdsaleValidationState.inputValue) {
+      const crowdsaleUsdValue = dollarize(crowdsaleValidationState.inputValue);
       conditionalRender = (
-        <p>
-          $
-          {amountFormatter(
-            dollarize(crowdsaleValidationState.inputValue),
-            18,
-            2,
-          )}
-        </p>
+        <p>${formatPoolUsdAmount(crowdsaleUsdValue)}</p>
       );
+    } else if (quoteLoading && !poolDataReady) {
+      conditionalRender = renderInlineLoader();
+    } else if (buying && !buyQuoteReady) {
+      conditionalRender = renderInlineLoader();
+    } else if (selling && !sellQuoteReady) {
+      conditionalRender = renderInlineLoader();
     } else {
       conditionalRender = <p>$0.00</p>;
     }
@@ -398,15 +419,15 @@ export default function BuyAndSell({
 
   function renderSupplyData() {
     if (buying) {
-      return (
-        reserveWINESToken &&
-        `${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`
-      );
+      if (!reserveWINESToken || !tokenSupply) {
+        return renderInlineLoader();
+      }
+      return `${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`;
     } else if (selling) {
-      return (
-        reserveWINESToken &&
-        `${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`
-      );
+      if (!reserveWINESToken || !tokenSupply) {
+        return renderInlineLoader();
+      }
+      return `${amountFormatter(reserveWINESToken, 18, 0)}/${tokenSupply}`;
     } else if (crowdsaling && tokenSupply && tokenCap) {
       if (tokenCap - tokenSupply < 0) {
         return tokenSupply && tokenCap && `0/${tokenCap}`;
@@ -449,6 +470,16 @@ export default function BuyAndSell({
     params: [state.crowdsaleAddress],
   });
 
+  const quoteLoading = buying || selling;
+  const poolDataReady = Boolean(reserveWINESToken);
+  const buyQuoteReady = Boolean(buyValidationState.inputValue);
+  const sellQuoteReady = Boolean(sellValidationState.outputValue);
+  const crowdsaleDataReady = Boolean(tokenSupply && tokenCap && data);
+  const isCheckoutLoading =
+    (buying && (!poolDataReady || !tokenSupply || !buyQuoteReady)) ||
+    (selling && (!poolDataReady || !tokenSupply || !sellQuoteReady)) ||
+    (crowdsaling && !crowdsaleDataReady);
+
   //baseSepolia sepolia
   let wethAddress = WETH_ADDRESS;
 
@@ -476,6 +507,41 @@ export default function BuyAndSell({
           </ContentWrapper>
         </Wrapper>
       </>
+    );
+  }
+
+  if (isCheckoutLoading) {
+    return (
+      <Wrapper>
+        <Header>
+          <ConnectButton client={client} chain={defineChain(getChain())} />
+          <Account
+            $ready={ready}
+            dollarPrice={dollarPrice}
+            $balanceWINES={balanceWINES}
+            setShowConnect={setShowConnect}
+          />
+          <CloseIcon onClick={() => closeCheckout()} />
+        </Header>
+
+        <ContentWrapper
+          style={{
+            minHeight: "60vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <BeatLoader
+            color="#d68513"
+            loading={true}
+            cssOverride={{ display: "flex", flexDirection: "row" }}
+            size={20}
+            aria-label="Loading Spinner"
+            data-testid="checkout-loader"
+          />
+        </ContentWrapper>
+      </Wrapper>
     );
   }
 

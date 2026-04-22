@@ -85,11 +85,48 @@ export default function Main() {
   } = useProductDetails({ wineryId, productId });
 
   const { reserves, token0, token1 } = useReserves(pairMTBwETH);
+  const normalizedPairReserves = useMemo(() => {
+    const normalizedToken0 = token0?.toLowerCase();
+    const normalizedToken1 = token1?.toLowerCase();
+    const normalizedWeth = WETH_ADDRESS?.toLowerCase();
+    const normalizedTokenAddress = state?.tokenAddress?.toLowerCase();
 
-  const reserveWINESETH =
-    token0 === WETH_ADDRESS ? reserves.reserve0 : reserves.reserve1;
-  const reserveWINESToken =
-    token1 === state.tokenAddress ? reserves.reserve1 : reserves.reserve0;
+    if (
+      !normalizedToken0 ||
+      !normalizedToken1 ||
+      !normalizedTokenAddress ||
+      !reserves.reserve0 ||
+      !reserves.reserve1
+    ) {
+      return {
+        reserveWINESETH: null,
+        reserveWINESToken: null,
+        pairReservesReady: false,
+      };
+    }
+
+    const token0IsWeth = normalizedToken0 === normalizedWeth;
+    const token1IsWeth = normalizedToken1 === normalizedWeth;
+    const token0IsWine = normalizedToken0 === normalizedTokenAddress;
+    const token1IsWine = normalizedToken1 === normalizedTokenAddress;
+
+    if ((token0IsWeth && token1IsWine) || (token1IsWeth && token0IsWine)) {
+      return {
+        reserveWINESETH: token0IsWeth ? reserves.reserve0 : reserves.reserve1,
+        reserveWINESToken: token0IsWine ? reserves.reserve0 : reserves.reserve1,
+        pairReservesReady: true,
+      };
+    }
+
+    return {
+      reserveWINESETH: null,
+      reserveWINESToken: null,
+      pairReservesReady: false,
+    };
+  }, [reserves.reserve0, reserves.reserve1, state?.tokenAddress, token0, token1]);
+
+  const { reserveWINESETH, reserveWINESToken, pairReservesReady } =
+    normalizedPairReserves;
 
   const [showFarming, setShowFarming] = useState(false);
 
@@ -307,6 +344,8 @@ export default function Main() {
 
   // ONE BOTTLE PRICE
   const oneBottlePrice = oneBottleValidation?.inputValue;
+  const showResolvedPoolPrice =
+    pairReservesReady && oneBottlePrice && dollarize(oneBottlePrice).gt(0);
 
   return (
     <>
@@ -350,9 +389,7 @@ export default function Main() {
                 )}
                 {!isCrowdsale && !state?.pairNotInitialized && (
                   <CurrentPrice style={{ minHeight: "30px" }}>
-                    {oneBottlePrice &&
-                    state?.validationState &&
-                    state?.validationState > 0 ? (
+                    {showResolvedPoolPrice ? (
                       <>
                         {`$${amountFormatter(
                           dollarize(oneBottlePrice),
