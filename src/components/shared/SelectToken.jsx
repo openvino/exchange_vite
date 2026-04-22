@@ -20,15 +20,18 @@ export default function SelectToken({
   const [changeRate, setChangeRate] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const renderOptions = (selectedCurrency, i) => {
-    let renderPrefix = prefix * changeRate;
+    const numericPrefix = Number(prefix);
+    const numericChangeRate = Number(changeRate);
+    const safePrefix = Number.isFinite(numericPrefix) ? numericPrefix : 0;
+    const safeChangeRate = Number.isFinite(numericChangeRate)
+      ? numericChangeRate
+      : 1;
+    const renderPrefix = safePrefix * safeChangeRate;
     return (
       <p key={i} value={selectedCurrency}>
-    
-        {selectedCurrency === "ETH" ?   (renderPrefix.toFixed(6)+ " " + selectedCurrency) : 
-        renderPrefix.toFixed(2)+ " " + selectedCurrency
-        }
-
-     
+        {selectedCurrency === "ETH"
+          ? renderPrefix.toFixed(6) + " " + selectedCurrency
+          : renderPrefix.toFixed(2) + " " + selectedCurrency}
       </p>
     );
   };
