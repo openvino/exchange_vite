@@ -164,6 +164,7 @@ export const CheckoutFrame = styled.div`
 	right: 0;
 	width: 100%;
 	height: 100vh;
+	height: 100svh;
 	overflow-y: scroll;
 	z-index: 2;
 
@@ -183,6 +184,7 @@ export const CheckoutBackground = styled.div`
 	opacity: ${(props) => (props.$isVisible ? ".7" : "0")};
 	width: 100vw;
 	height: 100vh;
+	height: 100svh;
 	z-index: ${(props) => (props.$isVisible ? "1" : "-1")};
 	pointer-events: ${(props) => (props.$isVisible ? "all" : "none")};
 	background-color: #000;

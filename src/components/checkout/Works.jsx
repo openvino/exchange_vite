@@ -11,6 +11,7 @@ import { tokensInfo } from "../../entities";
 const WorksFrame = styled.div`
 	width: 100%;
 	min-height: 100vh;
+	min-height: 100svh;
 	padding: 16px 32px;
 	box-sizing: border-box;
 	font-size: 24px;
