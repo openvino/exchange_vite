@@ -379,9 +379,9 @@ export default function Main() {
               <>
                 {isCrowdsale && !loadingPrice && (
                   <CurrentPrice>
-                    {crowdsaleExchangeRateUSD ? (
+                    {crowdsaleExchangeRateETH ? (
                       <SelectToken
-                        prefix={amountFormatter(crowdsaleExchangeRateUSD, 18, 6)}
+                        prefix={amountFormatter(crowdsaleExchangeRateETH, 18, 6)}
                       />
                     ) : (
                       "$0.00"
