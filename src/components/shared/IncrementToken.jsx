@@ -10,7 +10,7 @@ const SelectFrame = styled.div`
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	align-self: flex-start;
+	align-self: center;
 	color: #fff;
 	padding: 16px 0;
 

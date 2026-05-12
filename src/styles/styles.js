@@ -234,6 +234,15 @@ export const TopFrame = styled.div`
 	padding-bottom: 16px;
 `;
 
+export const TokenRow = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 16px;
+	padding: 16px 0;
+`;
+
 export const Description = styled.div`
 	font-size: 1rem;
 	font-weight: 300;
@@ -258,8 +267,9 @@ export const InfoFrame = styled.div`
 `;
 
 export const ImgStyle = styled.img`
-	width: 33%;
-	padding: 2rem 0 2rem 0;
+	width: 100px;
+	height: auto;
+	flex-shrink: 0;
 	box-sizing: border-box;
 `;
 export const WineCount = styled.span`
@@ -287,6 +297,9 @@ export const CurrentPriceBuySell = styled.div`
 	font-size: 18px;
 	margin: 0px;
 	font-feature-settings: "tnum" on, "onum" on;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 `;
 
 export const CheckoutControls = styled.span`

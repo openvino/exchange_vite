@@ -140,6 +140,7 @@
 	},
 	"redeem": {
 		"try_again": "Intentar de novo",
+		"try-again": "Intentar de novo",
 		"address": "Ethereum Address",
 		"amount": "Quantidade",
 		"pay_now" : "Pagar agora",
@@ -557,5 +558,13 @@
 		"title": "Wineries",
 		"visit-winery": "Visit winery"
 	},
-"interest": "JUNTE-SE À OPENVINO"
+	"currencies": {
+		"ETH": "Ethereum",
+		"USDC": "Dólar Americano",
+		"ARS": "Peso Argentino",
+		"EURS": "Euro",
+		"BRL": "Real Brasileiro",
+		"CLP": "Peso Chileno",
+		"COP": "Peso Colombiano"
+	}
 }

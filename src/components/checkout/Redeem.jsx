@@ -27,13 +27,7 @@ import { BigNumber, ethers } from "ethers";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { getContract, prepareContractCall } from "thirdweb";
 import ERC20 from "../../contracts/erc20.json";
-import {
-  getRedeemTemplateSuccess,
-  getRedeemTemplateSuccessSpanish,
-  getRedeemTemplateWithErrors,
-  getRedeemTemplateWithErrorsSpanish,
-  getWineryEmail,
-} from "../../utils/emailTemplate";
+import { sendEmailMessage } from "../../utils/emailService";
 import { APIURL, DASHBOARD_URL } from "../../config";
 import { getChain } from "../../utils/getChain";
 import { clearBalanceCache } from "../../hooks";
@@ -83,6 +77,7 @@ export default function Redeem({
   const [loading, setLoading] = useState(false);
   const [redeem, setRedeem] = useState(0);
   const [shippingError, setShippingError] = useState(false);
+  const [pendingCosts, setPendingCosts] = useState({});
 
   const { t, i18n } = useTranslation();
 
@@ -124,69 +119,18 @@ export default function Redeem({
     }
   }, [transactionHash, hasBurnt, library, refreshBalances]);
 
-  const sendEmailMessage = async (email, type, txHash) => {
-    try {
-      const wineryOperation =
-        language === "es" ? "Redeem de Wine Tokens" : "Wine Tokens Redeem";
-
-      const wineryUser = userForm?.name || state.name || email || "";
-
-      let body = {
-        to: email,
-        subject: "",
-        wineryEmail: state.wineryEmail,
-        html: "",
-        transactionHash: txHash || burnTxHash,
-        wineryHtml: "",
-      };
-
-      if (type === "sucess") {
-        body.subject =
-          language === "es"
-            ? "Redimiste tus Wine tokens! 🍷"
-            : "Wine tokens redeemed - let’s plan your delivery 🍷";
-        body.html =
-          language === "es"
-            ? getRedeemTemplateSuccessSpanish(state.wineryRedeemEmail)
-            : getRedeemTemplateSuccess(state.wineryRedeemEmail);
-      }
-
-      if (type === "error") {
-        body.subject =
-          language === "es"
-            ? "Redimiste tus Wine tokens! - pago de envío pendiente ⚠️"
-            : "Wine tokens redeemed - shipping payment pending";
-        body.html =
-          language === "es"
-            ? getRedeemTemplateWithErrorsSpanish(
-                state.tokenName,
-                state.wineryId,
-                state.wineryRedeemEmail,
-              )
-            : getRedeemTemplateWithErrors(
-                state.tokenName,
-                state.wineryId,
-                state.wineryRedeemEmail,
-              );
-      }
-
-      body.wineryHtml = getWineryEmail(
-        wineryOperation,
-        wineryUser,
-        email,
-        txHash || burnTxHash,
-      );
-
-      const message = await axios.post(
-        `${"https://dondetopa.openvino.org"}/email/send`,
-        body,
-      );
-
-      return message;
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const handleSendEmail = (email, type, txHash) =>
+    sendEmailMessage({
+      email,
+      type,
+      txHash,
+      language,
+      wineryEmail: state.wineryEmail,
+      wineryRedeemEmail: state.wineryRedeemEmail,
+      wineryId: state.wineryId,
+      tokenName: state.tokenName,
+      userName: userForm?.name || state.name || email || "",
+    });
 
   const handlePaidShipping = async (redeemToUpdate) => {
     setLoading(true);
@@ -236,6 +180,21 @@ export default function Redeem({
     );
     setRedeem(filteredRedeems);
 
+    if (filteredRedeems?.length) {
+      const costs = {};
+      await Promise.all(
+        filteredRedeems.map(async (item) => {
+          try {
+            const res = await axios.get(
+              `${DASHBOARD_URL}/api/routes/shippingCostsRoute?token=${state.tokenName}&province_id=${item.province_id}&amount=${item.amount}`,
+            );
+            if (res.data) costs[item.burn_tx_hash] = BigNumber.from(res.data.cost * 100);
+          } catch {}
+        }),
+      );
+      setPendingCosts(costs);
+    }
+
     return filteredRedeems;
   };
   useEffect(() => {
@@ -257,59 +216,61 @@ export default function Redeem({
   function renderContent() {
     if (redeem.length >= 1 && !hasBurnt) {
       return (
-        <>
-          {" "}
-          <div>
-            <h2 style={{ padding: "10px", textAlign: "center" }}>
+        <TopFrame>
+          <Controls closeCheckout={closeCheckout} />
+          <ImgStyle
+            src={state.image}
+            alt="Logo"
+            hasPickedAmount={true}
+            style={{ maxWidth: "120px", padding: "1rem 0" }}
+          />
+          <InfoFrame style={{ flexDirection: "column", gap: "4px", alignItems: "flex-start" }}>
+            <p style={{ fontSize: "14px", color: "#aeaeae", margin: 0 }}>
               {t("redeem.paidRedeem")}
-            </h2>
+            </p>
+          </InfoFrame>
 
-            {redeem.map((item) => {
+          <PendingList>
+            {redeem.map((item, index) => {
+              const cost = pendingCosts[item.burn_tx_hash];
               return (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "20px",
-                      justifyContent: "center",
-                      marginTop: "1rem",
-                    }}
-                  >
-                    <p style={{ padding: "10px", textAlign: "center" }}>
-                      {`${t("redeem.token")} : ${item.year}`}{" "}
-                    </p>
-                    <p style={{ padding: "10px", textAlign: "center" }}>
-                      {`${t("redeem.amount")} : ${item.amount}`}{" "}
-                    </p>
-                    <button
-                      onClick={() => handlePaidShipping(item)}
-                      style={{
-                        backgroundColor: "#D5841B",
-                        padding: "10px",
-                        borderRadius: "10px",
-                        border: "none",
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Pagar ahora
-                    </button>
-                  </div>
-                </>
+                <PendingCard key={index}>
+                  <PendingCardInfo>
+                    <PendingCardLabel>{t("redeem.token")}</PendingCardLabel>
+                    <PendingCardValue>{item.year}</PendingCardValue>
+                  </PendingCardInfo>
+                  <PendingCardInfo>
+                    <PendingCardLabel>{t("redeem.amount")}</PendingCardLabel>
+                    <PendingCardValue>{item.amount}</PendingCardValue>
+                  </PendingCardInfo>
+                  {cost && (
+                    <PendingCardInfo>
+                      <PendingCardLabel>{t("redeem.transfer-shipping-costs")}</PendingCardLabel>
+                      <PendingCardValue>
+                        ${amountFormatter(cost, 2, 2)} USD ({amountFormatter(USDToEth(USDExchangeRateETH, cost), 18, 5)} ETH)
+                      </PendingCardValue>
+                    </PendingCardInfo>
+                  )}
+                  <ButtonFrame
+                    style={{ margin: "0", width: "100%" }}
+                    onClick={() => handlePaidShipping(item)}
+                    disabled={loading}
+                    pending={loading}
+                    text={loading ? t("wallet.waiting-confirmation") : t("redeem.pay_now")}
+                  />
+                </PendingCard>
               );
             })}
-          </div>
+          </PendingList>
+
           <ButtonFrame
-            style={{ backgroundColor: "#D5841B", border: "none" }}
+            style={{ backgroundColor: "transparent", border: "1px solid #444" }}
             onClick={() => setRedeem(0)}
             className="button"
             disabled={loading}
-            pending={loading}
-            text={
-              loading ? t("wallet.waiting-confirmation") : `${t("redeem.omit")}`
-            }
+            text={t("redeem.omit")}
           />
-        </>
+        </TopFrame>
       );
     } else if (new Date(state.redeemDate) > new Date()) {
       return (
@@ -559,6 +520,7 @@ export default function Redeem({
                         shippingPaid = true;
                         shippingTxHash = transfer.hash;
                         setTransactionHash(transfer.hash);
+                        setHasPaidShipping(true);
                       }
                     } catch (error) {
                       setShippingError(true);
@@ -567,6 +529,9 @@ export default function Redeem({
                         error,
                       );
                     }
+                  } else {
+                    shippingPaid = true;
+                    setHasPaidShipping(true);
                   }
 
                   let body = {
@@ -591,14 +556,14 @@ export default function Redeem({
                   await axios.post(`${state.apiUrl}/redeem`, body);
                   if (shippingPaid) {
                     console.log("enviando success");
-                    sendEmailMessage(
+                    handleSendEmail(
                       userForm.email,
                       "sucess",
                       response.transactionHash,
                     );
                   } else {
                     console.log("enviando error");
-                    sendEmailMessage(
+                    handleSendEmail(
                       userForm.email,
                       "error",
                       response.transactionHash,
@@ -644,7 +609,7 @@ export default function Redeem({
 
                       setHasPaidShipping(true);
                       refreshBalances();
-                      sendEmailMessage(userForm.email, "sucess", burnTxHash);
+                      handleSendEmail(userForm.email, "sucess", burnTxHash);
                     }
                   } catch (error) {
                     console.log(error);
@@ -964,4 +929,36 @@ const CircleIcon = styled(Circle)`
 const CheckCircleIcon = styled(CheckCircle)`
   height: 28px;
   width: 28px;
+`;
+const PendingList = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+`;
+const PendingCard = styled.div`
+  width: 100%;
+  background-color: #1e1f21;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+`;
+const PendingCardInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+const PendingCardLabel = styled.span`
+  font-size: 13px;
+  color: #aeaeae;
+  font-weight: 400;
+`;
+const PendingCardValue = styled.span`
+  font-size: 14px;
+  color: #efe7e4;
+  font-weight: 600;
 `;

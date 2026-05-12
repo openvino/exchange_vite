@@ -1,96 +1,179 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect, useRef, useState } from "react";
+import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import { currenciesNames } from "../../utils";
 import { fetchPrice } from "../../utils/fetchPrice";
-import {
-  DropControl,
-  DropdownContainer,
-  NoHeight,
-  Option,
-  SelectContainer,
-  SelectItem,
-  SelectMenu,
-  SelectWrapper,
-} from "../../styles";
 
-export default function SelectToken({
-  prefix, //eth value
-}) {
-  const [selectedCurrency, seSelectedCurrency] = useState(currenciesNames[0]);
+const CURRENCY_IMAGES = {
+  ETH: "/images/currencies_img/ethereum-eth-logo.png",
+  USDC: "/images/currencies_img/usd-coin-usdc-logo.png",
+  ARS: "/images/currencies_img/ars.svg",
+  EURS: "/images/currencies_img/eur.png",
+  BRL: "/images/currencies_img/brs.svg",
+  CLP: "/images/currencies_img/chl.svg",
+  COP: "/images/currencies_img/colom.svg",
+};
+
+export default function SelectToken({ prefix, defaultCurrency = "USDC" }) {
+  const { t } = useTranslation();
+  const [selectedCurrency, setSelectedCurrency] = useState(defaultCurrency);
   const [changeRate, setChangeRate] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
-  const renderOptions = (selectedCurrency, i) => {
-    const numericPrefix = Number(prefix);
-    const numericChangeRate = Number(changeRate);
-    const safePrefix = Number.isFinite(numericPrefix) ? numericPrefix : 0;
-    const safeChangeRate = Number.isFinite(numericChangeRate)
-      ? numericChangeRate
-      : 1;
-    const renderPrefix = safePrefix * safeChangeRate;
-    return (
-      <p key={i} value={selectedCurrency}>
-        {selectedCurrency === "ETH"
-          ? renderPrefix.toFixed(6) + " " + selectedCurrency
-          : renderPrefix.toFixed(2) + " " + selectedCurrency}
-      </p>
-    );
-  };
+  const containerRef = useRef(null);
 
-  const handleSelectMenuClick = (event) => {
-    event.preventDefault();
-  };
+  const numericPrefix = Number(prefix);
+  const safePrefix = Number.isFinite(numericPrefix) ? numericPrefix : 0;
+  const convertedValue = safePrefix * Number(changeRate);
+  const displayValue =
+    selectedCurrency === "ETH"
+      ? convertedValue.toFixed(6)
+      : convertedValue.toFixed(2);
 
   useEffect(() => {
     const fetchExchangeRate = async () => {
-      let toCurrency;
-      if (selectedCurrency === "USD") {
-        toCurrency = "DAI";
-      } else {
-        toCurrency = selectedCurrency;
-      }
-      const changeRate = await fetchPrice("ETH", toCurrency);
-      setChangeRate(changeRate);
+      const toCurrency = selectedCurrency === "USD" ? "DAI" : selectedCurrency;
+      const rate = await fetchPrice("ETH", toCurrency);
+      setChangeRate(rate);
     };
     fetchExchangeRate();
   }, [selectedCurrency]);
 
-  const handleOpenCurreciesChanger = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleSelectOption = (option) => {
-    seSelectedCurrency(option);
-    setIsOpen(false);
-  };
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <SelectContainer>
-      <SelectWrapper>
-        <SelectMenu
-      
-          onClick={handleSelectMenuClick}
-          className="dropdown"
-        >
-          {
-            renderOptions(selectedCurrency,  prefix)
-          }
-        </SelectMenu>
+    <Wrapper ref={containerRef}>
+      <Trigger onClick={() => setIsOpen((o) => !o)}>
+        <CurrencyLogo
+          src={CURRENCY_IMAGES[selectedCurrency]}
+          alt={selectedCurrency}
+        />
+        <AmountText>
+          {displayValue} {selectedCurrency}
+        </AmountText>
+        <Chevron $open={isOpen}>▾</Chevron>
+      </Trigger>
 
-        <NoHeight
-          onClick={handleOpenCurreciesChanger}
-          style={{ cursor: "pointer" }}
-        >
-          <DropControl alt="dropdown-arrow" />
-        </NoHeight>
-      </SelectWrapper>
-
-      <DropdownContainer $isOpen={isOpen}>
-        {currenciesNames.map((option, index) => (
-          <Option key={index} onClick={() => handleSelectOption(option)}>
-            {option}
-          </Option>
-        ))}
-      </DropdownContainer>
-    </SelectContainer>
+      {isOpen && (
+        <Dropdown>
+          {currenciesNames.map((currency) => (
+            <DropdownOption
+              key={currency}
+              $active={currency === selectedCurrency}
+              onClick={() => {
+                setSelectedCurrency(currency);
+                setIsOpen(false);
+              }}
+            >
+              <CurrencyLogo
+                src={CURRENCY_IMAGES[currency]}
+                alt={currency}
+              />
+              <OptionText>
+                <OptionCode>{currency}</OptionCode>
+                <OptionLabel>{t(`currencies.${currency}`)}</OptionLabel>
+              </OptionText>
+            </DropdownOption>
+          ))}
+        </Dropdown>
+      )}
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+`;
+
+const Trigger = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 100px;
+  padding: 6px 12px 6px 8px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const AmountText = styled.span`
+  white-space: nowrap;
+`;
+
+const Chevron = styled.span`
+  font-size: 12px;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+  transform: ${(p) => (p.$open ? "rotate(180deg)" : "rotate(0deg)")};
+`;
+
+const CurrencyLogo = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+const Dropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: #1e1f21;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+`;
+
+const DropdownOption = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: ${(p) =>
+    p.$active ? "rgba(213, 132, 27, 0.15)" : "transparent"};
+  border: 1px solid
+    ${(p) => (p.$active ? "rgba(213, 132, 27, 0.4)" : "transparent")};
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+`;
+
+const OptionText = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const OptionCode = styled.span`
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+`;
+
+const OptionLabel = styled.span`
+  color: #aeaeae;
+  font-size: 11px;
+`;

@@ -141,6 +141,7 @@
 	},
 	"redeem": {
 		"try_again": "Intentar de nuevo",
+		"try-again": "Intentar de nuevo",
 		"address": "Direcciónn Ethereum",
 		"pay_now": "Pagar ahora",
 		"amount": "Cantidad",
@@ -279,7 +280,7 @@
 		},
 		"country": "País",
 		"email": "Email",
-		"estimated-time": "Tiempo estimado de env?o 2-3 semanas. Tiempo de enví varí seg?n destino",
+		"estimated-time": "Tiempo estimado de envío 2-3 semanas. Tiempo de envío varía según destino",
 		"line1": "Calle",
 		"line2": "Apartamento o unidad",
 		"name": "Nombre",
@@ -558,6 +559,14 @@
 		"title": "Bodegas",
 		"visit-winery": "Visita la bodega"
 	},
-	"interest": "SÚMATE A OPENVINO",
-	"TEMP_NOT_AVAILABLE": "Temporalmente no disponible"
+	"TEMP_NOT_AVAILABLE": "Temporalmente no disponible",
+	"currencies": {
+		"ETH": "Ethereum",
+		"USDC": "Dólar Estadounidense",
+		"ARS": "Peso Argentino",
+		"EURS": "Euro",
+		"BRL": "Real Brasileño",
+		"CLP": "Peso Chileno",
+		"COP": "Peso Colombiano"
+	}
 }
