@@ -31,8 +31,8 @@ import {
   ImgStyle,
   InfoFrame,
   Status,
+  TokenRow,
   TopFrame,
-  USDPrice,
   WineCount,
   WineTitle,
   Wrapper,
@@ -45,13 +45,7 @@ import ERC20ABI from "../../contracts/erc20.json";
 import { ethers } from "ethers";
 import { saveOrder } from "../../utils/checkout-utils";
 import { formatUnits } from "ethers/lib/utils";
-import {
-  getBuyTemplate,
-  getBuyTemplateSpanish,
-  getSaleTemplate,
-  getSaleTemplateSpanish,
-  getWineryEmail,
-} from "../../utils/emailTemplate";
+import { sendEmailMessage } from "../../utils/emailService";
 import axios from "axios";
 import { APIURL, ROUTER_ADDRESS, WETH_ADDRESS } from "../../config";
 import { getChain } from "../../utils/getChain";
@@ -205,71 +199,18 @@ export default function BuyAndSell({
     }
   }
 
-  const sendEmailMessageApi = async (email, type, txHash) => {
-    try {
-      const wineryOperation =
-        type === "sale" ? "Venta de Wine Tokens" : "Compra de Wine Tokens";
-
-      const wineryUser = state.name || state.email || "";
-
-      let body = {
-        to: email,
-        subject: "",
-        wineryEmail: state.wineryEmail,
-        html: "",
-        transactionHash: txHash || currentTransactionHash,
-        wineryHtml: "",
-      };
-
-      switch (type) {
-        case "buy":
-          body.subject =
-            language === "es"
-              ? "Compra de Wine Tokens confirmada - Gracias! 🍷"
-              : "Wine tokens purchased - Thank you! 🍷";
-          body.html =
-            language === "es"
-              ? getBuyTemplateSpanish(
-                  state.tokenName,
-                  state.count,
-                  state.wineryId,
-                  state.wineryEmail,
-                )
-              : getBuyTemplate(
-                  state.tokenName,
-                  state.count,
-                  state.wineryId,
-                  state.wineryEmail,
-                );
-          break;
-        case "sale":
-          body.subject =
-            language === "es"
-              ? "Venta de Wine tokens completada ✅"
-              : "Wine tokens sale completed";
-          body.html =
-            language === "es"
-              ? getSaleTemplateSpanish(state.wineryEmail)
-              : getSaleTemplate(state.wineryEmail);
-          break;
-      }
-
-      body.wineryHtml = getWineryEmail(
-        wineryOperation,
-        wineryUser,
-        state.email,
-        txHash || currentTransactionHash,
-      );
-
-      await axios.post(
-        `${"https://dondetopa.openvino.org"}/email/send`,
-        body,
-        {},
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const handleSendEmail = (email, type, txHash) =>
+    sendEmailMessage({
+      email,
+      type,
+      txHash,
+      language,
+      wineryEmail: state.wineryEmail,
+      wineryId: state.wineryId,
+      tokenName: state.tokenName,
+      count: state.count,
+      userName: state.name || state.email || "",
+    });
 
   function link(hash) {
     return `https://basescascan.org/tx/${hash}`;
@@ -560,25 +501,30 @@ export default function BuyAndSell({
 
       <ContentWrapper>
         <TopFrame>
-          <ImgStyle src={state.image} alt="Viniswap" />
-          <InfoFrame $pending={pending.toString()}>
-            <CurrentPriceBuySell>
-              <Description>
-                {buying
-                  ? t("wallet.pay")
-                  : selling
-                    ? t("wallet.sell")
-                    : t("wallet.crowdsale")}
-              </Description>
-              <WineTitle>
-                {state.title} <b>{state.tokenName}</b>
-              </WineTitle>
-              <USDPrice>{renderFormData()}</USDPrice>
-              <WineCount>
-                <b>{t("wallet.available")}</b> {renderSupplyData()}
-              </WineCount>
-            </CurrentPriceBuySell>
-          </InfoFrame>
+          <TokenRow>
+            <ImgStyle src={state.image} alt="Viniswap" />
+            <InfoFrame $pending={pending.toString()}>
+              <CurrentPriceBuySell>
+                <Description>
+                  {buying
+                    ? t("wallet.pay")
+                    : selling
+                      ? t("wallet.sell")
+                      : t("wallet.crowdsale")}
+                </Description>
+                <WineTitle>
+                  {state.title} <b>{state.tokenName}</b>
+                </WineTitle>
+                <SelectToken
+                  prefix={TokenVal()}
+                  defaultCurrency="ETH"
+                />
+                <WineCount>
+                  <b>{t("wallet.available")}</b> {renderSupplyData()}
+                </WineCount>
+              </CurrentPriceBuySell>
+            </InfoFrame>
+          </TokenRow>
 
           {(!pending || !currentTransactionHash) && (
             <IncrementToken
@@ -615,13 +561,6 @@ export default function BuyAndSell({
             <EstimateGas />
             <CheckoutControls>
               <Form />
-              <SelectToken
-                isBuying={buying}
-                isSelling={selling}
-                selectedTokenSymbol={selectedTokenSymbol}
-                setSelectedTokenSymbol={setSelectedTokenSymbol}
-                prefix={TokenVal()}
-              />
             </CheckoutControls>
           </>
         )}
@@ -697,7 +636,7 @@ export default function BuyAndSell({
                   state.tokenName,
                 );
               }
-              await sendEmailMessageApi(
+              await handleSendEmail(
                 state.email,
                 "buy",
                 response.transactionHash,
@@ -738,7 +677,7 @@ export default function BuyAndSell({
                 );
                 setRefreshTrigger((prev) => prev + 1);
 
-                await sendEmailMessageApi(
+                await handleSendEmail(
                   state.email,
                   "sale",
                   response.transactionHash,
@@ -788,7 +727,7 @@ export default function BuyAndSell({
                   state.tokenName,
                 );
 
-                await sendEmailMessageApi(
+                await handleSendEmail(
                   state.email,
                   "buy",
                   response.transactionHash,

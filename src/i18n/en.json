@@ -140,6 +140,7 @@
 	},
 	"redeem": {
 		"try_again": "Try Again",
+		"try-again": "Try Again",
 		"address": "Ethereum Address",
 		"pay_now": "Pay Now",
 		"amount": "Amount",
@@ -556,5 +557,14 @@
 		"title": "Wineries",
 		"visit-winery": "Visit winery"
 	},
-	"TEMP_NOT_AVAILABLE": "Temporarily not available"
+	"TEMP_NOT_AVAILABLE": "Temporarily not available",
+	"currencies": {
+		"ETH": "Ethereum",
+		"USDC": "US Dollar",
+		"ARS": "Argentine Peso",
+		"EURS": "Euro",
+		"BRL": "Brazilian Real",
+		"CLP": "Chilean Peso",
+		"COP": "Colombian Peso"
+	}
 }

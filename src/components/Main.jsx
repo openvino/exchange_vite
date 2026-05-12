@@ -49,6 +49,7 @@ import useTradeValidators from "../hooks/useTradeValidators";
 import useTradingActions from "../hooks/useTradingActions";
 import { dollarize as dollarizeAmount } from "../features/trading/lib/formatters";
 import { getChain } from "../utils/getChain";
+import SelectToken from "./shared/SelectToken";
 
 export default function Main() {
   const chain = useMemo(() => getChain(), []);
@@ -378,25 +379,21 @@ export default function Main() {
               <>
                 {isCrowdsale && !loadingPrice && (
                   <CurrentPrice>
-                    {crowdsaleExchangeRateUSD
-                      ? `$${amountFormatter(
-                          crowdsaleExchangeRateUSD,
-                          18,
-                          2
-                        )} USDC`
-                      : "$0.00"}
+                    {crowdsaleExchangeRateUSD ? (
+                      <SelectToken
+                        prefix={amountFormatter(crowdsaleExchangeRateUSD, 18, 6)}
+                      />
+                    ) : (
+                      "$0.00"
+                    )}
                   </CurrentPrice>
                 )}
                 {!isCrowdsale && !state?.pairNotInitialized && (
                   <CurrentPrice style={{ minHeight: "30px" }}>
                     {showResolvedPoolPrice ? (
-                      <>
-                        {`$${amountFormatter(
-                          dollarize(oneBottlePrice),
-                          18,
-                          2
-                        )} USDC`}
-                      </>
+                      <SelectToken
+                        prefix={amountFormatter(oneBottlePrice, 18, 6)}
+                      />
                     ) : (
                       <BeatLoader
                         color="#d68513"
