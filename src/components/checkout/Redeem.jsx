@@ -322,7 +322,7 @@ export default function Redeem({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh",
+            height: "100svh",
             width: "100%",
           }}
         >
@@ -684,6 +684,7 @@ export default function Redeem({
 const TopFrame = styled.div`
   width: 100%;
   min-height: 100vh;
+  min-height: 100svh;
   background: #141414;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.4);
   border-radius: 8px;
@@ -819,6 +820,7 @@ const ImgStyle = styled.img`
     props.hasPickedAmount ? (props.hasBurnt ? "300px" : "120px") : "300px"};
   height: auto;
   max-height: calc(100vh - 250px);
+  max-height: calc(100svh - 250px);
   padding: ${(props) =>
     props.hasPickedAmount
       ? props.hasBurnt

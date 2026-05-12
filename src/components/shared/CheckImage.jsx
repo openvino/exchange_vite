@@ -39,6 +39,7 @@ const Image = styled.img`
     max-width: 50%;
     height: auto;
     max-height: calc(100vh - 250px);
+    max-height: calc(100svh - 250px);
     padding: 0px;
     box-sizing: border-box;
 `

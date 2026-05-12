@@ -326,7 +326,7 @@ export default function Main() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100vh",
+          height: "100svh",
         }}
       >
         <BeatLoader
