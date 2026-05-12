@@ -381,7 +381,7 @@ export default function Main() {
                   <CurrentPrice>
                     {crowdsaleExchangeRateETH ? (
                       <SelectToken
-                        prefix={amountFormatter(crowdsaleExchangeRateETH, 18, 6)}
+                        prefix={String(1 / Number(amountFormatter(crowdsaleExchangeRateETH, 18, 10)))}
                       />
                     ) : (
                       "$0.00"
