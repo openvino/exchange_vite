@@ -17,25 +17,37 @@ const CURRENCY_IMAGES = {
 export default function SelectToken({ prefix, defaultCurrency = "USDC" }) {
   const { t } = useTranslation();
   const [selectedCurrency, setSelectedCurrency] = useState(defaultCurrency);
-  const [changeRate, setChangeRate] = useState(1);
+  const [changeRate, setChangeRate] = useState(null);
+  const [isLoadingRate, setIsLoadingRate] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
   const numericPrefix = Number(prefix);
   const safePrefix = Number.isFinite(numericPrefix) ? numericPrefix : 0;
-  const convertedValue = safePrefix * Number(changeRate);
+  const convertedValue = safePrefix * Number(changeRate ?? 0);
   const displayValue =
     selectedCurrency === "ETH"
       ? convertedValue.toFixed(6)
       : convertedValue.toFixed(2);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchExchangeRate = async () => {
-      const toCurrency = selectedCurrency === "USD" ? "DAI" : selectedCurrency;
+      setIsLoadingRate(true);
+      const toCurrency =
+        selectedCurrency === "USD"
+          ? "DAI"
+          : selectedCurrency === "EURS"
+          ? "EUR"
+          : selectedCurrency;
       const rate = await fetchPrice("ETH", toCurrency);
-      setChangeRate(rate);
+      if (!cancelled) {
+        setChangeRate(rate);
+        setIsLoadingRate(false);
+      }
     };
     fetchExchangeRate();
+    return () => { cancelled = true; };
   }, [selectedCurrency]);
 
   useEffect(() => {
@@ -56,7 +68,11 @@ export default function SelectToken({ prefix, defaultCurrency = "USDC" }) {
           alt={selectedCurrency}
         />
         <AmountText>
-          {displayValue} {selectedCurrency}
+          {isLoadingRate ? (
+            <SpinnerDot />
+          ) : (
+            `${displayValue} ${selectedCurrency}`
+          )}
         </AmountText>
         <Chevron $open={isOpen}>▾</Chevron>
       </Trigger>
@@ -176,4 +192,19 @@ const OptionCode = styled.span`
 const OptionLabel = styled.span`
   color: #aeaeae;
   font-size: 11px;
+`;
+
+const SpinnerDot = styled.span`
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 `;
