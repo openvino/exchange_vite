@@ -34,6 +34,22 @@ const Desc = styled.p`
 	font-size: 14px;
 	margin-top: 1rem !important;
 	font-weight: 500;
+
+	a {
+		color: white;
+		text-decoration: underline;
+	}
+`;
+
+const DbDesc = styled.div`
+	font-size: 14px;
+	font-weight: 500;
+	margin-top: 1rem;
+
+	a {
+		color: white;
+		text-decoration: underline;
+	}
 `;
 
 export const EtherscanLink = styled.a`
@@ -46,11 +62,20 @@ export const EtherscanLink = styled.a`
 
 export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 	const [state] = useAppContext();
-	const { fullDescription, wineryUrl, redeemDate } = tokensInfo[tokenName];
+	const tokenData = tokensInfo[tokenName];
+	const { t, i18n } = useTranslation();
 
-	const { t } = useTranslation();
+	const dbDescription = (() => {
+		if (!state.tokenDescription) return null;
+		try {
+			const parsed = JSON.parse(state.tokenDescription);
+			return parsed[i18n.language] || parsed['es'] || null;
+		} catch {
+			return state.tokenDescription.replace(/\n/g, '<br>');
+		}
+	})();
 
-	// useEffect(() => {}, [state]);
+	const redeemDate = state.redeemDate || tokenData?.redeemDate;
 
 	return (
 		<WorksFrame>
@@ -58,63 +83,70 @@ export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 
 			<Title>{t("info.1")}</Title>
 
-			<Desc>
-				<Trans
-					i18nKey="info.2"
-					values={{
-						token: state.tokenName,
-						year: state.tokenYear,
-						description: fullDescription,
-					}}
-					components={[
-						<a
-							href={wineryUrl}
-							style={{ color: "white", "text-decoration": "underline" }}
-							key={state.tokenName + "info.2"}
-							target="_blank"
-						>
-							{state.wineryId}
-						</a>,
-					]}
-				/>
-			</Desc>
-
-			<Desc>
-				<Trans
-					i18nKey="info.3"
-					components={[
-						<a
-							href="https://www.youtube.com/watch?v=7ZYISUzJBMo&feature=youtu.be"
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{ color: "white", "text-decoration": "underline" }}
-							key={state.tokenName + "info.3"}
-						>
-							{" "}
-							here{" "}
-						</a>,
-						<a
-							href="https://www.youtube.com/watch?v=GvhYdOVTmlM&feature=youtu.be"
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{ color: "white", "text-decoration": "underline" }}
-							key={state.tokenName + "info.3.2"}
-						>
-							{" "}
-							Openvino{" "}
-						</a>,
-					]}
-				/>
-			</Desc>
-			<Desc>
-				<Trans
-					i18nKey="info.4"
-					values={{
-						date: redeemDate,
-						token: state.tokenName,
-					}}
-				/>
-			</Desc>
+			{dbDescription ? (
+				<DbDesc dangerouslySetInnerHTML={{ __html: dbDescription }} />
+			) : (
+				<>
+					{tokenData && (
+						<Desc>
+							<Trans
+								i18nKey="info.2"
+								values={{
+									token: state.tokenName,
+									year: state.tokenYear,
+									description: tokenData.fullDescription,
+								}}
+								components={[
+									<a
+										href={tokenData.wineryUrl}
+										style={{ color: "white", "text-decoration": "underline" }}
+										key={state.tokenName + "info.2"}
+										target="_blank"
+									>
+										{state.wineryId}
+									</a>,
+								]}
+							/>
+						</Desc>
+					)}
+					<Desc>
+						<Trans
+							i18nKey="info.3"
+							components={[
+								<a
+									href="https://www.youtube.com/watch?v=7ZYISUzJBMo&feature=youtu.be"
+									target="_blank"
+									rel="noopener noreferrer"
+									style={{ color: "white", "text-decoration": "underline" }}
+									key={state.tokenName + "info.3"}
+								>
+									{" "}
+									here{" "}
+								</a>,
+								<a
+									href="https://www.youtube.com/watch?v=GvhYdOVTmlM&feature=youtu.be"
+									target="_blank"
+									rel="noopener noreferrer"
+									style={{ color: "white", "text-decoration": "underline" }}
+									key={state.tokenName + "info.3.2"}
+								>
+									{" "}
+									Openvino{" "}
+								</a>,
+							]}
+						/>
+					</Desc>
+					<Desc>
+						<Trans
+							i18nKey="info.4"
+							values={{
+								date: redeemDate,
+								token: state.tokenName,
+							}}
+						/>
+					</Desc>
+				</>
+			)}
 			<Title>{t("info.5")}</Title>
 			<Desc>
 				<Trans

@@ -26,6 +26,7 @@ const initialState = {
   bottlePrice : 0,
   wineryEmail: '',
   wineryRedeemEmail:'',
+  tokenDescription: '',
 }
 
 

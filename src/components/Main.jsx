@@ -262,6 +262,7 @@ export default function Main() {
         wineryEmail: winery.email || "",
         wineryRedeemEmail: winery.email_redeem,
         redeemDate: product.redeem_date,
+        tokenDescription: product.description || "",
         pairNotInitialized: pairAddress ? false : true,
       }));
     }
