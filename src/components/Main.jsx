@@ -40,7 +40,8 @@ import Sensors from "./Sensors/Sensors";
 import { useAllBalances } from "../hooks";
 import { useContracts } from "../hooks";
 import useProductDetails from "../hooks/useProductDetails";
-import { APIURL, DEV_MODE, WETH_ADDRESS } from "../config";
+import { APIURL, DEV_MODE, WETH_ADDRESS, DASHBOARD_URL } from "../config";
+import axios from "axios";
 import useUsdPricing from "../hooks/useUsdPricing";
 import useCrowdsaleInfo from "../hooks/useCrowdsaleInfo";
 import useTradingReady from "../hooks/useTradingReady";
@@ -269,6 +270,17 @@ export default function Main() {
   }, [product, winery, images, pairAddress]);
 
   useEffect(() => {
+    axios
+      .get(`${DASHBOARD_URL}/api/routes/platformSettingsRoute`)
+      .then(({ data }) => {
+        if (data?.common_description) {
+          setState((s) => ({ ...s, commonDescription: data.common_description }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (state?.pairNotInitialized) {
       setShowLoadingTimed(true);
       const timer = setTimeout(() => {
@@ -320,7 +332,7 @@ export default function Main() {
   const [showWorks, setShowWorks] = useState(false);
 
   const { t } = useTranslation();
-  if (!state.tokenName && loadingPrice)
+  if (isFetchingProduct || (!state.tokenName && loadingPrice))
     return (
       <div
         style={{

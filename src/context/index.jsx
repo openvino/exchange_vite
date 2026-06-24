@@ -27,6 +27,7 @@ const initialState = {
   wineryEmail: '',
   wineryRedeemEmail:'',
   tokenDescription: '',
+  commonDescription: '',
 }
 
 

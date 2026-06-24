@@ -24,9 +24,8 @@ const WorksFrame = styled.div`
 `;
 const Title = styled.p`
 	margin-top: 1rem !important;
-
-	font-weight: 600;
-	font-size: 16px;
+	font-weight: 700;
+	font-size: 20px;
 `;
 
 const Desc = styled.p`
@@ -44,11 +43,31 @@ const Desc = styled.p`
 const DbDesc = styled.div`
 	font-size: 14px;
 	font-weight: 500;
+	line-height: 150%;
 	margin-top: 1rem;
+
+	p {
+		margin-top: 1rem !important;
+	}
+
+	p:first-child {
+		margin-top: 0 !important;
+	}
+
+	p strong {
+		font-weight: 700;
+		font-size: 18px;
+	}
 
 	a {
 		color: white;
 		text-decoration: underline;
+	}
+
+	ul {
+		list-style: disc;
+		padding-left: 1.25em;
+		margin-top: 1rem;
 	}
 `;
 
@@ -72,6 +91,18 @@ export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 			return parsed[i18n.language] || parsed['es'] || null;
 		} catch {
 			return state.tokenDescription.replace(/\n/g, '<br>');
+		}
+	})();
+
+	const commonDescription = (() => {
+		if (!state.commonDescription) return null;
+		try {
+			const parsed = typeof state.commonDescription === 'string'
+				? JSON.parse(state.commonDescription)
+				: state.commonDescription;
+			return parsed[i18n.language] || parsed['es'] || null;
+		} catch {
+			return null;
 		}
 	})();
 
@@ -147,68 +178,9 @@ export default function Works({ tokenSupply, closeCheckout, tokenName }) {
 					</Desc>
 				</>
 			)}
-			<Title>{t("info.5")}</Title>
-			<Desc>
-				<Trans
-					i18nKey="info.6"
-					components={[
-						<a
-							href="https://www.youtube.com/watch?v=PeXzm1L_Jyc&list=PLC67Nqxq04sy5cMoySL26NB91kH__DT8W&index=6&t=5s"
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{ color: "white", "text-decoration": "underline" }}
-							key={state.tokenName + "info.6"}
-						>
-							{" "}
-							like a fine wine!
-						</a>,
-					]}
-				/>
-			</Desc>
-			<Desc>
-				{/* <a
-					href="https://docs.uniswap.io/"
-					target="_blank"
-					rel="noopener noreferrer"
-					style={{ color: "white", "text-decoration": "underline" }}
-					key={state.tokenName + "info.7"}
-				>
-					{t("info.7")}
-				</a> */}
-			</Desc>
-			<Desc>
-				<a
-					href="http://wiki.costaflores.com/"
-					target="_blank"
-					rel="noopener noreferrer"
-					style={{ color: "white", "text-decoration": "underline" }}
-					key={state.tokenName + "info.8"}
-				>
-					{t("info.8")}
-				</a>
-			</Desc>
-			<Desc>
-				<a
-					href="https://t.me/joinchat/G5ohPEYvPAIvt48N1yrCRQ"
-					target="_blank"
-					rel="noopener noreferrer"
-					style={{ color: "white", "text-decoration": "underline" }}
-					key={state.tokenName + "info.9"}
-				>
-					{t("info.9")}
-				</a>
-			</Desc>
-			<Desc>
-				<a
-					href="mailto:info@costaflores.com"
-					target="_blank"
-					rel="noopener noreferrer"
-					style={{ color: "white", "text-decoration": "underline" }}
-					key={state.tokenName + "info.10"}
-				>
-					{t("info.10")}
-				</a>
-			</Desc>
+			{commonDescription && (
+				<DbDesc dangerouslySetInnerHTML={{ __html: commonDescription }} />
+			)}
 		</WorksFrame>
 	);
 }
